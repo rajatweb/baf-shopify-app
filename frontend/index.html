@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/app-logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preload" href="/app-logo.svg" as="image" />
+    <link rel="preconnect" href="https://cdn.shopify.com" />
+    <link rel="dns-prefetch" href="https://cdn.shopify.com" />
+    <link rel="preload" href="/fonts/critical.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <style>
+      /* Critical CSS for text rendering */
+      .Polaris-Text {
+        font-display: swap;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+      }
+    </style>
+    <title>Webexp Music Player</title>
+    <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js?apiKey=%SHOPIFY_API_KEY%"></script>
+  </head>
+  <body>
+    <div id="shopify-app"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,39 @@
+{% comment %}
+  Music Player Extension Block
+  This block creates a music player that can be embedded in Shopify themes
+{% endcomment %}
+
+{% schema %}
+{
+  "name": "Music Player",
+  "target": "body",
+  "settings": [
+  ]
+}
+{% endschema %}
+
+<!-- Include Music Player CSS -->
+{{ 'music-player.css' | asset_url | stylesheet_tag }}
+<!-- Marquee3k library removed - using CSS-only marquee -->
+
+<!-- Preload app proxy endpoint for faster loading -->
+<script>
+  (function() {
+    const timestamp = Date.now();
+    const preloadLink = document.createElement('link');
+    preloadLink.rel = 'preload';
+    preloadLink.href = `/apps/web-exp-music-app-001/music-player/settings?shop={{ shop.permanent_domain }}&t=${timestamp}`;
+    preloadLink.as = 'fetch';
+    document.head.appendChild(preloadLink);
+  })();
+</script>
+
+<!-- Set shop domain for JavaScript -->
+<script>
+  window.shopDomain = '{{ shop.permanent_domain }}';
+</script>
+
+<!-- Load Music Player JavaScript -->
+<script src="{{ 'music-player.js' | asset_url }}" defer></script>
+<script src="{{ 'music-player-extended.js' | asset_url }}" defer></script>
+<script src="{{ 'music-player-events.js' | asset_url }}" defer></script>

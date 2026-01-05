@@ -1,0 +1,14 @@
+services:
+  app:
+    build: .
+    ports:
+      - "${PORT}:${PORT}"  # HTTP API
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    networks:
+      - productify-group-network
+    env_file:
+      - .env  # Dynamically loads stage or production env
+
+networks:
+  productify-group-network:
