@@ -17,8 +17,6 @@ import webhookHandler from "./webhooks/_index";
 import proxyRouter from "./routes/app_proxy";
 import subscriptionsRoutes from "./routes/subscriptions";
 import shopRoutes from "./routes/shop";
-import featureRequestsRoutes from "./routes/feature-requests";
-import musicPlayerRoutes from "./routes/music-player";
 import storeRoutes from "./routes/store";
 
 // Controllers
@@ -59,8 +57,6 @@ const startServer = async (server: any) => {
   app.use("/api/subscriptions", verifyRequest, subscriptionsRoutes);
   app.use("/api/shop", verifyRequest, shopRoutes);
   app.use("/api/store", verifyRequest, storeRoutes);
-  app.use("/api/feature-requests", verifyRequest, featureRequestsRoutes);
-  app.use("/api/music-player", verifyRequest, musicPlayerRoutes);
 
   app.use(csp);
   app.use(initLoad);
@@ -72,8 +68,6 @@ const startServer = async (server: any) => {
       const { body } = req;
       const { topic } = req.params;
       const shop = req.body.shop_domain;
-
-      console.warn(`--> GDPR request for ${shop} / ${topic} recieved.`);
 
       let response;
       switch (topic) {

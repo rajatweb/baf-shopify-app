@@ -1,8 +1,0 @@
-model Session {
-  id      String @id
-  shop    String
-  content String
-  isOnline Boolean @default(false)
-
-  @@index([shop])
-}

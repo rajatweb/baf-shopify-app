@@ -4,7 +4,6 @@ import clientProvider from "../utils/clientProvider";
 
 const storeRoutes = Router();
 
-
 storeRoutes.post("/settings", async (req: Request, res: Response) => {
   try {
     const { shop } = res.locals.user_session;
@@ -125,25 +124,17 @@ storeRoutes.get("/theme/status", async (req: Request, res: Response) => {
 
     const settingsData = await settingsResponse.json();
     const settingsJson = JSON.parse(settingsData.asset.value);
-    const SHOPIFY_MUSIC_PLAYER_EXTENSION_ID = process.env.APP_HANDLE;
 
     let isThemeExtensionDisabled = true;
 
     Object.values(settingsJson.current.blocks || {}).forEach((block: any) => {
-      console.log('block.type', block.type);
-      console.log('SHOPIFY_MUSIC_PLAYER_EXTENSION_ID', SHOPIFY_MUSIC_PLAYER_EXTENSION_ID);
-      
-      // Check if block type contains the music player extension
-      // The block type format is: shopify://apps/{app-handle}/blocks/music_player/{id}
-      const isMusicPlayerBlock = block.type.includes('/blocks/music_player/') || 
-                                 block.type.includes('music_player') ||
-                                 block.type.includes(SHOPIFY_MUSIC_PLAYER_EXTENSION_ID);
-      
-      console.log('isMusicPlayerBlock', isMusicPlayerBlock);
-      
+      const isMusicPlayerBlock =
+        block.type.includes("blocks/baf-app-widget") ||
+        block.type.includes("baf-app-widget") ||
+        block.type.includes(process.env.APP_HANDLE);
+
       if (isMusicPlayerBlock) {
         isThemeExtensionDisabled = block.disabled;
-        console.log('Found music player block, disabled:', block.disabled);
       }
     });
 
@@ -155,11 +146,17 @@ storeRoutes.get("/theme/status", async (req: Request, res: Response) => {
       isThemeExtensionDisabled,
     });
   } catch (error) {
-    console.error("Error checking theme status:", error);
-    res.status(500).json({
-      success: false,
-      error: "Failed to check theme status",
-    });
+    if (error instanceof Error) {
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: "Failed to check theme status",
+      });
+    }
   }
 });
 

@@ -6,18 +6,18 @@
  *
  */
 
+import { saveDefaultSettings } from "../services/defaultStoreSettings";
 import prisma from "./prisma";
+import { OnlineAccessUser } from "@shopify/shopify-api/dist/ts/lib/auth/oauth/types";
 
-const freshInstall = async (
-  {
-    shop,
-    userData,
-  }: {
-    shop: string;
-    accessToken: string;
-    userData: any;
-  },
-) => {
+const freshInstall = async ({
+  shop,
+  userData,
+}: {
+  shop: string;
+  accessToken: string;
+  userData: OnlineAccessUser;
+}) => {
   await prisma.store.upsert({
     where: {
       shop: shop,
@@ -25,74 +25,30 @@ const freshInstall = async (
     update: {
       isActive: true,
       shop: shop,
-      musicPlayerSettings: {
-        // General Settings
-        displayMode: 'mini-bar',
-        colorScheme: 'light',
-        roundedCorners: true,
-        
-        // Floating Button Settings
-        buttonSize: 60,
-        buttonPosition: 'bottom-right',
-        
-        // Player Appearance
-        showAlbumArt: true,
-        showTrackInfo: true,
-        playerOpacity: 100,
-        
-        // Audio Settings
-        autoplay: false,
-        loop: false,
-        shuffle: false,
-        showMiniPlayer: true,
-        
-        // Playlist Settings
-        showTrackDuration: true,
-        showArtistName: true,
-        
-        // Legacy settings for backward compatibility
-        playerTheme: "light",
-        playerPosition: "bottom",
-        persistentPlayback: true,
-      },
     },
     create: {
       isActive: true,
       shop: shop,
-      musicPlayerSettings: {
-        // General Settings
-        displayMode: 'mini-bar',
-        colorScheme: 'light',
-        roundedCorners: true,
-        
-        // Floating Button Settings
-        buttonSize: 60,
-        buttonPosition: 'bottom-right',
-        
-        // Player Appearance
-        showAlbumArt: true,
-        showTrackInfo: true,
-        playerOpacity: 100,
-        
-        // Audio Settings
-        autoplay: false,
-        loop: false,
-        shuffle: false,
-        defaultVolume: 50,
-        showMiniPlayer: true,
-        
-        // Playlist Settings
-        maxVisibleTracks: 5,
-        showTrackDuration: true,
-        showArtistName: true,
-        
-        // Legacy settings for backward compatibility
-        playerTheme: "light",
-        playerPosition: "bottom",
-        persistentPlayback: true,
-      },
     },
   });
+
+  // await prisma.storeActivityLogs.create({
+  //   data: {
+  //     shop: shop,
+  //     userId: userData?.id ?? null,
+  //     firstName: userData?.first_name ?? "",
+  //     lastName: userData?.last_name ?? "",
+  //     email: userData?.email ?? "",
+  //     emailVerified: userData?.email_verified ?? false,
+  //     accountOwner: userData?.account_owner ?? false,
+  //     locale: userData?.locale ?? "en",
+  //     activityType: "fresh_install",
+  //     collaborator: userData?.collaborator ?? false,
+  //     // createdAt will be set by default in Prisma schema
+  //   },
+  // });
+
+  await saveDefaultSettings(shop);
 };
 
 export default freshInstall;

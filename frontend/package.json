@@ -11,6 +11,7 @@
     "@reduxjs/toolkit": "^2.6.1",
     "@shopify/app-bridge-react": "^4.1.7",
     "@shopify/polaris": "^13.9.3",
+    "@shopify/polaris-types": "^1.0.1",
     "deep-equal": "^2.2.3",
     "lucide-react": "^0.479.0",
     "music-metadata": "^11.8.3",

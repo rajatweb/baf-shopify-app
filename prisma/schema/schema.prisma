@@ -16,100 +16,44 @@ model Store {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Music player settings
-  musicPlayerSettings Json? // Player customization settings
-
-  // Relationships
-  playlists    Playlist[]
-  tracks       Track[]
-  subscription Subscription?
+  settings  StoreSettings? // One-to-one relationship with StoreSettings
+  activityLogs StoreActivityLogs[] // One-to-many relationship with StoreActivityLogs
 }
 
-// Subscription model - tracks the store's current subscription
-model Subscription {
-  id                String   @id @default(cuid())
-  shopId            String   @unique // One subscription per store
-  shop              Store    @relation(fields: [shopId], references: [shop], onDelete: Cascade)
-  
-  // Subscription details
-  subscriptionId    String?  // Shopify subscription ID
-  planName          String   @default("Free Plan") // "Free Plan" or "Pro Plan"
-  status            String   @default("INACTIVE") // "ACTIVE", "INACTIVE", "CANCELLED", etc.
-  trialDays         Int?     // Trial period in days
-  trialEndsAt       DateTime? // When trial ends
-  
-  // Plan limits (cached for performance)
-  maxPlaylists      Int      @default(1)
-  maxTracksPerPlaylist Int   @default(2)
-  maxTotalTracks    Int      @default(2)
-  persistentPlayback Boolean @default(false)
-  fullCustomization Boolean  @default(false)
-  homepageOnly      Boolean  @default(true)
-  
-  // Metadata
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
-  @@index([shopId])
+model Session {
+  id      String @id
+  shop    String
+  content String
+  isOnline Boolean @default(false)
+  @@index([shop])
 }
 
-// Playlist model - represents a music playlist
-model Playlist {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  isActive    Boolean  @default(true)
-  isSelected  Boolean  @default(false) // Only one playlist can be selected per store
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relationships
-  storeId String
-  store   Store @relation(fields: [storeId], references: [shop], onDelete: Cascade)
-  tracks  PlaylistTrack[]
-
-  @@index([storeId])
-}
-
-// Track model - represents a music track
-model Track {
-  id        String   @id @default(cuid())
-  title     String
-  artist    String
-  albumArt  String?  // Shopify CDN URL to album art image
-  audioUrl  String   // Shopify CDN URL to audio file
-  duration  Int?     // Duration in seconds
-  fileSize  Int?     // File size in bytes
-  isActive  Boolean  @default(true)
+model StoreSettings {
+  shop    String @id @unique // Foreign key referencing Store.shop
+  content String
+  store   Store  @relation(fields: [shop], references: [shop], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Shopify file references
-  albumArtFileId String? // Shopify file ID for album art
-  audioFileId    String? // Shopify file ID for audio file
-
-  // Relationships
-  storeId       String
-  store         Store @relation(fields: [storeId], references: [shop], onDelete: Cascade)
-  playlistTracks PlaylistTrack[]
-
-  @@index([storeId])
 }
 
-// PlaylistTrack model - junction table for playlist-track relationships
-model PlaylistTrack {
-  id        String   @id @default(cuid())
-  order     Int      // Track order in playlist
-  createdAt DateTime @default(now())
-
-  // Relationships
-  playlistId String
-  playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
-  trackId    String
-  track      Track    @relation(fields: [trackId], references: [id], onDelete: Cascade)
-
-  @@unique([playlistId, trackId])
-  @@index([playlistId])
-  @@index([trackId])
+model StoreActivityLogs {
+  id            Int      @id @default(autoincrement()) // Unique auto-incrementing ID
+  shop          String   // Foreign key referencing Store.shop
+  userId        Int      // The user's ID from OnlineAccessUser
+  firstName     String   @map("first_name") // The user's first name
+  lastName      String   @map("last_name") // The user's last name
+  email         String   // The user's email address
+  emailVerified Boolean  @map("email_verified") @default(false) // Whether the user has verified their email
+  accountOwner  Boolean  @map("account_owner") @default(false) // Whether the user is the account owner
+  locale        String   // The user's locale
+  activityType  String
+  collaborator  Boolean  @default(false) // Whether the user is a collaborator
+  createdAt     DateTime @default(now()) // When the activity was logged
+  store         Store    @relation(fields: [shop], references: [shop], onDelete: Cascade)
+  
+  @@index([shop])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("store_activity_logs")
 }
+
