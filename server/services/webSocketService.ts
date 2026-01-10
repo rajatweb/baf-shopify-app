@@ -1,4 +1,6 @@
 import { Server as WebSocketServer, WebSocket } from "ws";
+import { createServer, IncomingMessage } from "http";
+import express from "express";
 import { MessageTypes, MessageTemplates } from "../../shared/types/socket";
 
 class WebSocketService {
@@ -15,6 +17,8 @@ class WebSocketService {
 
     this.wss.on("connection", (ws: WebSocket, request: any) => {
       try {
+        console.log("New WebSocket connection request:", request.url);
+
         // Extract shop from query parameters with better error handling
         const url = new URL(
           request.url,
@@ -29,6 +33,8 @@ class WebSocketService {
 
         // Store the connection
         this.clients.set(shop, ws);
+        console.log(`Client connected and stored for shop: ${shop}`);
+        console.log("Current clients:", Array.from(this.clients.keys()));
 
         ws.on("message", (message: string) => {
           console.log(`Received message from ${shop}:`, message.toString());

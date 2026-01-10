@@ -57,7 +57,6 @@ const startServer = async (server: any) => {
   app.use("/api/subscriptions", verifyRequest, subscriptionsRoutes);
   app.use("/api/shop", verifyRequest, shopRoutes);
   app.use("/api/store", verifyRequest, storeRoutes);
-
   app.use(csp);
   app.use(initLoad);
 
@@ -68,6 +67,8 @@ const startServer = async (server: any) => {
       const { body } = req;
       const { topic } = req.params;
       const shop = req.body.shop_domain;
+
+      console.warn(`--> GDPR request for ${shop} / ${topic} recieved.`);
 
       let response;
       switch (topic) {

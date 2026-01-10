@@ -15,8 +15,7 @@ const freshInstall = async ({
   userData,
 }: {
   shop: string;
-  accessToken: string;
-  userData: OnlineAccessUser;
+  userData?: OnlineAccessUser;
 }) => {
   await prisma.store.upsert({
     where: {

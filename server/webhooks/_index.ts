@@ -11,6 +11,11 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
   const apiVersion = req.headers["x-shopify-api-version"] || "";
   const webhookId = req.headers["x-shopify-webhook-id"] || "";
 
+  console.log("topic", topic);
+  console.log("shop", shop);
+  console.log("apiVersion", apiVersion);
+  console.log("webhookId", webhookId);
+
   try {
     const validateWebhook = await shopify.webhooks.validate({
       rawBody: req.body,
