@@ -1,3 +1,4 @@
+import { updateAppDashboard } from "../services/indusenigma";
 import { decryptData } from "../utils/encryption";
 import prisma from "../utils/prisma";
 
@@ -41,6 +42,19 @@ const appUninstallHandler = async (
 
     const sessionContent = decryptData(session?.content || "");
     const userEmail = sessionContent?.onlineAccessInfo?.associated_user?.email;
+
+    console.log("================>>>>", "Updating app dashboard");
+
+    await updateAppDashboard({
+      install: false,
+      email: userEmail || "",
+      storeName: "",
+      storeUrl: shop,
+      shop: shop,
+      action: "uninstall",
+    });
+
+    console.log("================>>>>", "App uninstalled successfully");
   } catch (error) {
     console.error("Error handling app uninstall:", error);
     throw new Error(`Failed to process app uninstall for shop: ${shop}`);

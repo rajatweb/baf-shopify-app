@@ -19,6 +19,7 @@ export const subscriptionsApi = createApi({
         planPrice: number;
         planName: string;
         planInterval: "EVERY_30_DAYS" | "ANNUAL";
+        trialDays?: number;
       }
     >({
       query: (body) => ({

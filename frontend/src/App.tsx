@@ -16,7 +16,6 @@ function App() {
       <AppBridgeProvider>
         <Provider store={store}>
           <RouterProvider router={appRoutes} />
-         
         </Provider>
       </AppBridgeProvider>
     </PolarisProvider>

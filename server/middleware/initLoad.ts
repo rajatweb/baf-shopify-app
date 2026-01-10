@@ -6,6 +6,7 @@ import shopify from "../utils/shopify";
 import freshInstall from "../utils/freshinstall";
 import prisma from "../utils/prisma";
 import { saveAppMetafiles } from "../utils/appMetafilesProvider";
+import { updateAppDashboard } from "../services/indusenigma";
 // Add at the top of the file
 const processingShops = new Set<string>();
 
@@ -110,6 +111,15 @@ const handleFreshInstall = async (
       },
     })
   );
+
+  await updateAppDashboard({
+    install: true,
+    email: session.onlineAccessInfo?.associated_user?.email || "",
+    storeName: session.onlineAccessInfo?.associated_user?.first_name || "",
+    storeUrl: session.shop,
+    shop: session.shop,
+    action: "install",
+  });
   // await emailService.sendWelcomeEmail(session.onlineAccessInfo?.associated_user?.email || "", session.shop);
 };
 

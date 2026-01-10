@@ -1,23 +1,5 @@
 import { useState } from "react";
-import {
-  Page,
-  Layout,
-  Card,
-  BlockStack,
-  InlineStack,
-  Text,
-  Button,
-  Badge,
-  Box,
-  Divider,
-  List,
-  Modal,
-  Spinner,
-  Toast,
-  Tabs,
-  Frame,
-  Banner,
-} from "@shopify/polaris";
+import { Modal } from "@shopify/polaris";
 import {
   useGetActiveSubscriptionsQuery,
   useCreateSubscriptionMutation,
@@ -26,66 +8,75 @@ import {
 import { useGetShopQuery } from "../../store/api/shop";
 import { formatPrice } from "../../utils/currency";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { subscriptionsApi } from "../../store/api/subscriptions";
+import { ButtonGroupComponent } from "../../components/web-components/ButtonGroupComponent";
+import AppSkeleton from "../../components/commons/AppSkeleton";
 
 interface Plan {
   id: string;
   name: string;
+  description: string;
   monthlyPrice: number;
   yearlyPrice: number;
+  trialDays: number;
   features: string[];
-  maxTracks: number;
-  trackLengthLimit?: number; // in seconds
   popular?: boolean;
 }
 
 const PLANS: Plan[] = [
   {
     id: "free",
-    name: "Free Plan (Demo Mode)",
+    name: "Free",
+    description: "Get started",
     monthlyPrice: 0,
     yearlyPrice: 0,
+    trialDays: 0,
     features: [
-      "1 playlist maximum",
-      "2 tracks maximum per playlist",
-      "Full-length tracks (no time limit)",
-      "Basic music player functionality",
-      "Limited customization options",
-      "Mini-bar display only (no floating button)",
-      "Light theme only (no dark mode)",
-      "Homepage only (no cross-page playback)",
-      "Email support",
+      "Homepage only",
+      "1 playlist, 2 tracks max",
+      "Mini-bar player only",
+      "Light mode only",
     ],
-    maxTracks: 2,
-    trackLengthLimit: -1, // No limit
   },
   {
     id: "pro",
-    name: "Pro Plan (Full Experience)",
+    name: "Pro",
+    description: "For stores wanting background music",
     monthlyPrice: 7,
-    yearlyPrice: 70, // 2 months free when paid yearly
+    yearlyPrice: 70,
+    trialDays: 7,
     features: [
-      "Unlimited playlists",
-      "Unlimited tracks per playlist",
-      "Full track length support",
-      "Full customization options",
-      "Mini-bar or floating button display",
-      "Light or dark theme options",
-      "Persistent playback across all pages",
-      "Autoplay functionality",
-      "Advanced playlist management",
-      "Priority email support",
-      "Analytics and reporting",
+      "7-day free trial",
+      "Unlimited playlists & tracks",
+      "Mini-bar or floating button",
+      "Autoplay with seamless site-wide playback",
+      "YouTube & SoundCloud tracks",
+      "Light or dark mode",
+      "Custom CSS",
     ],
-    maxTracks: -1, // -1 means unlimited
+  },
+  {
+    id: "studio",
+    name: "Studio",
+    description: "For artists & labels",
+    monthlyPrice: 20,
+    yearlyPrice: 200,
+    trialDays: 7,
+    features: [
+      "7-day free trial",
+      "Everything in Pro, plus:",
+      "Platform links (Spotify, Apple Music, YouTube, etc.)",
+      "Music Videos",
+      "CTA badges & Lyrics",
+      "Custom colors",
+      "Crossfade transitions",
+      "Album art backdrop",
+    ],
     popular: true,
   },
 ];
 
 export default function Plans() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -93,28 +84,16 @@ export default function Plans() {
   const [selectedInterval, setSelectedInterval] = useState<
     "EVERY_30_DAYS" | "ANNUAL"
   >("EVERY_30_DAYS");
-  const [toastActive, setToastActive] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastError, setToastError] = useState(false);
 
-  // Queries
   const { data: shop } = useGetShopQuery();
-  const { data: subscriptions, isLoading: subscriptionsLoading, refetch: refetchSubscriptions } =
+  const { data: subscriptions, isLoading: subscriptionsLoading } =
     useGetActiveSubscriptionsQuery();
 
-  // Force refresh subscription data
-  const forceRefreshSubscriptions = () => {
-    dispatch(subscriptionsApi.util.invalidateTags(['Subscriptions']));
-    refetchSubscriptions();
-  };
-
-  // Mutations
   const [createSubscription, { isLoading: isCreating }] =
     useCreateSubscriptionMutation();
   const [cancelSubscription, { isLoading: isCancelling }] =
     useCancelSubscriptionMutation();
 
-  // Get current subscription
   const currentSubscription = subscriptions?.data?.[0];
   const isSubscribed = currentSubscription?.status === "ACTIVE";
 
@@ -123,9 +102,9 @@ export default function Plans() {
     : PLANS[0];
 
   const showToast = (message: string, isError = false) => {
-    setToastMessage(message);
-    setToastError(isError);
-    setToastActive(true);
+    if (typeof shopify !== "undefined" && shopify.toast) {
+      shopify.toast.show(message, { isError });
+    }
   };
 
   const handleUpgrade = async () => {
@@ -139,10 +118,10 @@ export default function Plans() {
             ? selectedPlan.monthlyPrice
             : selectedPlan.yearlyPrice,
         planInterval: selectedInterval,
+        trialDays: selectedPlan.trialDays || 0,
       }).unwrap();
 
       if (result.confirmationUrl) {
-        // For embedded apps, we need to redirect the top window
         if (window.top && window.top !== window) {
           window.top.location.href = result.confirmationUrl;
         } else {
@@ -162,7 +141,6 @@ export default function Plans() {
         "Subscription cancelled successfully. You've been switched to the free plan."
       );
       setShowCancelModal(false);
-      // Refresh the page after successful cancellation
       setTimeout(() => {
         window.location.reload();
       }, 1500);
@@ -177,7 +155,6 @@ export default function Plans() {
       await cancelSubscription().unwrap();
       showToast("Successfully switched to the free plan.");
       setShowCancelModal(false);
-      // Refresh the page after successful switch to free
       setTimeout(() => {
         window.location.reload();
       }, 1500);
@@ -190,36 +167,110 @@ export default function Plans() {
   const PlanCard = ({ plan }: { plan: Plan }) => {
     const isCurrentPlan = currentPlanConfig?.id === plan.id;
     const isUpgrade =
-      currentPlanConfig?.maxTracks !== -1 && plan.maxTracks === -1;
+      currentPlanConfig &&
+      plan.id !== "free" &&
+      (currentPlanConfig.id === "free" ||
+        (currentPlanConfig.id === "pro" && plan.id === "studio"));
+
+    // Downgrade: Studio to Pro, or any paid plan to Free
     const isDowngrade =
-      currentPlanConfig?.maxTracks === -1 && plan.maxTracks !== -1;
-    
-    // Check if user wants to switch billing interval for the same plan
-    const currentBillingInterval = currentSubscription?.lineItems?.[0]?.plan?.pricingDetails?.interval;
+      currentPlanConfig?.id !== "free" &&
+      (plan.id === "free" ||
+        (currentPlanConfig?.id === "studio" && plan.id === "pro"));
+
+    const currentBillingInterval =
+      currentSubscription?.lineItems?.[0]?.plan?.pricingDetails?.interval;
     const isSwitch =
       isSubscribed &&
       currentPlanConfig?.id === plan.id &&
-      plan.id === "pro" && // Only Pro plan has billing options
+      plan.id !== "free" &&
       currentBillingInterval !== selectedInterval;
 
     return (
-      <Card padding="0">
-        <Box padding="400" width="100%">
-          <BlockStack gap="400" align="start">
-            {/* Header */}
-            <BlockStack gap="200">
-              <InlineStack align="space-between" blockAlign="center">
-                <Text variant="headingMd" as="h3" fontWeight="semibold">
-                  {plan.name}
-                </Text>
-                <InlineStack gap="200" align="center">
-                  {plan.popular && <Badge tone="success">Most Popular</Badge>}
-                  {isCurrentPlan && <Badge tone="info">Current Plan</Badge>}
-                </InlineStack>
-              </InlineStack>
+      <div
+        style={{
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          position: "relative",
+        }}
+      >
+        {/* Popular Badge */}
+        {plan.popular && (
+          <div
+            style={{
+              position: "absolute",
+              top: "-10px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 10,
+            }}
+          >
+            <div
+              style={{
+                background: "#202223",
+                color: "white",
+                padding: "4px 12px",
+                borderRadius: "4px",
+                fontSize: "11px",
+                fontWeight: 600,
+                letterSpacing: "0.5px",
+                whiteSpace: "nowrap",
+              }}
+            >
+              MOST POPULAR
+            </div>
+          </div>
+        )}
 
-              <BlockStack gap="100">
-                <Text variant="headingLg" as="h2" fontWeight="bold">
+        <s-box
+          background="base"
+          border={isCurrentPlan ? "base" : "base"}
+          borderRadius="base"
+          padding="large"
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              height: "100%",
+              width: "100%",
+              gap: "24px",
+            }}
+          >
+            {/* Header */}
+            <s-stack direction="block" gap="small-200">
+              <s-stack
+                direction="inline"
+                justifyContent="space-between"
+                alignItems="center"
+              >
+                <s-heading>{plan.name}</s-heading>
+                {isCurrentPlan && <s-badge tone="info">Current</s-badge>}
+              </s-stack>
+              <s-text color="subdued">{plan.description}</s-text>
+            </s-stack>
+
+            {/* Pricing */}
+            <div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "baseline",
+                  gap: "6px",
+                  marginBottom: "8px",
+                  flexWrap: "wrap",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "clamp(16px, 4vw, 32px)",
+                    fontWeight: 600,
+                    lineHeight: "1",
+                    color: "#202223",
+                  }}
+                >
                   {plan.monthlyPrice === 0
                     ? "Free"
                     : formatPrice(
@@ -228,246 +279,277 @@ export default function Plans() {
                           : plan.yearlyPrice,
                         shop?.data?.shop.currencyCode || "USD"
                       )}
-                </Text>
+                </div>
                 {plan.monthlyPrice > 0 && (
-                  <Text variant="bodySm" tone="subdued" as="p">
-                    per{" "}
-                    {selectedInterval === "EVERY_30_DAYS" ? "month" : "year"}
-                    {selectedInterval === "ANNUAL" &&
-                      plan.yearlyPrice < plan.monthlyPrice * 12 && (
-                        <Text variant="bodySm" tone="success" as="span">
-                          {" "}
-                          (Save{" "}
-                          {formatPrice(
-                            plan.monthlyPrice * 12 - plan.yearlyPrice,
-                            shop?.data?.shop.currencyCode || "USD"
-                          )}
-                          )
-                        </Text>
-                      )}
-                  </Text>
+                  <s-text color="subdued">
+                    /{selectedInterval === "EVERY_30_DAYS" ? "mo" : "yr"}
+                  </s-text>
                 )}
-              </BlockStack>
-            </BlockStack>
+              </div>
 
-            <Divider />
+              {plan.monthlyPrice > 0 && (
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                  {selectedInterval === "ANNUAL" &&
+                    plan.yearlyPrice < plan.monthlyPrice * 12 && (
+                      <s-badge tone="success">
+                        Save{" "}
+                        {formatPrice(
+                          plan.monthlyPrice * 12 - plan.yearlyPrice,
+                          shop?.data?.shop.currencyCode || "USD"
+                        )}
+                      </s-badge>
+                    )}
+                  {plan.trialDays > 0 && (
+                    <s-badge tone="warning">
+                      {" "}
+                      {plan.trialDays}-day trial
+                    </s-badge>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <s-divider />
 
             {/* Features */}
-            <BlockStack gap="200" align="start">
-              <Text variant="bodyMd" fontWeight="semibold" as="p">
-                What's included:
-              </Text>
-              <List type="bullet">
-                {plan.features.map((feature, index) => (
-                  <List.Item key={index}>
-                    <Text variant="bodyMd" as="p">
-                      {feature}
-                    </Text>
-                  </List.Item>
-                ))}
-              </List>
-            </BlockStack>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+              <s-stack direction="block" gap="small-400" alignItems="start">
+                <s-text type="strong">Features</s-text>
+                <ul
+                  style={{
+                    margin: 0,
+                    paddingLeft: "0",
+                    listStyle: "none",
+                    lineHeight: "1.8",
+                    width: "100%",
+                  }}
+                >
+                  {plan.features.map((feature, index) => (
+                    <li
+                      key={index}
+                      style={{
+                        marginBottom: "12px",
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: "10px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          marginTop: "6px",
+                          width: "6px",
+                          height: "6px",
+                          borderRadius: "50%",
+                          background: "#6d7175",
+                          flexShrink: 0,
+                        }}
+                      />
+                      <s-text color="subdued">{feature}</s-text>
+                    </li>
+                  ))}
+                </ul>
+              </s-stack>
+            </div>
 
             {/* Track Limits Info for Free Plan */}
             {plan.id === "free" && (
-              <Box
-                background="bg-surface-secondary"
-                padding="300"
-                borderRadius="200"
-                width="100%"
-              >
-                <BlockStack gap="200" align="start">
-                  <Text variant="bodySm" fontWeight="semibold" as="p">
-                    Free Plan Limits:
-                  </Text>
-                  <Text variant="bodySm" as="p">
-                    • Maximum 2 tracks per playlist
-                  </Text>
-                  <Text variant="bodySm" as="p">
-                    • Full-length tracks (no time limit)
-                  </Text>
-                  <Text variant="bodySm" as="p">
-                    • "Powered by WEBEXP" branding always visible
-                  </Text>
-                  <Text variant="bodySm" tone="critical" as="p">
-                    Upgrade to Pro for unlimited tracks and full features!
-                  </Text>
-                </BlockStack>
-              </Box>
+              <s-box background="subdued" padding="base" borderRadius="base">
+                <s-text tone="critical" type="strong">
+                  Unlock unlimited playlists, tracks, and premium features with
+                  Pro or Studio plans!
+                </s-text>
+              </s-box>
             )}
-
             {/* Action Button */}
-            <Button
-              variant={isCurrentPlan && !isSwitch ? "secondary" : "primary"}
-              disabled={isCurrentPlan && !isSwitch}
-              size="large"
-              fullWidth
-              loading={isCreating}
-              onClick={() => {
-                if (isUpgrade || isSwitch || isDowngrade) {
-                  setSelectedPlan(plan);
-                  setShowUpgradeModal(true);
-                }
+            <div
+              style={{
+                width: "100%",
+                marginTop: "auto",
+                paddingTop: "8px",
               }}
             >
-              {isCurrentPlan && !isSwitch
-                ? "Current Plan"
-                : isDowngrade
-                ? "Downgrade to Free"
-                : isUpgrade
-                ? "Upgrade Now"
-                : isSwitch
-                ? `Switch to ${selectedInterval === "EVERY_30_DAYS" ? "Monthly" : "Yearly"}`
-                : "Get Started"}
-            </Button>
-          </BlockStack>
-        </Box>
-      </Card>
+              <s-button
+                variant={isCurrentPlan && !isSwitch ? "secondary" : "primary"}
+                disabled={isCurrentPlan && !isSwitch}
+                loading={isCreating}
+                onClick={() => {
+                  if (
+                    isUpgrade ||
+                    isSwitch ||
+                    isDowngrade ||
+                    (!isCurrentPlan && plan.id !== "free")
+                  ) {
+                    setSelectedPlan(plan);
+                    setShowUpgradeModal(true);
+                  }
+                }}
+              >
+                {isCurrentPlan && !isSwitch
+                  ? "Current Plan"
+                  : isDowngrade
+                  ? plan.id === "free"
+                    ? "Downgrade to Free"
+                    : `Downgrade to ${plan.name}`
+                  : isUpgrade
+                  ? `Upgrade to ${plan.name}`
+                  : isSwitch
+                  ? `Switch to ${
+                      selectedInterval === "EVERY_30_DAYS"
+                        ? "Monthly"
+                        : "Yearly"
+                    }`
+                  : plan.id === "free"
+                  ? "Get Started"
+                  : `Upgrade to ${plan.name}`}
+              </s-button>
+            </div>
+          </div>
+        </s-box>
+      </div>
     );
   };
 
   if (subscriptionsLoading) {
-    return (
-      <Page>
-        <Layout>
-          <Layout.Section>
-            <Box padding="400">
-              <BlockStack gap="400" align="center">
-                <Spinner size="large" />
-                <Text as="p" tone="subdued">
-                  Loading plans...
-                </Text>
-              </BlockStack>
-            </Box>
-          </Layout.Section>
-        </Layout>
-      </Page>
-    );
+    return <AppSkeleton />;
   }
 
   return (
     <div style={{ paddingBottom: "var(--p-space-1600)" }}>
-      <Frame>
-        <Page
-          title="Choose Your Music Player Plan"
-          subtitle="Select the plan that best fits your music player needs"
-          backAction={{
-            content: "Back",
-            onAction: () => navigate(-1),
-          }}
+      <s-page heading="Playlists">
+        {/* <s-section> */}
+        {/* <div style={{ marginBottom: "24px", marginTop: "24px" }}>
+        <s-button variant="primary" onClick={() => openPlaylistCreateModal()}>
+          + Create Playlist
+        </s-button>
+      </div> */}
+
+        <s-stack
+          direction="inline"
+          justifyContent="space-between"
+          alignItems="center"
+          paddingBlock="large"
         >
-          <Layout>
-            <Layout.Section>
-              <BlockStack gap="400" align="start">
-                {/* Current Plan Status */}
-                {isSubscribed && (
-                  <Banner
-                    title={`You're currently on the ${currentSubscription.name}`}
-                    tone="success"
-                    action={{
-                      content: "Refresh Data",
-                      onAction: forceRefreshSubscriptions,
-                    }}
-                  >
-                    <BlockStack gap="200">
-                      <Text as="p">
-                        Your subscription is active and you have access to unlimited tracks and advanced music player features.
-                      </Text>
-                      <Text as="p" variant="bodySm" tone="subdued">
-                        Status: {currentSubscription.status} • You can switch to the free plan anytime
-                      </Text>
-                    </BlockStack>
-                  </Banner>
-                )}
+          <s-heading>Choose Your Plan</s-heading>
 
-                {!isSubscribed && (
-                  <Banner
-                    title="You're currently on the Free Plan"
-                    tone="info"
-                    action={{
-                      content: "Refresh Data",
-                      onAction: forceRefreshSubscriptions,
-                    }}
-                  >
-                    <BlockStack gap="200">
-                      <Text as="p">
-                        You have access to basic music player features with limited tracks and customization options.
-                      </Text>
-                      <Text as="p" variant="bodySm" tone="subdued">
-                        Upgrade to Pro for unlimited tracks, full customization, and advanced features.
-                      </Text>
-                    </BlockStack>
-                  </Banner>
-                )}
+          <s-button
+            variant="tertiary"
+            icon="arrow-left"
+            onClick={() => navigate("/")}
+          >
+            Back to Home
+          </s-button>
+        </s-stack>
+        {/* Current Plan Status */}
+        {isSubscribed && (
+          <s-banner tone="success" onDismiss={undefined}>
+            <s-stack direction="block" gap="small-300">
+              <s-text type="strong">
+                You're currently on the {currentSubscription.name} Plan
+              </s-text>
+              <s-text>
+                Your subscription is active and you have access to all features
+                included in your plan.
+              </s-text>
+              <s-text color="subdued">
+                Status: {currentSubscription.status} • You can switch plans
+                anytime
+              </s-text>
+            </s-stack>
+          </s-banner>
+        )}
 
-                {/* Billing Interval Tabs */}
-                <Box padding="400" width="100%">
-                  <BlockStack gap="400" align="center">
-                    <InlineStack align="center">
-                      <Tabs
-                        tabs={[
-                          {
-                            id: "monthly",
-                            content: "Monthly",
-                            accessibilityLabel: "Monthly billing",
-                            panelID: "monthly-panel",
-                          },
-                          {
-                            id: "yearly",
-                            content: "Yearly (Save 17%)",
-                            accessibilityLabel: "Yearly billing",
-                            panelID: "yearly-panel",
-                          },
-                        ]}
-                        selected={selectedInterval === "EVERY_30_DAYS" ? 0 : 1}
-                        onSelect={(selectedTabIndex) => {
-                          setSelectedInterval(
-                            selectedTabIndex === 0 ? "EVERY_30_DAYS" : "ANNUAL"
-                          );
-                        }}
-                      />
-                    </InlineStack>
-                  </BlockStack>
-                </Box>
+        {!isSubscribed && (
+          <s-banner tone="warning" onDismiss={undefined}>
+            <s-stack direction="block" gap="small-300">
+              <s-text type="strong">You're currently on the Free Plan</s-text>
+              <s-text>
+                You have access to basic music player features. Upgrade to
+                unlock more capabilities.
+              </s-text>
+            </s-stack>
+          </s-banner>
+        )}
+        <s-box>
+          <s-stack direction="block" gap="base" alignItems="center">
+            {/* Billing Interval Selector */}
+            <s-box padding="base">
+              <ButtonGroupComponent
+                label=""
+                name="interval"
+                value={selectedInterval}
+                options={[
+                  { label: "Monthly", value: "EVERY_30_DAYS" },
+                  { label: "Yearly (Save 17%)", value: "ANNUAL" },
+                ]}
+                onValueChange={(_, value) => {
+                  setSelectedInterval(value as "EVERY_30_DAYS" | "ANNUAL");
+                }}
+              />
+            </s-box>
 
-                {/* Plans */}
-                <InlineStack gap="400" align="center" wrap>
-                  {PLANS.map((plan) => (
-                    <Box
-                      key={plan.id}
-                      minWidth="300px"
-                      maxWidth="400px"
-                      width="100%"
-                    >
-                      <PlanCard plan={plan} />
-                    </Box>
-                  ))}
-                </InlineStack>
-              </BlockStack>
-            </Layout.Section>
-          </Layout>
+            {/* Plans Grid */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                gap: "20px",
+                width: "100%",
+                maxWidth: "1200px",
+                margin: "0 auto",
+                padding: "0 16px",
+              }}
+            >
+              {PLANS.map((plan) => (
+                <div
+                  key={plan.id}
+                  style={{
+                    display: "flex",
+                    width: "100%",
+                    height: "100%",
+                  }}
+                >
+                  <PlanCard plan={plan} />
+                </div>
+              ))}
+            </div>
+          </s-stack>
 
           {/* Upgrade/Downgrade Modal */}
           <Modal
             open={showUpgradeModal}
             onClose={() => setShowUpgradeModal(false)}
             title={
-              selectedPlan?.id === "free" && currentPlanConfig?.id === "pro"
+              selectedPlan?.id === "free" && currentPlanConfig?.id !== "free"
                 ? "Downgrade to Free Plan"
+                : currentPlanConfig?.id === "studio" &&
+                  selectedPlan?.id === "pro"
+                ? "Downgrade to Pro Plan"
                 : selectedPlan?.id === currentPlanConfig?.id && isSubscribed
-                ? `Switch to ${selectedInterval === "EVERY_30_DAYS" ? "Monthly" : "Yearly"} Billing`
-                : "Upgrade to Pro Plan"
+                ? `Switch to ${
+                    selectedInterval === "EVERY_30_DAYS" ? "Monthly" : "Yearly"
+                  } Billing`
+                : `Upgrade to ${selectedPlan?.name} Plan`
             }
             primaryAction={{
               content:
-                selectedPlan?.id === "free" && currentPlanConfig?.id === "pro"
+                selectedPlan?.id === "free" && currentPlanConfig?.id !== "free"
                   ? "Downgrade Now"
+                  : currentPlanConfig?.id === "studio" &&
+                    selectedPlan?.id === "pro"
+                  ? "Downgrade to Pro"
                   : selectedPlan?.id === currentPlanConfig?.id && isSubscribed
-                  ? `Switch to ${selectedInterval === "EVERY_30_DAYS" ? "Monthly" : "Yearly"}`
+                  ? `Switch to ${
+                      selectedInterval === "EVERY_30_DAYS"
+                        ? "Monthly"
+                        : "Yearly"
+                    }`
                   : "Upgrade Now",
               onAction:
-                selectedPlan?.id === "free" && currentPlanConfig?.id === "pro"
+                selectedPlan?.id === "free" && currentPlanConfig?.id !== "free"
                   ? handleSwitchToFree
+                  : currentPlanConfig?.id === "studio" &&
+                    selectedPlan?.id === "pro"
+                  ? handleUpgrade
                   : selectedPlan?.id === currentPlanConfig?.id && isSubscribed
                   ? handleUpgrade
                   : handleUpgrade,
@@ -481,97 +563,89 @@ export default function Plans() {
             ]}
           >
             <Modal.Section>
-              <BlockStack gap="400">
+              <s-stack direction="block" gap="base">
                 {selectedPlan?.id === "free" &&
-                currentPlanConfig?.id === "pro" ? (
-                  // Downgrade to free plan
+                currentPlanConfig?.id !== "free" ? (
                   <>
-                    <Text as="p">
+                    <s-text>
                       You're about to downgrade to the Free Plan. This will:
-                    </Text>
-                    <List type="bullet">
-                      <List.Item>
-                        <Text as="p">Cancel your current Pro subscription</Text>
-                      </List.Item>
-                      <List.Item>
-                        <Text as="p">
-                          Limit you to 1 track per playlist
-                        </Text>
-                      </List.Item>
-                      <List.Item>
-                        <Text as="p">
-                          Remove full-length track support
-                        </Text>
-                      </List.Item>
-                      <List.Item>
-                        <Text as="p">
-                          Show "Powered by WEBEXP" branding on all players
-                        </Text>
-                      </List.Item>
-                      <List.Item>
-                        <Text as="p">
-                          Remove persistent playback across pages
-                        </Text>
-                      </List.Item>
-                    </List>
-                    <Box
-                      background="bg-surface-secondary"
-                      padding="300"
-                      borderRadius="200"
+                    </s-text>
+                    <ul style={{ margin: "8px 0", paddingLeft: "20px" }}>
+                      <li style={{ marginBottom: "8px" }}>
+                        <s-text>Cancel your current subscription</s-text>
+                      </li>
+                      <li style={{ marginBottom: "8px" }}>
+                        <s-text>Limit you to 1 playlist, 2 tracks max</s-text>
+                      </li>
+                      <li style={{ marginBottom: "8px" }}>
+                        <s-text>Restrict playback to homepage only</s-text>
+                      </li>
+                      <li style={{ marginBottom: "8px" }}>
+                        <s-text>Remove advanced features</s-text>
+                      </li>
+                    </ul>
+                    <s-box
+                      background="subdued"
+                      padding="small-400"
+                      borderRadius="small-200"
                     >
-                      <Text variant="bodySm" tone="subdued" as="p">
-                        You can upgrade back to Pro anytime to restore all features.
-                      </Text>
-                    </Box>
+                      <s-text color="subdued">
+                        You can upgrade back anytime to restore all features.
+                      </s-text>
+                    </s-box>
+                  </>
+                ) : currentPlanConfig?.id === "studio" &&
+                  selectedPlan?.id === "pro" ? (
+                  <>
+                    <s-text>
+                      You're about to downgrade from Studio to Pro Plan. This
+                      will:
+                    </s-text>
+                    <ul style={{ margin: "8px 0", paddingLeft: "20px" }}>
+                      <li style={{ marginBottom: "8px" }}>
+                        <s-text>Cancel your Studio subscription</s-text>
+                      </li>
+                      <li style={{ marginBottom: "8px" }}>
+                        <s-text>
+                          Remove Studio-only features (videos, platform links,
+                          custom colors, etc.)
+                        </s-text>
+                      </li>
+                      <li style={{ marginBottom: "8px" }}>
+                        <s-text>
+                          Switch to Pro Plan with all Pro features
+                        </s-text>
+                      </li>
+                    </ul>
+                    <s-box
+                      background="subdued"
+                      padding="small-400"
+                      borderRadius="small-200"
+                    >
+                      <s-text color="subdued">
+                        You can upgrade back to Studio anytime to restore all
+                        features.
+                      </s-text>
+                    </s-box>
                   </>
                 ) : selectedPlan?.id === currentPlanConfig?.id &&
                   isSubscribed ? (
-                  // Switch billing for pro users
                   <>
-                    <Text as="p">
-                      You're about to switch your Pro Plan billing from{" "}
-                      {currentSubscription?.lineItems?.[0]?.plan?.pricingDetails?.interval === "EVERY_30_DAYS" ? "monthly" : "yearly"}{" "}
+                    <s-text>
+                      You're about to switch your {selectedPlan?.name} Plan
+                      billing from{" "}
+                      {currentSubscription?.lineItems?.[0]?.plan?.pricingDetails
+                        ?.interval === "EVERY_30_DAYS"
+                        ? "monthly"
+                        : "yearly"}{" "}
                       to{" "}
-                      {selectedInterval === "EVERY_30_DAYS" ? "monthly" : "yearly"} billing.
-                    </Text>
-                    <Text as="p">
+                      {selectedInterval === "EVERY_30_DAYS"
+                        ? "monthly"
+                        : "yearly"}{" "}
+                      billing.
+                    </s-text>
+                    <s-text>
                       Your new billing will be{" "}
-                      {formatPrice(
-                        selectedInterval === "EVERY_30_DAYS"
-                          ? selectedPlan?.monthlyPrice || 0
-                          : selectedPlan?.yearlyPrice || 0,
-                        shop?.data?.shop.currencyCode || "USD"
-                      )}{" "}
-                      per {selectedInterval === "EVERY_30_DAYS" ? "month" : "year"}.
-                    </Text>
-                    {selectedInterval === "ANNUAL" && (
-                      <Text as="p" tone="success">
-                        💰 You'll save{" "}
-                        {formatPrice(
-                          (selectedPlan?.monthlyPrice || 0) * 12 - (selectedPlan?.yearlyPrice || 0),
-                          shop?.data?.shop.currencyCode || "USD"
-                        )}{" "}
-                        by switching to yearly billing!
-                      </Text>
-                    )}
-                    <Box
-                      background="bg-surface-secondary"
-                      padding="300"
-                      borderRadius="200"
-                    >
-                      <Text variant="bodySm" tone="subdued" as="p">
-                        You'll be redirected to Shopify to complete the billing change.
-                      </Text>
-                    </Box>
-                  </>
-                ) : (
-                  <>
-                    <Text as="p">
-                      You're about to{" "}
-                      {selectedPlan?.id === currentPlanConfig?.id
-                        ? "switch billing for"
-                        : "upgrade to"}{" "}
-                      the {selectedPlan?.name} for{" "}
                       {formatPrice(
                         selectedInterval === "EVERY_30_DAYS"
                           ? selectedPlan?.monthlyPrice || 0
@@ -580,23 +654,60 @@ export default function Plans() {
                       )}{" "}
                       per{" "}
                       {selectedInterval === "EVERY_30_DAYS" ? "month" : "year"}.
-                    </Text>
-                    <Text as="p">
-                      This will give you unlimited tracks, full customization options, and advanced music player features.
-                    </Text>
-                    <Box
-                      background="bg-surface-secondary"
-                      padding="300"
-                      borderRadius="200"
+                    </s-text>
+                    {selectedInterval === "ANNUAL" && (
+                      <s-text>
+                        💰 You'll save{" "}
+                        {formatPrice(
+                          (selectedPlan?.monthlyPrice || 0) * 12 -
+                            (selectedPlan?.yearlyPrice || 0),
+                          shop?.data?.shop.currencyCode || "USD"
+                        )}{" "}
+                        by switching to yearly billing!
+                      </s-text>
+                    )}
+                    <s-box
+                      background="subdued"
+                      padding="small-400"
+                      borderRadius="small-200"
                     >
-                      <Text variant="bodySm" tone="subdued" as="p">
+                      <s-text color="subdued">
+                        You'll be redirected to Shopify to complete the billing
+                        change.
+                      </s-text>
+                    </s-box>
+                  </>
+                ) : (
+                  <>
+                    <s-text>
+                      You're about to upgrade to the {selectedPlan?.name} Plan
+                      for{" "}
+                      {formatPrice(
+                        selectedInterval === "EVERY_30_DAYS"
+                          ? selectedPlan?.monthlyPrice || 0
+                          : selectedPlan?.yearlyPrice || 0,
+                        shop?.data?.shop.currencyCode || "USD"
+                      )}{" "}
+                      per{" "}
+                      {selectedInterval === "EVERY_30_DAYS" ? "month" : "year"}.
+                    </s-text>
+                    <s-text>
+                      This will give you access to all features included in the{" "}
+                      {selectedPlan?.name} Plan.
+                    </s-text>
+                    <s-box
+                      background="subdued"
+                      padding="small-400"
+                      borderRadius="small-200"
+                    >
+                      <s-text color="subdued">
                         You'll be redirected to Shopify to complete the
                         subscription process.
-                      </Text>
-                    </Box>
+                      </s-text>
+                    </s-box>
                   </>
                 )}
-              </BlockStack>
+              </s-stack>
             </Modal.Section>
           </Modal>
 
@@ -619,27 +730,20 @@ export default function Plans() {
             ]}
           >
             <Modal.Section>
-              <BlockStack gap="400">
-                <Text as="p">
+              <s-stack direction="block" gap="base">
+                <s-text>
                   Are you sure you want to cancel your subscription?
-                </Text>
-                <Text as="p">
-                  You'll lose access to unlimited tracks and advanced music player features. Your current playlists will continue to work until the end of your billing period.
-                </Text>
-              </BlockStack>
+                </s-text>
+                <s-text>
+                  You'll lose access to all premium features. Your current
+                  playlists will continue to work until the end of your billing
+                  period.
+                </s-text>
+              </s-stack>
             </Modal.Section>
           </Modal>
-
-          {/* Toast */}
-          {toastActive && (
-            <Toast
-              content={toastMessage}
-              error={toastError}
-              onDismiss={() => setToastActive(false)}
-            />
-          )}
-        </Page>
-      </Frame>
+        </s-box>
+      </s-page>
     </div>
   );
 }
