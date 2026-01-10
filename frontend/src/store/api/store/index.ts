@@ -7,6 +7,7 @@ export const storeApi = createApi({
     baseUrl: "/api/store",
     credentials: "include",
   }),
+  tagTypes: ["StoreSettings"],
   endpoints: (builder) => ({
     getThemeStatus: builder.query<ThemeStatusResponse, void>({
       query: () => "/theme/status",

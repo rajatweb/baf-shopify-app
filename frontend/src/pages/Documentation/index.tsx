@@ -60,7 +60,8 @@ export default function Documentation() {
                 Music Player - Complete Documentation
               </Text>
               <Text as="p" tone="subdued">
-                A comprehensive guide to understanding how the Music Player app works, from playlist management to customization features.
+                A comprehensive guide to understanding how the Music Player app
+                works, from playlist management to customization features.
               </Text>
             </BlockStack>
           </Box>
@@ -73,7 +74,10 @@ export default function Documentation() {
                 What is the Music Player App?
               </Text>
               <Text as="p">
-                The Music Player app is a premium Shopify app that allows merchants to create and manage music playlists with multiple tracks, featuring a beautiful and modern UI/UX. It provides a complete music streaming experience for your store visitors.
+                The Music Player app is a premium Shopify app that allows
+                merchants to create and manage music playlists with multiple
+                tracks, featuring a beautiful and modern UI/UX. It provides a
+                complete music streaming experience for your store visitors.
               </Text>
 
               <BlockStack gap="300">
@@ -82,25 +86,25 @@ export default function Documentation() {
                 </Text>
                 <List type="bullet">
                   <List.Item>
-                    Multi-track playlist support with unlimited tracks (Pro plan)
+                    Multi-track playlist support (unlimited on Pro/Studio plans)
                   </List.Item>
                   <List.Item>
                     Advanced audio controls (play, pause, skip, volume)
                   </List.Item>
+                  <List.Item>Beautiful, modern player interface</List.Item>
                   <List.Item>
-                    Beautiful, modern player interface
+                    Customizable player appearance and branding (Pro/Studio
+                    plans)
                   </List.Item>
                   <List.Item>
-                    Customizable player appearance and branding
-                  </List.Item>
-                  <List.Item>
-                    Persistent playback across page navigation
+                    Persistent playback across page navigation (Pro/Studio
+                    plans)
                   </List.Item>
                   <List.Item>
                     Track metadata management (title, artist, album art)
                   </List.Item>
                   <List.Item>
-                    Plan-based feature restrictions
+                    Plan-based feature restrictions (Free, Pro, Studio)
                   </List.Item>
                 </List>
               </BlockStack>
@@ -115,7 +119,9 @@ export default function Documentation() {
                 How It Works
               </Text>
               <Text as="p">
-                The Music Player app integrates seamlessly with your Shopify store, providing a professional music streaming experience for your customers.
+                The Music Player app integrates seamlessly with your Shopify
+                store, providing a professional music streaming experience for
+                your customers.
               </Text>
 
               <Box
@@ -129,11 +135,23 @@ export default function Documentation() {
                   </Text>
                   <List type="number">
                     <List.Item>Create playlists and upload tracks</List.Item>
-                    <List.Item>Configure player settings and appearance</List.Item>
-                    <List.Item>Player appears on your store pages</List.Item>
-                    <List.Item>Customers can enjoy music while browsing</List.Item>
-                    <List.Item>Persistent playback across page navigation</List.Item>
-                    <List.Item>Analytics track listening behavior</List.Item>
+                    <List.Item>
+                      Configure player settings and appearance
+                    </List.Item>
+                    <List.Item>
+                      Player appears on your store pages (homepage only on Free
+                      plan, site-wide on Pro/Studio)
+                    </List.Item>
+                    <List.Item>
+                      Customers can enjoy music while browsing
+                    </List.Item>
+                    <List.Item>
+                      Persistent playback across page navigation (Pro & Studio
+                      plans)
+                    </List.Item>
+                    <List.Item>
+                      Track listening behavior and engagement
+                    </List.Item>
                   </List>
                 </BlockStack>
               </Box>
@@ -181,7 +199,8 @@ export default function Documentation() {
                       </Text>
                     </InlineStack>
                     <Text as="p">
-                      Play/pause, skip forward/backward, volume control, and progress bar for track navigation.
+                      Play/pause, skip forward/backward, volume control, and
+                      progress bar for track navigation.
                     </Text>
                   </BlockStack>
                 </Box>
@@ -199,7 +218,8 @@ export default function Documentation() {
                       </Text>
                     </InlineStack>
                     <Text as="p">
-                      Shows all tracks in the current playlist with album art, track title, artist name, and duration.
+                      Shows all tracks in the current playlist with album art,
+                      track title, artist name, and duration.
                     </Text>
                   </BlockStack>
                 </Box>
@@ -217,7 +237,8 @@ export default function Documentation() {
                       </Text>
                     </InlineStack>
                     <Text as="p">
-                      Compact player bar that shows current track info and basic controls for continuous playback.
+                      Compact player bar that shows current track info and basic
+                      controls for continuous playback.
                     </Text>
                   </BlockStack>
                 </Box>
@@ -235,7 +256,8 @@ export default function Documentation() {
                       </Text>
                     </InlineStack>
                     <Text as="p">
-                      Displays current track details including title, artist, album art, and playback time.
+                      Displays current track details including title, artist,
+                      album art, and playback time.
                     </Text>
                   </BlockStack>
                 </Box>
@@ -257,23 +279,28 @@ export default function Documentation() {
                     Playback Controls
                   </Text>
                   <Text as="p">
-                    Full audio control functionality for a professional music experience.
+                    Full audio control functionality for a professional music
+                    experience.
                   </Text>
                   <List type="bullet">
                     <List.Item>
                       <strong>Play/Pause:</strong> Start and stop track playback
                     </List.Item>
                     <List.Item>
-                      <strong>Skip Forward/Backward:</strong> Navigate between tracks
+                      <strong>Skip Forward/Backward:</strong> Navigate between
+                      tracks
                     </List.Item>
                     <List.Item>
-                      <strong>Volume Control:</strong> Adjust audio volume with slider
+                      <strong>Volume Control:</strong> Adjust audio volume with
+                      slider
                     </List.Item>
                     <List.Item>
-                      <strong>Progress Bar:</strong> Click to jump to specific time in track
+                      <strong>Progress Bar:</strong> Click to jump to specific
+                      time in track
                     </List.Item>
                     <List.Item>
-                      <strong>Loop:</strong> Repeat current track or entire playlist
+                      <strong>Loop:</strong> Repeat current track or entire
+                      playlist
                     </List.Item>
                     <List.Item>
                       <strong>Shuffle:</strong> Random track selection
@@ -286,7 +313,8 @@ export default function Documentation() {
                     Track Selection
                   </Text>
                   <Text as="p">
-                    Click on any track in the playlist to start playing it immediately.
+                    Click on any track in the playlist to start playing it
+                    immediately.
                   </Text>
                   <Box
                     background="bg-surface-secondary"
@@ -294,21 +322,25 @@ export default function Documentation() {
                     borderRadius="200"
                   >
                     <Text variant="bodySm" as="p">
-                      <strong>Active Track:</strong> Currently playing track is highlighted in the playlist
+                      <strong>Active Track:</strong> Currently playing track is
+                      highlighted in the playlist
                     </Text>
                   </Box>
                 </Box>
 
                 <Box>
                   <Text variant="headingSm" as="h4" fontWeight="semibold">
-                    Persistent Playback (Pro Plan Only)
+                    Persistent Playback (Pro & Studio Plans)
                   </Text>
                   <Text as="p">
-                    Music continues playing when customers navigate between pages on your store.
+                    Music continues playing when customers navigate between
+                    pages on your store.
                   </Text>
                   <Banner tone="info">
                     <Text as="p">
-                      Persistent playback creates a seamless music experience and keeps customers engaged longer on your site.
+                      Persistent playback creates a seamless music experience
+                      and keeps customers engaged longer on your site. Available
+                      on Pro and Studio plans.
                     </Text>
                   </Banner>
                 </Box>
@@ -330,7 +362,8 @@ export default function Documentation() {
                 Playlist Management
               </Text>
               <Text as="p" tone="subdued">
-                Understanding how to create, manage, and organize your music playlists.
+                Understanding how to create, manage, and organize your music
+                playlists.
               </Text>
             </BlockStack>
           </Box>
@@ -343,7 +376,9 @@ export default function Documentation() {
                 Creating Playlists
               </Text>
               <Text as="p">
-                Playlists are collections of tracks that can be played together. You can create multiple playlists for different moods or occasions.
+                Playlists are collections of tracks that can be played together.
+                You can create multiple playlists for different moods or
+                occasions (unlimited on Pro and Studio plans).
               </Text>
 
               <BlockStack gap="400">
@@ -351,13 +386,18 @@ export default function Documentation() {
                   <Text variant="headingSm" as="h4" fontWeight="semibold">
                     Playlist Information
                   </Text>
-                                  <List type="bullet">
-                  <List.Item>Playlist name and description</List.Item>
-                  <List.Item>Selected/active status (only one playlist can be active per store)</List.Item>
-                  <List.Item>Creation and modification dates</List.Item>
-                  <List.Item>Track count and total duration</List.Item>
-                  <List.Item>Confirmation modal when deleting playlists</List.Item>
-                </List>
+                  <List type="bullet">
+                    <List.Item>Playlist name and description</List.Item>
+                    <List.Item>
+                      Selected/active status (only one playlist can be active
+                      per store)
+                    </List.Item>
+                    <List.Item>Creation and modification dates</List.Item>
+                    <List.Item>Track count and total duration</List.Item>
+                    <List.Item>
+                      Confirmation modal when deleting playlists
+                    </List.Item>
+                  </List>
                 </Box>
 
                 <Box>
@@ -371,7 +411,10 @@ export default function Documentation() {
                     <List.Item>Add tracks from your track library</List.Item>
                     <List.Item>Remove tracks from playlists</List.Item>
                     <List.Item>Track order affects playback sequence</List.Item>
-                    <List.Item>Smart deletion: tracks are completely removed if not used in other playlists</List.Item>
+                    <List.Item>
+                      Smart deletion: tracks are completely removed if not used
+                      in other playlists
+                    </List.Item>
                   </List>
                 </Box>
               </BlockStack>
@@ -392,7 +435,8 @@ export default function Documentation() {
                     Track Information
                   </Text>
                   <Text as="p">
-                    Each track contains metadata that enhances the listening experience.
+                    Each track contains metadata that enhances the listening
+                    experience.
                   </Text>
                   <List type="bullet">
                     <List.Item>
@@ -421,7 +465,9 @@ export default function Documentation() {
                     Supported Audio Formats
                   </Text>
                   <Text as="p">
-                    The app supports standard web audio formats for maximum compatibility.
+                    The app supports standard web audio formats for maximum
+                    compatibility. Pro and Studio plans also support YouTube and
+                    SoundCloud tracks.
                   </Text>
                   <Box
                     background="bg-surface-secondary"
@@ -429,9 +475,31 @@ export default function Documentation() {
                     borderRadius="200"
                   >
                     <Text variant="bodySm" as="p">
-                      <strong>Supported Formats:</strong> MP3, WAV, OGG, AAC, M4A
+                      <strong>Supported Formats:</strong> MP3, WAV, OGG, AAC,
+                      M4A
+                    </Text>
+                    <Text variant="bodySm" as="p" tone="subdued">
+                      <strong>Pro & Studio Plans:</strong> YouTube and
+                      SoundCloud track URLs
                     </Text>
                   </Box>
+                </Box>
+
+                <Box>
+                  <Text variant="headingSm" as="h4" fontWeight="semibold">
+                    Video Tracks (Studio Plan Only)
+                  </Text>
+                  <Text as="p">
+                    Studio plan users can add music videos to playlists. Free
+                    plan allows 1 video per playlist, while Studio plan has
+                    unlimited videos.
+                  </Text>
+                  <Banner tone="info">
+                    <Text as="p">
+                      Music videos are a Studio plan exclusive feature, allowing
+                      you to create rich multimedia playlists.
+                    </Text>
+                  </Banner>
                 </Box>
 
                 <Box>
@@ -439,28 +507,36 @@ export default function Documentation() {
                     Playlist Deletion & Cleanup
                   </Text>
                   <Text as="p">
-                    When you delete a playlist, the system performs a complete cleanup to maintain data integrity.
+                    When you delete a playlist, the system performs a complete
+                    cleanup to maintain data integrity.
                   </Text>
                   <List type="bullet">
                     <List.Item>
-                      <strong>Confirmation Modal:</strong> A safety dialog appears before deletion to prevent accidents
+                      <strong>Confirmation Modal:</strong> A safety dialog
+                      appears before deletion to prevent accidents
                     </List.Item>
                     <List.Item>
-                      <strong>Complete Track Removal:</strong> All tracks in the playlist are permanently deleted from the database
+                      <strong>Complete Track Removal:</strong> All tracks in the
+                      playlist are permanently deleted from the database
                     </List.Item>
                     <List.Item>
-                      <strong>File Cleanup:</strong> Audio files and album art are removed from Shopify CDN
+                      <strong>File Cleanup:</strong> Audio files and album art
+                      are removed from Shopify CDN
                     </List.Item>
                     <List.Item>
-                      <strong>Auto-Selection:</strong> If the deleted playlist was active, another playlist is automatically selected
+                      <strong>Auto-Selection:</strong> If the deleted playlist
+                      was active, another playlist is automatically selected
                     </List.Item>
                     <List.Item>
-                      <strong>Data Integrity:</strong> No orphaned records or unused files remain in the system
+                      <strong>Data Integrity:</strong> No orphaned records or
+                      unused files remain in the system
                     </List.Item>
                   </List>
                   <Banner tone="warning">
                     <Text as="p">
-                      <strong>Warning:</strong> Playlist deletion is permanent and cannot be undone. All tracks in the playlist will be permanently deleted.
+                      <strong>Warning:</strong> Playlist deletion is permanent
+                      and cannot be undone. All tracks in the playlist will be
+                      permanently deleted.
                     </Text>
                   </Banner>
                 </Box>
@@ -482,7 +558,8 @@ export default function Documentation() {
                 Player Customization
               </Text>
               <Text as="p" tone="subdued">
-                Understanding the customization options and settings available for the music player.
+                Understanding the customization options and settings available
+                for the music player.
               </Text>
             </BlockStack>
           </Box>
@@ -495,7 +572,8 @@ export default function Documentation() {
                 Player Settings
               </Text>
               <Text as="p">
-                Customize the music player behavior and appearance to match your store's branding.
+                Customize the music player behavior and appearance to match your
+                store's branding.
               </Text>
 
               <BlockStack gap="400">
@@ -514,67 +592,28 @@ export default function Documentation() {
 
                 <Box>
                   <Text variant="headingSm" as="h4" fontWeight="semibold">
-                    Appearance Settings (Pro Plan Only)
+                    Appearance Settings (Pro & Studio Plans)
                   </Text>
                   <Text as="p">
-                    Pro plan users can fully customize the player appearance.
+                    Pro and Studio plan users can fully customize the player
+                    appearance.
                   </Text>
                   <List type="bullet">
-                    <List.Item>Player theme (light/dark)</List.Item>
-                    <List.Item>Player position on page</List.Item>
+                    <List.Item>Player theme (light/dark mode)</List.Item>
+                    <List.Item>
+                      Player style (mini-bar or floating button)
+                    </List.Item>
+                    <List.Item>Custom CSS for advanced styling</List.Item>
                     <List.Item>Show/hide track information</List.Item>
-                    <List.Item>Custom player size</List.Item>
                   </List>
                   <Banner tone="info">
                     <Text as="p">
-                      Customization options allow you to create a unique music experience that matches your brand identity.
+                      Customization options allow you to create a unique music
+                      experience that matches your brand identity. Studio plan
+                      includes additional customization like custom colors,
+                      crossfade transitions, and album art backdrop.
                     </Text>
                   </Banner>
-                </Box>
-              </BlockStack>
-            </BlockStack>
-          </Box>
-        </Card>
-
-        <Card padding="0">
-          <Box padding="400">
-            <BlockStack gap="400">
-              <Text variant="headingMd" as="h3" fontWeight="semibold">
-                Branding Options
-              </Text>
-
-              <BlockStack gap="400">
-                <Box>
-                  <Text variant="headingSm" as="h4" fontWeight="semibold">
-                    Free Plan Branding
-                  </Text>
-                  <Text as="p">
-                    Free plan users will always see "Powered by WEBEXP" branding on the music player.
-                  </Text>
-                  <Box
-                    background="bg-surface-secondary"
-                    padding="300"
-                    borderRadius="200"
-                  >
-                    <Text variant="bodySm" as="p">
-                      <strong>Branding Location:</strong> Visible on the player interface and playlist modal
-                    </Text>
-                  </Box>
-                </Box>
-
-                <Box>
-                  <Text variant="headingSm" as="h4" fontWeight="semibold">
-                    Pro Plan Branding Removal
-                  </Text>
-                  <Text as="p">
-                    Pro plan users can remove all "Powered by WEBEXP" branding for a clean, professional appearance.
-                  </Text>
-                  <List type="bullet">
-                    <List.Item>No branding on player interface</List.Item>
-                    <List.Item>No branding on playlist modal</List.Item>
-                    <List.Item>Clean, professional appearance</List.Item>
-                    <List.Item>Full brand control</List.Item>
-                  </List>
                 </Box>
               </BlockStack>
             </BlockStack>
@@ -596,16 +635,16 @@ export default function Documentation() {
                   Position Options:
                 </Text>
                 <List type="bullet">
-                  <List.Item>Bottom of page (default)</List.Item>
-                  <List.Item>Top of page</List.Item>
-                  <List.Item>Sidebar position</List.Item>
-                  <List.Item>Floating player</List.Item>
+                  <List.Item>Mini-bar player (bottom of page)</List.Item>
+                  <List.Item>Floating button player</List.Item>
                 </List>
               </BlockStack>
 
               <Banner tone="warning">
                 <Text as="p">
-                  Player positioning is a Pro plan feature. Free plan users will see the player in the default bottom position.
+                  Player positioning options (mini-bar or floating button) are
+                  available on Pro and Studio plans. Free plan users will see
+                  the mini-bar player only.
                 </Text>
               </Banner>
             </BlockStack>
@@ -649,15 +688,18 @@ export default function Documentation() {
                       Free Plan
                     </Text>
                     <List type="bullet">
-                      <List.Item>Maximum 1 playlist</List.Item>
-                      <List.Item>Maximum 2 tracks per playlist</List.Item>
+                      <List.Item>Homepage only</List.Item>
+                      <List.Item>1 playlist, 2 tracks max</List.Item>
                       <List.Item>Maximum 2 total tracks</List.Item>
                       <List.Item>Full-length tracks (no time limit)</List.Item>
+                      <List.Item>Mini-bar player only</List.Item>
+                      <List.Item>Light mode only</List.Item>
+                      <List.Item>
+                        "Powered by WEBEXP" branding (always visible)
+                      </List.Item>
                       <List.Item>Basic music player functionality</List.Item>
-                      <List.Item>"Powered by WEBEXP" branding (always visible)</List.Item>
-                      <List.Item>Limited customization options</List.Item>
                       <List.Item>No continuous playback across pages</List.Item>
-                      <List.Item>Homepage only (demo mode)</List.Item>
+                      <List.Item>No autoplay</List.Item>
                       <List.Item>Email support</List.Item>
                     </List>
                   </BlockStack>
@@ -670,19 +712,53 @@ export default function Documentation() {
                 >
                   <BlockStack gap="300">
                     <Text variant="headingSm" as="h4" fontWeight="semibold">
-                      Pro Plan ($7/month)
+                      Pro Plan ($7/month or $70/year)
                     </Text>
                     <List type="bullet">
-                      <List.Item>Unlimited tracks per playlist</List.Item>
-                      <List.Item>Unlimited playlists</List.Item>
+                      <List.Item>7-day free trial</List.Item>
+                      <List.Item>Unlimited playlists & tracks</List.Item>
                       <List.Item>Full track length support</List.Item>
-                      <List.Item>No branding - remove "Powered by WEBEXP"</List.Item>
-                      <List.Item>Full customization options (mini-bar/floating button, light/dark themes)</List.Item>
-                      <List.Item>Persistent playback across all pages</List.Item>
-                      <List.Item>Autoplay functionality</List.Item>
-                      <List.Item>Advanced playlist management</List.Item>
+                      <List.Item>Mini-bar or floating button player</List.Item>
+                      <List.Item>Light or dark mode</List.Item>
+                      <List.Item>Custom CSS</List.Item>
+                      <List.Item>
+                        No branding - remove "Powered by WEBEXP"
+                      </List.Item>
+                      <List.Item>
+                        Autoplay with seamless site-wide playback
+                      </List.Item>
+                      <List.Item>YouTube & SoundCloud tracks</List.Item>
+                      <List.Item>
+                        Persistent playback across all pages
+                      </List.Item>
                       <List.Item>Priority email support</List.Item>
-                      <List.Item>Analytics and reporting</List.Item>
+                    </List>
+                  </BlockStack>
+                </Box>
+
+                <Box
+                  background="bg-surface-secondary"
+                  padding="400"
+                  borderRadius="200"
+                >
+                  <BlockStack gap="300">
+                    <Text variant="headingSm" as="h4" fontWeight="semibold">
+                      Studio Plan ($20/month or $200/year)
+                    </Text>
+                    <Text as="p" tone="subdued">
+                      Everything in Pro, plus:
+                    </Text>
+                    <List type="bullet">
+                      <List.Item>7-day free trial</List.Item>
+                      <List.Item>
+                        Platform links (Spotify, Apple Music, YouTube, etc.)
+                      </List.Item>
+                      <List.Item>Music Videos</List.Item>
+                      <List.Item>CTA badges & Lyrics</List.Item>
+                      <List.Item>Custom colors</List.Item>
+                      <List.Item>Crossfade transitions</List.Item>
+                      <List.Item>Album art backdrop</List.Item>
+                      <List.Item>All Pro plan features included</List.Item>
                     </List>
                   </BlockStack>
                 </Box>
@@ -698,7 +774,8 @@ export default function Documentation() {
                 Plan Limit Enforcement
               </Text>
               <Text as="p">
-                The app enforces plan limits to ensure fair usage and encourage upgrades to the Pro plan.
+                The app enforces plan limits to ensure fair usage and encourage
+                upgrades to the Pro plan.
               </Text>
 
               <BlockStack gap="400">
@@ -707,7 +784,10 @@ export default function Documentation() {
                     Track & Playlist Limits
                   </Text>
                   <Text as="p">
-                    Free plan users are limited to 2 tracks per playlist, maximum 1 playlist, and maximum 2 total tracks. When these limits are reached, new tracks or playlists cannot be added.
+                    Free plan users are limited to 1 playlist with maximum 2
+                    tracks total. When these limits are reached, new tracks or
+                    playlists cannot be added. Pro and Studio plans have
+                    unlimited playlists and tracks.
                   </Text>
                   <Box
                     background="bg-surface-secondary"
@@ -715,7 +795,9 @@ export default function Documentation() {
                     borderRadius="200"
                   >
                     <Text variant="bodySm" as="p">
-                      <strong>Example:</strong> Free plan can have 2 tracks per playlist (max 1 playlist, 2 total tracks), Pro plan can have unlimited tracks and playlists
+                      <strong>Example:</strong> Free plan can have 1 playlist
+                      with 2 tracks maximum. Pro and Studio plans can have
+                      unlimited tracks and playlists.
                     </Text>
                   </Box>
                 </Box>
@@ -725,28 +807,37 @@ export default function Documentation() {
                     Playlist Selection
                   </Text>
                   <Text as="p">
-                    Only one playlist can be active at a time per store. The active playlist is the one that will play on your store's music player.
+                    Only one playlist can be active at a time per store. The
+                    active playlist is the one that will play on your store's
+                    music player.
                   </Text>
                   <List type="bullet">
                     <List.Item>
-                      <strong>Active Playlist:</strong> Only one playlist can be selected as active per store
+                      <strong>Active Playlist:</strong> Only one playlist can be
+                      selected as active per store
                     </List.Item>
                     <List.Item>
-                      <strong>Selection Button:</strong> Click "Select" to make a playlist active
+                      <strong>Selection Button:</strong> Click "Select" to make
+                      a playlist active
                     </List.Item>
                     <List.Item>
-                      <strong>Active Badge:</strong> The currently active playlist shows an "Active" badge
+                      <strong>Active Badge:</strong> The currently active
+                      playlist shows an "Active" badge
                     </List.Item>
                     <List.Item>
-                      <strong>Auto-Selection:</strong> The first playlist created is automatically selected
+                      <strong>Auto-Selection:</strong> The first playlist
+                      created is automatically selected
                     </List.Item>
                     <List.Item>
-                      <strong>Store Player:</strong> Only the active playlist appears on your store's music player
+                      <strong>Store Player:</strong> Only the active playlist
+                      appears on your store's music player
                     </List.Item>
                   </List>
                   <Banner tone="info">
                     <Text as="p">
-                      The active playlist is the one that customers will hear when they visit your store. Make sure to select the playlist you want to showcase.
+                      The active playlist is the one that customers will hear
+                      when they visit your store. Make sure to select the
+                      playlist you want to showcase.
                     </Text>
                   </Banner>
                 </Box>
@@ -756,7 +847,9 @@ export default function Documentation() {
                     Track Length Limits
                   </Text>
                   <Text as="p">
-                    Free plan users can upload full-length tracks (no time restrictions). Pro plan users can upload tracks of any length with additional features like autoplay.
+                    All plans support full-length tracks with no time
+                    restrictions. Pro and Studio plans include additional
+                    features like autoplay and YouTube/SoundCloud track support.
                   </Text>
                 </Box>
 
@@ -765,10 +858,23 @@ export default function Documentation() {
                     Feature Restrictions
                   </Text>
                   <List type="bullet">
-                    <List.Item>Customization options (Pro only)</List.Item>
-                    <List.Item>Persistent playback (Pro only)</List.Item>
-                    <List.Item>Branding removal (Pro only)</List.Item>
-                    <List.Item>Advanced analytics (Pro only)</List.Item>
+                    <List.Item>
+                      Customization options (Pro & Studio plans)
+                    </List.Item>
+                    <List.Item>
+                      Persistent playback (Pro & Studio plans)
+                    </List.Item>
+                    <List.Item>Branding removal (Pro & Studio plans)</List.Item>
+                    <List.Item>
+                      Autoplay functionality (Pro & Studio plans)
+                    </List.Item>
+                    <List.Item>
+                      Site-wide playback (Pro & Studio plans)
+                    </List.Item>
+                    <List.Item>
+                      Platform links, videos, custom colors, crossfade (Studio
+                      plan only)
+                    </List.Item>
                   </List>
                 </Box>
               </BlockStack>
@@ -783,55 +889,94 @@ export default function Documentation() {
                 Plan Changes & Downgrades
               </Text>
               <Text as="p">
-                Understanding what happens when you change or downgrade your plan.
+                Understanding what happens when you change or downgrade your
+                plan.
               </Text>
 
               <BlockStack gap="400">
                 <Box>
                   <Text variant="headingSm" as="h4" fontWeight="semibold">
-                    Upgrading to Pro
+                    Upgrading Plans
+                  </Text>
+                  <Text as="p">
+                    When upgrading from Free to Pro, or Pro to Studio, all
+                    existing tracks and playlists remain active.
                   </Text>
                   <List type="bullet">
                     <List.Item>All existing tracks remain active</List.Item>
                     <List.Item>
-                      Access to all Pro features immediately
+                      Access to all new plan features immediately
                     </List.Item>
                     <List.Item>No data loss or interruption</List.Item>
-                    <List.Item>Branding can be removed</List.Item>
+                    <List.Item>
+                      7-day free trial available for Pro and Studio plans
+                    </List.Item>
                   </List>
                 </Box>
 
                 <Box>
                   <Text variant="headingSm" as="h4" fontWeight="semibold">
-                    Downgrading to Free
+                    Downgrading Plans
+                  </Text>
+                  <Text as="p">
+                    When downgrading to Free plan, your data is preserved but
+                    limited to Free plan restrictions.
                   </Text>
                   <List type="bullet">
                     <List.Item>
-                      Only first track per playlist remains active
+                      Only first playlist remains active (others become
+                      inactive)
                     </List.Item>
                     <List.Item>
-                      Only first playlist remains active (others become inactive)
-                    </List.Item>
-                    <List.Item>
-                      Only first 2 tracks remain active (others become inactive)
+                      Only first 2 tracks remain active (others become inactive
+                      but preserved)
                     </List.Item>
                     <List.Item>
                       All tracks remain active (no length restrictions)
-                    </List.Item>
-                    <List.Item>
-                      Other tracks become inactive (preserved but not playable)
                     </List.Item>
                     <List.Item>Customization options are disabled</List.Item>
                     <List.Item>
                       Persistent playback becomes unavailable
                     </List.Item>
-                    <List.Item>"Powered by WEBEXP" branding becomes visible</List.Item>
+                    <List.Item>
+                      "Powered by WEBEXP" branding becomes visible
+                    </List.Item>
+                    <List.Item>Player restricted to homepage only</List.Item>
+                    <List.Item>
+                      Mini-bar player only (floating button removed)
+                    </List.Item>
+                    <List.Item>Light mode only</List.Item>
+                  </List>
+                </Box>
+
+                <Box>
+                  <Text variant="headingSm" as="h4" fontWeight="semibold">
+                    Downgrading from Studio to Pro
+                  </Text>
+                  <Text as="p">
+                    When downgrading from Studio to Pro, Studio-specific
+                    features are removed.
+                  </Text>
+                  <List type="bullet">
+                    <List.Item>
+                      Platform links, music videos, CTA badges, and lyrics are
+                      removed
+                    </List.Item>
+                    <List.Item>
+                      Custom colors, crossfade transitions, and album art
+                      backdrop are removed
+                    </List.Item>
+                    <List.Item>All Pro plan features remain active</List.Item>
+                    <List.Item>
+                      All playlists and tracks remain active
+                    </List.Item>
                   </List>
                 </Box>
 
                 <Banner tone="info">
                   <Text as="p">
-                    When downgrading, your data is preserved. You can upgrade back to Pro anytime to restore all your features and tracks.
+                    When downgrading, your data is preserved. You can upgrade
+                    back to Pro anytime to restore all your features and tracks.
                   </Text>
                 </Banner>
               </BlockStack>
@@ -882,4 +1027,3 @@ export default function Documentation() {
     </div>
   );
 }
-

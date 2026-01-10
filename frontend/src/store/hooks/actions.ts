@@ -1,9 +1,19 @@
 import { useDispatch } from "react-redux";
-import { storeApi } from "../api/store";
 import { bindActionCreators } from "@reduxjs/toolkit";
+import { playlistsCreateEditModalActions } from "../reducers/playlists/createEditPlaylistModalSlice";
+import { addEditAudioTrackModalActions } from "../reducers/audioTracks/addEditAudioTrackModalSlice";
+import { deleteAduioTrackModalActions } from "../reducers/audioTracks/deleteAduioTrackModalSlice";
+import { reOrderAudioTrackCardActions } from "../reducers/audioTracks/reOrderAudioTrackCardSlice";
+import { addEditVideoModalActions } from "../reducers/videoTracks/addEditVideoModalSlice";
+import { deleteVideoTrackModalActions } from "../reducers/videoTracks/deleteVideoTrackModalSlice";
 
 const actions = {
-  getStoreSettings: storeApi.endpoints.getStoreSettings.initiate,
+  ...playlistsCreateEditModalActions,
+  ...addEditAudioTrackModalActions,
+  ...deleteAduioTrackModalActions,
+  ...reOrderAudioTrackCardActions,
+  ...addEditVideoModalActions,
+  ...deleteVideoTrackModalActions,
 };
 
 export const useActions = () => {
