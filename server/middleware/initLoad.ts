@@ -5,7 +5,7 @@ import sessionHandler from "../utils/sessionHandler";
 import shopify from "../utils/shopify";
 import freshInstall from "../utils/freshinstall";
 import prisma from "../utils/prisma";
-import { OnlineAccessUser } from "@shopify/shopify-api/dist/ts/lib/auth/oauth/types";
+import { saveAppMetafiles } from "../utils/appMetafilesProvider";
 // Add at the top of the file
 const processingShops = new Set<string>();
 
@@ -32,10 +32,14 @@ const initLoad = async (
     processingShops.add(shop);
 
     // Don't await the token exchange, let it happen in the background
-    handleTokenExchange(shop, idToken).finally(() => {
-      // Remove shop from processing set when done
-      processingShops.delete(shop);
-    });
+    handleTokenExchange(shop, idToken, req, res)
+      .catch((error) => {
+        // console.error("Error in token exchange:", error);
+      })
+      .finally(() => {
+        // Remove shop from processing set when done
+        processingShops.delete(shop);
+      });
   }
 
   // Continue immediately without waiting for token exchange
@@ -43,7 +47,12 @@ const initLoad = async (
 };
 
 // Separate function for token exchange
-const handleTokenExchange = async (shop: string, idToken: string) => {
+const handleTokenExchange = async (
+  shop: string,
+  idToken: string,
+  req: Request,
+  res: Response
+) => {
   const { offlineSession, onlineSession } = await exchangeTokens(shop, idToken);
 
   sessionHandler.storeSession(offlineSession);
@@ -51,7 +60,10 @@ const handleTokenExchange = async (shop: string, idToken: string) => {
   shopify.webhooks.register({ session: offlineSession });
 
   // Call handleFreshInstall with onlineSession after token exchange
-  handleFreshInstall(onlineSession);
+  handleFreshInstall(onlineSession, req, res).catch((error) => {
+    console.error("Error in fresh install:", error);
+    // Don't block the response if fresh install fails
+  });
 };
 
 const exchangeTokens = async (shop: string, idToken: string) => {
@@ -74,7 +86,11 @@ const exchangeTokens = async (shop: string, idToken: string) => {
   return { offlineSession, onlineSession };
 };
 
-const handleFreshInstall = async (session: Session) => {
+const handleFreshInstall = async (
+  session: Session,
+  req: Request,
+  res: Response
+) => {
   const existingStore = await prisma.store.findUnique({
     where: { shop: session.shop },
   });
@@ -82,9 +98,19 @@ const handleFreshInstall = async (session: Session) => {
 
   await freshInstall({
     shop: session.shop,
-    accessToken: session.accessToken as string,
-    userData: session.onlineAccessInfo?.associated_user as OnlineAccessUser,
   });
+
+  await saveAppMetafiles(
+    session,
+    "url-settings",
+    JSON.stringify({
+      urlSettings: {
+        isHomePageOnly: true,
+        excludeUrls: [],
+      },
+    })
+  );
+  // await emailService.sendWelcomeEmail(session.onlineAccessInfo?.associated_user?.email || "", session.shop);
 };
 
 export default initLoad;

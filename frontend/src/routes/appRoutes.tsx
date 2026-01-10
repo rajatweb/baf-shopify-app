@@ -5,8 +5,7 @@ import AppSkeleton from "../components/commons/AppSkeleton";
 
 const Home = lazy(() => import("../pages/Home"));
 const Plans = lazy(() => import("../pages/Plans"));
-//const Settings = lazy(() => import("../pages/Settings"));
-const MusicPlayerSettings = lazy(() => import("../pages/Settings"));
+const Settings = lazy(() => import("../pages/Settings"));
 const FeatureRequests = lazy(() => import("../pages/FeatureRequests"));
 const Documentation = lazy(() => import("../pages/Documentation"));
 
@@ -35,15 +34,7 @@ export const appRoutes = createBrowserRouter([
         path: "/settings",
         element: (
           <Suspense fallback={<AppSkeleton />}>
-            <MusicPlayerSettings />
-          </Suspense>
-        ),
-      },
-      {
-        path: "/music-player-settings",
-        element: (
-          <Suspense fallback={<AppSkeleton />}>
-            <MusicPlayerSettings />
+            <Settings />
           </Suspense>
         ),
       },

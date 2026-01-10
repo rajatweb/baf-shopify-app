@@ -1,25 +1,22 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { storeSettingsApi } from "./api/store";
+import { storeApi } from "./api/store";
 import { subscriptionsApi } from "./api/subscriptions";
 import { shopApi } from "./api/shop";
-import { featureRequestsApi } from "./api/feature-requests";
-import { musicPlayerApi } from "./api/music-player";
+import { settingsApi } from "./api/settings";
 
 export const store = configureStore({
   reducer: {
-    [storeSettingsApi.reducerPath]: storeSettingsApi.reducer,
+    [storeApi.reducerPath]: storeApi.reducer,
     [subscriptionsApi.reducerPath]: subscriptionsApi.reducer,
     [shopApi.reducerPath]: shopApi.reducer,
-    [featureRequestsApi.reducerPath]: featureRequestsApi.reducer,
-    [musicPlayerApi.reducerPath]: musicPlayerApi.reducer,
+    [settingsApi.reducerPath]: settingsApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat([
-          storeSettingsApi.middleware,
-    subscriptionsApi.middleware,
-    shopApi.middleware,
-    featureRequestsApi.middleware,
-    musicPlayerApi.middleware,
+      storeApi.middleware,
+      subscriptionsApi.middleware,
+      shopApi.middleware,
+      settingsApi.middleware,
     ]),
 });
 

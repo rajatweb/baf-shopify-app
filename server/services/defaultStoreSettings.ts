@@ -1,18 +1,40 @@
 import prisma from "../utils/prisma";
 
 const defaultSettings = {
-  position: "bottom-right",
-  theme: "light",
-  collection: "",
-  showWatermark: false,
-  customLogo: "",
-  logoSize: "medium",
-  enableAddToCart: true,
-  showProductLabels: true,
-  showFilters: true,
-  hideSoldOut: false,
-  showButtonText: true,
-  buttonText: "Build A Fit",
+  collectionSettings: {
+    id: "",
+    title: "",
+    productCount: 0,
+    productLimit: 8,
+  },
+  appearanceSettings: {
+    position: "bottom-right",
+    showButtonText: true,
+    buttonText: "Build A Fit",
+    theme: "light",
+  },
+  generalSettings: {
+    showFilters: true,
+    hideSoldOut: false,
+  },
+  canvasSettings: {
+    showProductLabels: false,
+  },
+  brandingSettings: {
+    showWatermark: false,
+    customLogo: "",
+    logoSize: "100%",
+  },
+  additionalSettings: {
+    enableAddToCart: true,
+  },
+  cusstomCssSettings: {
+    customCss: "",
+  },
+  urlSettings: {
+    isHomePageOnly: true,
+    excludeUrls: [],
+  },
 };
 
 const saveDefaultSettings = async (shop: string) => {
