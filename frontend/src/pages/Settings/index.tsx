@@ -3,8 +3,8 @@ import { useGetSettingsQuery, useUpdateSettingsMutation } from "../../store/api/
 import { AppSkeleton } from "../../components/commons";
 import { useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
-import { AppearanceSettings, GeneralSettings } from "../../components/settings";
-import { TAppearanceSettings, TGeneralSettings, TStoreSettings } from "../../store/api/settings/type";
+import { AppearanceSettings, GeneralSettings, BrandingSettings, CanvasSettings, AdditionalSettings, CustomCssSettings } from "../../components/settings";
+import { TAdditionalSettings, TAppearanceSettings, TBrandingSettings, TCanvasSettings, TCustomCssSettings, TGeneralSettings, TStoreSettings } from "../../store/api/settings/type";
 import _ from "lodash";
 
 
@@ -67,6 +67,34 @@ const Settings = () => {
     const updateGeneralSettings = useCallback(
         (generalSettings: TGeneralSettings) => {
             setSettings((prev) => (prev ? { ...prev, generalSettings } : null));
+        },
+        [settings]
+    );
+
+    const updateBrandingSettings = useCallback(
+        (brandingSettings: TBrandingSettings) => {
+            setSettings((prev) => (prev ? { ...prev, brandingSettings } : null));
+        },
+        [settings]
+    );
+
+    const updateCanvasSettings = useCallback(
+        (canvasSettings: TCanvasSettings) => {
+            setSettings((prev) => (prev ? { ...prev, canvasSettings } : null));
+        },
+        [settings]
+    );
+
+    const updateAdditionalSettings = useCallback(
+        (additionalSettings: TAdditionalSettings) => {
+            setSettings((prev) => (prev ? { ...prev, additionalSettings } : null));
+        },
+        [settings]
+    );
+
+    const updateCustomCssSettings = useCallback(
+        (customCssSettings: TCustomCssSettings) => {
+            setSettings((prev) => (prev ? { ...prev, customCssSettings } : null));
         },
         [settings]
     );
@@ -211,6 +239,18 @@ const Settings = () => {
                                 )}
                                 {activeTab === "general" && (
                                     <GeneralSettings generalSettings={settings.generalSettings} updateSettings={updateGeneralSettings} />
+                                )}
+                                {activeTab === "branding" && (
+                                    <BrandingSettings brandingSettings={settings.brandingSettings} updateSettings={updateBrandingSettings} />
+                                )}
+                                {activeTab === "canvas" && (
+                                    <CanvasSettings canvasSettings={settings.canvasSettings} updateSettings={updateCanvasSettings} />
+                                )}
+                                {activeTab === "additional" && (
+                                    <AdditionalSettings additionalSettings={settings.additionalSettings} updateSettings={updateAdditionalSettings} />
+                                )}
+                                {activeTab === "custom-css" && (
+                                    <CustomCssSettings customCssSettings={settings.customCssSettings} updateSettings={updateCustomCssSettings} />
                                 )}
                             </div>
                         </>) : (

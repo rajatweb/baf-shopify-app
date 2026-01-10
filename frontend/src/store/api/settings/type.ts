@@ -29,7 +29,7 @@ export type TBrandingSettings = {
 export type TAdditionalSettings = {
   enableAddToCart: boolean;
 };
-export type TCusstomCssSettings = {
+export type TCustomCssSettings = {
   customCss: string;
 };
 
@@ -41,7 +41,7 @@ export type TStoreSettings = {
   canvasSettings: TCanvasSettings;
   brandingSettings: TBrandingSettings;
   additionalSettings: TAdditionalSettings;
-  cusstomCssSettings: TCusstomCssSettings;
+  customCssSettings: TCustomCssSettings;
 };
 
 export type TGetStoreSettingsResponse = {

@@ -28,7 +28,7 @@ const defaultSettings = {
   additionalSettings: {
     enableAddToCart: true,
   },
-  cusstomCssSettings: {
+  customCssSettings: {
     customCss: "",
   },
   urlSettings: {
