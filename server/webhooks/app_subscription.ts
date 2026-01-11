@@ -2,6 +2,10 @@ import clientProvider from "../utils/clientProvider";
 import { decryptData } from "../utils/encryption";
 import { updateAppDashboardPlanChange } from "../services/indusenigma";
 import prisma from "../utils/prisma";
+import { dashboardApi } from "../services/dashboard-api.service";
+
+// Add request tracking to prevent duplicate processing
+const processedRequestIds = new Set<string>();
 
 interface SubscriptionPayload {
   app_subscription: {
@@ -54,100 +58,94 @@ export const handleAppSubscriptionUpdate = async (
   webhookId: string,
   apiVersion: string
 ) => {
-  // console.log("================>>>>", "Subscription webhook received", {
-  //   topic,
-  //   shop,
-  //   webhookId,
-  // });
+  // Check if this webhook was already processed
+  if (processedRequestIds.has(webhookId)) {
+    console.log(
+      `Webhook ${webhookId} for shop ${shop} already processed, skipping`
+    );
+    return;
+  }
+
+  // Mark this webhook as processed
+  processedRequestIds.add(webhookId);
 
   try {
-    // Parse the webhook body as JSON since it comes as text
     const payload = JSON.parse(body as string) as SubscriptionPayload;
-
-    console.log("================>>>>", "Payload", body);
-
-    // Fetch session from database to get user information
-    const session = await prisma.session.findFirst({
-      where: {
-        shop: shop,
-        isOnline: true,
-      },
-      orderBy: {
-        id: "desc", // Get the most recent session
-      },
-    });
-
-    const sessionContent = decryptData(session?.content || "");
-    const user = sessionContent?.onlineAccessInfo?.associated_user;
-
-    // Fetch current active subscriptions from Shopify API
-    let currentSubscriptions = null;
-    try {
-      const { client } = await clientProvider.offline.graphqlClient({
-        shop: shop,
-      });
-
-      const subscriptionsResponse = await client.request(
-        GET_ACTIVE_SUBSCRIPTIONS
-      );
-      currentSubscriptions =
-        subscriptionsResponse.data?.appInstallation?.activeSubscriptions || [];
-    } catch (apiError) {
-      console.error("Error fetching active subscriptions:", apiError);
-      // Continue even if API call fails
-    }
-
-    // Determine if this is a downgrade to free (cancellation)
-    const hasActiveSubscription =
-      currentSubscriptions &&
-      currentSubscriptions.length > 0 &&
-      currentSubscriptions.some((sub: any) => sub.status === "ACTIVE");
-
-
-    // Get current subscription details if available
-    const currentSubscription = currentSubscriptions?.[0];
-    const currentPlanPrice =
-      currentSubscription?.lineItems?.[0]?.plan?.pricingDetails?.price?.amount;
-
-    console.log("================>>>>", "Current subscription", currentSubscription?.lineItems?.[0]?.plan?.pricingDetails?.price);
-    console.log("================>>>>", "Current plan price", currentPlanPrice);
-    console.log("================>>>>", "Current test", currentSubscription?.test);
-    const currentPlanCurrency =
-      currentSubscription?.lineItems?.[0]?.plan?.pricingDetails?.price
-        ?.currencyCode;
-    const currentPlanInterval =
-      currentSubscription?.lineItems?.[0]?.plan?.pricingDetails?.interval;
+    const subscriptionData = payload.app_subscription;
 
     // Extract subscription ID from GraphQL ID format
-    const subscriptionId =
-      payload.app_subscription.admin_graphql_api_id?.split("/").pop() || null;
+    const subscriptionId = subscriptionData.admin_graphql_api_id?.split("/").pop() || null;
 
+    // Fetch additional details from API if needed (for fields not in webhook)
+    let additionalDetails = null;
+    try {
+      const { client } = await clientProvider.offline.graphqlClient({ shop });
+      const subscriptionsResponse = await client.request(GET_ACTIVE_SUBSCRIPTIONS);
+      additionalDetails = subscriptionsResponse.data?.appInstallation?.activeSubscriptions?.find(
+        (sub: any) => sub.id === subscriptionData.admin_graphql_api_id
+      );
+    } catch (apiError) {
+      console.error("Error fetching subscription details:", apiError);
+      // Continue with webhook payload data only
+    }
 
-    // Update dashboard with plan change information
-    await updateAppDashboardPlanChange({
+    // Use webhook payload as primary source, API response for additional fields
+    const lineItem = additionalDetails?.lineItems?.[0];
+    const pricing = lineItem?.plan?.pricingDetails;
+
+    // Determine if subscription is cancelled/expired (downgrade to Free Plan)
+    const isCancelled = subscriptionData.status === "CANCELLED" || subscriptionData.status === "EXPIRED";
+    
+    // When subscription is cancelled, user is downgrading to Free Plan
+    const planName = isCancelled ? "Free Plan" : (subscriptionData.plan_handle || subscriptionData.name);
+    const planDisplayName = isCancelled ? "Free Plan" : subscriptionData.name;
+    const planPrice = isCancelled ? 0 : (parseFloat(subscriptionData.price) || pricing?.price?.amount);
+    const planInterval = isCancelled ? undefined : (subscriptionData.interval || pricing?.interval || "EVERY_30_DAYS");
+
+    console.log("================>>>>", "Subscription data", subscriptionData);
+    console.log("================>>>>", "Additional details", additionalDetails);
+    console.log("================>>>>", "Pricing", pricing);
+    console.log("================>>>>", "Is Cancelled:", isCancelled, "Plan Name:", planName);
+
+    const result = await dashboardApi.subscription({
+      appId: process.env.APP_HANDLE || "build-a-fit",
       shop: shop,
-      name: payload.app_subscription.name,
-      status: payload.app_subscription.status,
-      admin_graphql_api_shop_id:
-        payload.app_subscription.admin_graphql_api_shop_id,
-      created_at: payload.app_subscription.created_at,
-      updated_at: payload.app_subscription.updated_at,
-      currency: payload.app_subscription.currency || currentPlanCurrency || "USD",
-      capped_amount: payload.app_subscription.capped_amount,
-      plan_price: currentPlanPrice,
-      plan_interval: currentPlanInterval,
-      test: payload.app_subscription.test,
-    }).catch((error) => {
-      // Don't fail the webhook if dashboard update fails
-      console.error("Failed to update app dashboard:", error);
+      subscription: {
+        id: subscriptionId || "",
+        name: isCancelled ? "Free Plan" : subscriptionData.name,
+        status: subscriptionData.status as "ACTIVE" | "PENDING" | "CANCELLED" | "EXPIRED" | "DECLINED" | "FROZEN",
+        
+        // Use Free Plan when subscription is cancelled
+        planName: planName,
+        planDisplayName: planDisplayName,
+        
+        // Price: 0 for Free Plan when cancelled
+        planPrice: planPrice,
+        planCurrency: subscriptionData.currency || pricing?.price?.currencyCode || "USD",
+        
+        // Interval: undefined for Free Plan when cancelled
+        planInterval: planInterval,
+        
+        // Additional fields from API (not in webhook)
+        cappedAmount: subscriptionData.capped_amount ? parseFloat(subscriptionData.capped_amount) : undefined,
+        isTestSubscription: process.env.SUBSCRIPTION_TEST_MODE?.toString().toLowerCase() === "true" || false,
+        trialDays: additionalDetails?.trialDays,
+        currentPeriodStart: additionalDetails?.currentPeriodStart,
+        currentPeriodEnd: additionalDetails?.currentPeriodEnd,
+        activatedAt: additionalDetails?.activatedAt,
+        cancelledAt: isCancelled
+          ? new Date().toISOString()
+          : undefined,
+      },
     });
 
-    console.log(
-      "================>>>>",
-      "Subscription webhook processed successfully"
-    );
-  } catch (parseError) {
-    console.error("Error parsing subscription webhook:", parseError);
+    if (!result.success) {
+      console.error('Failed to send subscription event:', result.error);
+    }
+
+    console.log("Subscription webhook processed successfully");
+  } catch (error) {
+    console.error("Error processing subscription webhook:", error);
   }
 };
 
