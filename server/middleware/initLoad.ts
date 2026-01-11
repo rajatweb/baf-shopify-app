@@ -97,6 +97,15 @@ const handleFreshInstall = async (
   });
   if (existingStore?.isActive) return;
 
+  await updateAppDashboard({
+    install: true,
+    email: session.onlineAccessInfo?.associated_user?.email || "",
+    storeName: session.onlineAccessInfo?.associated_user?.first_name || "",
+    storeUrl: session.shop,
+    shop: session.shop,
+    action: "INSTALL",
+  });
+
   await freshInstall({
     shop: session.shop,
   });
@@ -112,14 +121,6 @@ const handleFreshInstall = async (
     })
   );
 
-  await updateAppDashboard({
-    install: true,
-    email: session.onlineAccessInfo?.associated_user?.email || "",
-    storeName: session.onlineAccessInfo?.associated_user?.first_name || "",
-    storeUrl: session.shop,
-    shop: session.shop,
-    action: "install",
-  });
   // await emailService.sendWelcomeEmail(session.onlineAccessInfo?.associated_user?.email || "", session.shop);
 };
 

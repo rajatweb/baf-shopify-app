@@ -33,6 +33,11 @@ const appUninstallHandler = async (
       },
     });
 
+    if (!isStore) {
+      console.log("================>>>>", "Store not found", shop);
+      return;
+    }
+
     const session = await prisma.session.findFirst({
       where: {
         shop: shop,
@@ -40,21 +45,28 @@ const appUninstallHandler = async (
       },
     });
 
+   
+
     const sessionContent = decryptData(session?.content || "");
     const userEmail = sessionContent?.onlineAccessInfo?.associated_user?.email;
 
-    console.log("================>>>>", "Updating app dashboard");
-
-    await updateAppDashboard({
-      install: false,
-      email: userEmail || "",
-      storeName: "",
-      storeUrl: shop,
-      shop: shop,
-      action: "uninstall",
+    await prisma.store.update({
+      where: {
+        shop: shop,
+      },
+      data: {
+        isActive: false,
+      },
     });
 
-    console.log("================>>>>", "App uninstalled successfully");
+    await updateAppDashboard({
+      shop: shop,
+      install: false,
+      email: userEmail || "",
+      storeName: shop || "",
+      storeUrl: shop,
+      action: "UNINSTALL",
+    });
   } catch (error) {
     console.error("Error handling app uninstall:", error);
     throw new Error(`Failed to process app uninstall for shop: ${shop}`);

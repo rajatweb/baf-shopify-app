@@ -31,13 +31,24 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
           );
           break;
         case "APP_SUBSCRIPTIONS_UPDATE":
-          await handleAppSubscriptionUpdate(req, res);
+          await handleAppSubscriptionUpdate(
+            topic as string,
+            shop as string,
+            req.body as string,
+            webhookId as string,
+            apiVersion as string
+          );
           return; // Return early since the handler sends its own response
         case "ORDERS_CREATE":
         case "ORDERS_UPDATED":
         case "ORDERS_CANCELLED":
         case "ORDERS_FULFILLED":
-          console.log("ORDERS_CREATE", "ORDERS_UPDATED", "ORDERS_CANCELLED", "ORDERS_FULFILLED");
+          console.log(
+            "ORDERS_CREATE",
+            "ORDERS_UPDATED",
+            "ORDERS_CANCELLED",
+            "ORDERS_FULFILLED"
+          );
           break;
         default:
           throw new Error(`Can't find a handler for ${validateWebhook.topic}`);
