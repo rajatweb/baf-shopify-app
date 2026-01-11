@@ -2,7 +2,6 @@ import { Router, Request, Response } from "express";
 import clientProvider from "../utils/clientProvider";
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
-import { updateAppDashboardPlanChange } from "../services/indusenigma";
 
 const subscriptionsRoutes = Router();
 const prisma = new PrismaClient();
@@ -248,26 +247,10 @@ subscriptionsRoutes.post(
         },
       });
 
-      console.log("================>>>>", "Active subscription", activeSubscription, shop);
-      await updateAppDashboardPlanChange({
-        shop: shop,
-        name: process.env.APP_HANDLE || "build-a-fit",
-        status: activeSubscription.status,
-        admin_graphql_api_shop_id: activeSubscription.id,
-        created_at: activeSubscription.created_at,
-        updated_at: activeSubscription.updated_at,
-        currency: "USD",
-        capped_amount: undefined,
-        plan_price: 0,
-        plan_interval: "0",
-        test: activeSubscription.test,
-      }).catch((error) => {
-        // Don't fail the webhook if dashboard update fails
-        console.error("Failed to update app dashboard:", error);
-      });
+      // Note: Dashboard will be updated via webhook when Shopify processes the cancellation
+      // No need to manually call dashboardApi here - webhook is the source of truth
 
       // Update database to reflect cancellation and enforce free plan limits
-
       res.status(200).json({
         success: true,
         data: response.data,

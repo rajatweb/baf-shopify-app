@@ -6,7 +6,7 @@ import shopify from "../utils/shopify";
 import freshInstall from "../utils/freshinstall";
 import prisma from "../utils/prisma";
 import { saveAppMetafiles } from "../utils/appMetafilesProvider";
-import { updateAppDashboard } from "../services/indusenigma";
+import { dashboardApi } from "../services/dashboard-api.service";
 // Add at the top of the file
 const processingShops = new Set<string>();
 
@@ -97,13 +97,24 @@ const handleFreshInstall = async (
   });
   if (existingStore?.isActive) return;
 
-  await updateAppDashboard({
-    install: true,
-    email: session.onlineAccessInfo?.associated_user?.email || "",
-    storeName: session.onlineAccessInfo?.associated_user?.first_name || "",
-    storeUrl: session.shop,
+  console.log("================>>>>", "Session", session);
+
+  // Send installation event to dashboard
+  const result = await dashboardApi.install({
+    appId: process.env.APP_HANDLE || "build-a-fit",
     shop: session.shop,
-    action: "INSTALL",
+    storeName: session.shop.split(".")[0],
+    storeUrl: session.shop,
+    email: session.onlineAccessInfo?.associated_user?.email || "",
+    metadata: {
+      currency: session.onlineAccessInfo?.associated_user?.locale || "",
+      timezone: session.onlineAccessInfo?.associated_user?.locale || "",
+      shopOwner:
+        session.onlineAccessInfo?.associated_user?.first_name ||
+        "" + " " + session.onlineAccessInfo?.associated_user?.last_name ||
+        "",
+      myshopifyDomain: session.shop,
+    },
   });
 
   await freshInstall({

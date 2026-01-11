@@ -1,4 +1,4 @@
-import { updateAppDashboard } from "../services/indusenigma";
+import { dashboardApi } from "../services/dashboard-api.service";
 import { decryptData } from "../utils/encryption";
 import prisma from "../utils/prisma";
 
@@ -45,8 +45,6 @@ const appUninstallHandler = async (
       },
     });
 
-   
-
     const sessionContent = decryptData(session?.content || "");
     const userEmail = sessionContent?.onlineAccessInfo?.associated_user?.email;
 
@@ -59,13 +57,10 @@ const appUninstallHandler = async (
       },
     });
 
-    await updateAppDashboard({
+    // Send uninstallation event to dashboard
+    const result = await dashboardApi.uninstall({
+      appId: process.env.APP_HANDLE || "build-a-fit",
       shop: shop,
-      install: false,
-      email: userEmail || "",
-      storeName: shop || "",
-      storeUrl: shop,
-      action: "UNINSTALL",
     });
   } catch (error) {
     console.error("Error handling app uninstall:", error);
