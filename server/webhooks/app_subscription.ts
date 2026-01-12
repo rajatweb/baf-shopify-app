@@ -76,12 +76,19 @@ export const handleAppSubscriptionUpdate = async (
     // Extract subscription ID from GraphQL ID format
     const subscriptionId = subscriptionData.admin_graphql_api_id?.split("/").pop() || null;
 
-    // Fetch additional details from API if needed (for fields not in webhook)
+    // Determine if subscription is cancelled
+    const isCancelled = subscriptionData.status === "CANCELLED" || subscriptionData.status === "EXPIRED";
+
+    // Fetch all active subscriptions to check if user has any active subscriptions
+    let activeSubscriptions = [];
     let additionalDetails = null;
     try {
       const { client } = await clientProvider.offline.graphqlClient({ shop });
       const subscriptionsResponse = await client.request(GET_ACTIVE_SUBSCRIPTIONS);
-      additionalDetails = subscriptionsResponse.data?.appInstallation?.activeSubscriptions?.find(
+      activeSubscriptions = subscriptionsResponse.data?.appInstallation?.activeSubscriptions || [];
+      
+      // Find additional details for the current subscription
+      additionalDetails = activeSubscriptions.find(
         (sub: any) => sub.id === subscriptionData.admin_graphql_api_id
       );
     } catch (apiError) {
@@ -89,41 +96,59 @@ export const handleAppSubscriptionUpdate = async (
       // Continue with webhook payload data only
     }
 
+    // Skip cancelled webhooks if user has active subscriptions (upgrade scenario)
+    // Only process cancelled webhooks if there are no active subscriptions (downgrade to free)
+    if (isCancelled && activeSubscriptions.length > 0) {
+      console.log(
+        `Skipping cancelled subscription webhook for ${subscriptionData.name} (ID: ${subscriptionId}) - user has ${activeSubscriptions.length} active subscription(s). This is an upgrade scenario.`
+      );
+      return;
+    }
+
     // Use webhook payload as primary source, API response for additional fields
     const lineItem = additionalDetails?.lineItems?.[0];
     const pricing = lineItem?.plan?.pricingDetails;
 
-    // Determine if subscription is cancelled/expired (downgrade to Free Plan)
-    const isCancelled = subscriptionData.status === "CANCELLED" || subscriptionData.status === "EXPIRED";
-    
-    // When subscription is cancelled, user is downgrading to Free Plan
-    const planName = isCancelled ? "Free Plan" : (subscriptionData.plan_handle || subscriptionData.name);
-    const planDisplayName = isCancelled ? "Free Plan" : subscriptionData.name;
-    const planPrice = isCancelled ? 0 : (parseFloat(subscriptionData.price) || pricing?.price?.amount);
-    const planInterval = isCancelled ? undefined : (subscriptionData.interval || pricing?.interval || "EVERY_30_DAYS");
+    // When subscription is cancelled and no active subscriptions, user is downgrading to Free Plan
+    const isDowngradeToFree = isCancelled && activeSubscriptions.length === 0;
 
-    console.log("================>>>>", "Subscription data", subscriptionData);
+    console.log("================>>>>", "Shop", shop);
+    console.log("================>>>>", "Subscription Status", subscriptionData.status);
+    console.log("================>>>>", "Is Cancelled", isCancelled);
+    console.log("================>>>>", "Active Subscriptions Count", activeSubscriptions.length);
+    console.log("================>>>>", "Is Downgrade to Free", isDowngradeToFree);
     console.log("================>>>>", "Additional details", additionalDetails);
     console.log("================>>>>", "Pricing", pricing);
-    console.log("================>>>>", "Is Cancelled:", isCancelled, "Plan Name:", planName);
+
+    // Set plan data based on subscription status
+    const planName = isDowngradeToFree 
+      ? "Free Plan" 
+      : (subscriptionData.plan_handle || subscriptionData.name);
+    const planDisplayName = isDowngradeToFree ? "Free Plan" : subscriptionData.name;
+    const planPrice = isDowngradeToFree 
+      ? 0 
+      : (parseFloat(subscriptionData.price) || pricing?.price?.amount);
+    const planInterval = isDowngradeToFree 
+      ? undefined 
+      : (subscriptionData.interval || pricing?.interval || "EVERY_30_DAYS");
 
     const result = await dashboardApi.subscription({
       appId: process.env.APP_HANDLE || "build-a-fit",
       shop: shop,
       subscription: {
         id: subscriptionId || "",
-        name: isCancelled ? "Free Plan" : subscriptionData.name,
+        name: isDowngradeToFree ? "Free Plan" : subscriptionData.name,
         status: subscriptionData.status as "ACTIVE" | "PENDING" | "CANCELLED" | "EXPIRED" | "DECLINED" | "FROZEN",
         
-        // Use Free Plan when subscription is cancelled
+        // Use Free Plan when downgrading, otherwise use webhook payload data
         planName: planName,
         planDisplayName: planDisplayName,
         
-        // Price: 0 for Free Plan when cancelled
+        // Price: 0 for Free Plan, otherwise use webhook payload or API response
         planPrice: planPrice,
         planCurrency: subscriptionData.currency || pricing?.price?.currencyCode || "USD",
         
-        // Interval: undefined for Free Plan when cancelled
+        // Interval: undefined for Free Plan, otherwise use webhook payload or API response
         planInterval: planInterval,
         
         // Additional fields from API (not in webhook)
@@ -133,7 +158,7 @@ export const handleAppSubscriptionUpdate = async (
         currentPeriodStart: additionalDetails?.currentPeriodStart,
         currentPeriodEnd: additionalDetails?.currentPeriodEnd,
         activatedAt: additionalDetails?.activatedAt,
-        cancelledAt: isCancelled
+        cancelledAt: subscriptionData.status === "CANCELLED" || subscriptionData.status === "EXPIRED"
           ? new Date().toISOString()
           : undefined,
       },
