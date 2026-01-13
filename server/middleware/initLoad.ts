@@ -97,11 +97,10 @@ const handleFreshInstall = async (
   });
   if (existingStore?.isActive) return;
 
-  console.log("================>>>>", "Session", session);
-
   // Send installation event to dashboard
   const result = await dashboardApi.install({
     appId: process.env.APP_HANDLE || "build-a-fit",
+    name: process.env.APP_NAME || "Build a Fit",
     shop: session.shop,
     storeName: session.shop.split(".")[0],
     storeUrl: session.shop,
@@ -116,6 +115,37 @@ const handleFreshInstall = async (
       myshopifyDomain: session.shop,
     },
   });
+
+  if (!result.success) {
+    console.error('Failed to send fresh install event:', result.error);
+  }
+
+  const freshInstallSubscription = await dashboardApi.subscription({
+    appId: process.env.APP_HANDLE || "build-a-fit",
+    shop: session.shop,
+    subscription: {
+      id: "",
+      name: "Free Plan",
+      status: "ACTIVE",
+      cappedAmount: 0,
+      isTestSubscription: process.env.SUBSCRIPTION_TEST_MODE?.toString().toLowerCase() === "true" || false,
+      trialDays: 0,
+      currentPeriodStart: new Date().toISOString(),
+      currentPeriodEnd: new Date().toISOString(),
+      activatedAt: new Date().toISOString(),
+      cancelledAt: undefined,
+      planInterval: undefined,
+      
+      planName: "Free Plan",
+      planDisplayName: "Free Plan",
+      planPrice: 0,
+      planCurrency: "USD",
+    },
+  });
+
+  if (!freshInstallSubscription.success) {
+    console.error('Failed to send fresh install subscription event:', freshInstallSubscription.error);
+  }
 
   await freshInstall({
     shop: session.shop,

@@ -1,6 +1,5 @@
 import clientProvider from "../utils/clientProvider";
 import { decryptData } from "../utils/encryption";
-import { updateAppDashboardPlanChange } from "../services/indusenigma";
 import prisma from "../utils/prisma";
 import { dashboardApi } from "../services/dashboard-api.service";
 

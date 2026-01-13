@@ -43,6 +43,7 @@ export interface ShopMetadata {
  */
 export interface InstallEventPayload {
   appId: string;
+  name: string;
   shop: string;
   storeName: string;
   storeUrl?: string;
