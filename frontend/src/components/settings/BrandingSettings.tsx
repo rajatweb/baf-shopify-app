@@ -2,6 +2,8 @@ import { TBrandingSettings } from "../../store/api/settings/type";
 import { useEffect, useState } from "react";
 import _ from "lodash";
 import { KnobComponent } from "../web-components";
+import { AlbumArtUploadComponent } from "../commons/AlbumArtUploadComponent";
+import { RangeSliderComponent } from "../web-components/RangeSliderComponent";
 
 type TProps = {
     brandingSettings: TBrandingSettings;
@@ -12,6 +14,8 @@ export const BrandingSettings = ({ brandingSettings, updateSettings }: TProps) =
         useState<TBrandingSettings>(brandingSettings);
     const [propSnapshot, setPropSnapshot] =
         useState<TBrandingSettings>(brandingSettings);
+
+
 
     useEffect(() => {
         if (!_.isEqual(propSnapshot, brandingSettings)) {
@@ -52,6 +56,25 @@ export const BrandingSettings = ({ brandingSettings, updateSettings }: TProps) =
                             onValueChange={({ name, value }) => handleChange(name as keyof TBrandingSettings, value)}
                             description="Adds your logo and store URL to shared/downloaded images"
                         />
+                        {settings.showWatermark && (
+                            <s-stack direction="block" gap="small">
+                                <AlbumArtUploadComponent
+                                    albumArtUrl={settings.customLogo}
+                                    onAlbumArtChange={(url) => handleChange("customLogo", url)}
+                                />
+                                <RangeSliderComponent
+                                    label="Logo Size"
+                                    name="logoSize"
+                                    min={50}
+                                    max={100}
+                                    step={10}
+                                    value={settings.logoSize}
+                                    onValueChange={({ name, value }) =>
+                                        handleChange(name as keyof TBrandingSettings, value)
+                                    }
+                                />
+                            </s-stack>
+                        )}
                     </s-stack>
                 </s-stack>
             </s-box>

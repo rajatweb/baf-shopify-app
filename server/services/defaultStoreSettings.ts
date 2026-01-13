@@ -6,6 +6,7 @@ const defaultSettings = {
     title: "",
     productCount: 0,
     productLimit: 8,
+    collectionHandle: "",
   },
   appearanceSettings: {
     position: "bottom-right",
@@ -23,7 +24,7 @@ const defaultSettings = {
   brandingSettings: {
     showWatermark: false,
     customLogo: "",
-    logoSize: "100%",
+    logoSize: 100,
   },
   additionalSettings: {
     enableAddToCart: true,

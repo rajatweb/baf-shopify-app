@@ -19,6 +19,7 @@ import subscriptionsRoutes from "./routes/subscriptions";
 import shopRoutes from "./routes/shop";
 import storeRoutes from "./routes/store";
 import storeSettingsRoutes from "./routes/store-settings";
+import shopAssetsRoutes from "./routes/shop-assests";
 
 // Controllers
 import { shopRedact } from "./controllers/gdpr";
@@ -59,7 +60,7 @@ const startServer = async (server: any) => {
   app.use("/api/shop", verifyRequest, shopRoutes);
   app.use("/api/store", verifyRequest, storeRoutes);
   app.use("/api/store-settings", verifyRequest, storeSettingsRoutes);
-
+  app.use("/api/shop-assets", verifyRequest, shopAssetsRoutes);
   app.use(csp);
   app.use(initLoad);
 

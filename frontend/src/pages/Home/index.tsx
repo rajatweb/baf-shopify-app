@@ -17,9 +17,10 @@ export default function Home() {
       try {
         const selected = await shopify.resourcePicker({ type: 'collection' });
         if (selected?.selection[0]) {
-          const selectedCollection = selected?.selection[0] as { id: string, title: string, productsCount: number };
-          const { id = "", title = "", productsCount = 0 } = selectedCollection;
-          await updateSettings({ settings: { ...settings, collectionSettings: { ...settings.collectionSettings, id, title, productCount: productsCount } } }).unwrap();
+          const selectedCollection = selected?.selection[0] as { id: string, title: string, productsCount: number, handle: string };
+          const { id = "", title = "", productsCount = 0, handle = "" } = selectedCollection;
+
+          await updateSettings({ settings: { ...settings, collectionSettings: { ...settings.collectionSettings, id, title, productCount: productsCount, collectionHandle: handle } } }).unwrap();
           shopify.toast.show("Collection selected successfully");
         } else {
           throw new Error("No collection selected to select");
@@ -43,9 +44,9 @@ export default function Home() {
       try {
         const selected = await shopify.resourcePicker({ type: 'collection', selectionIds: [{ id: collectionId }] });
         if (selected?.selection[0]) {
-          const selectedCollection = selected?.selection[0] as { id: string, title: string, productsCount: number };
-          const { id = "", title = "", productsCount = 0 } = selectedCollection;
-          await updateSettings({ settings: { ...settings, collectionSettings: { ...settings.collectionSettings, id, title, productCount: productsCount } } }).unwrap();
+          const selectedCollection = selected?.selection[0] as { id: string, title: string, productsCount: number, handle: string };
+          const { id = "", title = "", productsCount = 0, handle = "" } = selectedCollection;
+          await updateSettings({ settings: { ...settings, collectionSettings: { ...settings.collectionSettings, id, title, productCount: productsCount, collectionHandle: handle } } }).unwrap();
           shopify.toast.show("Collection changed successfully");
         } else {
           throw new Error("No collection selected to change");

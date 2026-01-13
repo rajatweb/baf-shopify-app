@@ -3,6 +3,7 @@ import { storeApi } from "./api/store";
 import { subscriptionsApi } from "./api/subscriptions";
 import { shopApi } from "./api/shop";
 import { settingsApi } from "./api/settings";
+import { shopAssetsApi } from "./api/shop-assests";
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     [subscriptionsApi.reducerPath]: subscriptionsApi.reducer,
     [shopApi.reducerPath]: shopApi.reducer,
     [settingsApi.reducerPath]: settingsApi.reducer,
+    [shopAssetsApi.reducerPath]: shopAssetsApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat([
@@ -17,6 +19,7 @@ export const store = configureStore({
       subscriptionsApi.middleware,
       shopApi.middleware,
       settingsApi.middleware,
+      shopAssetsApi.middleware,
     ]),
 });
 

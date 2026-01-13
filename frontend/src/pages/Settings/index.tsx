@@ -4,7 +4,7 @@ import { AppSkeleton } from "../../components/commons";
 import { useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 import { AppearanceSettings, GeneralSettings, BrandingSettings, CanvasSettings, AdditionalSettings, CustomCssSettings } from "../../components/settings";
-import { TAdditionalSettings, TAppearanceSettings, TBrandingSettings, TCanvasSettings, TCustomCssSettings, TGeneralSettings, TStoreSettings } from "../../store/api/settings/type";
+import { TAdditionalSettings, TAppearanceSettings, TBrandingSettings, TCanvasSettings, TCustomCssSettings, TGeneralSettings, TStoreSettings, TUrlSettings } from "../../store/api/settings/type";
 import _ from "lodash";
 
 
@@ -86,8 +86,8 @@ const Settings = () => {
     );
 
     const updateAdditionalSettings = useCallback(
-        (additionalSettings: TAdditionalSettings) => {
-            setSettings((prev) => (prev ? { ...prev, additionalSettings } : null));
+        (additionalSettings: { additionalSettings: TAdditionalSettings; urlSettings: TUrlSettings }) => {
+            setSettings((prev) => (prev ? { ...prev, additionalSettings: additionalSettings.additionalSettings, urlSettings: additionalSettings.urlSettings } : null));
         },
         [settings]
     );
@@ -247,7 +247,7 @@ const Settings = () => {
                                     <CanvasSettings canvasSettings={settings.canvasSettings} updateSettings={updateCanvasSettings} />
                                 )}
                                 {activeTab === "additional" && (
-                                    <AdditionalSettings additionalSettings={settings.additionalSettings} updateSettings={updateAdditionalSettings} />
+                                    <AdditionalSettings additionalSettings={{ additionalSettings: settings.additionalSettings, urlSettings: settings.urlSettings }} updateSettings={updateAdditionalSettings} />
                                 )}
                                 {activeTab === "custom-css" && (
                                     <CustomCssSettings customCssSettings={settings.customCssSettings} updateSettings={updateCustomCssSettings} />

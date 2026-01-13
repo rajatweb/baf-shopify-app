@@ -1,10 +1,86 @@
-<span style="color:{{ block.settings.colour }}">
-  <h2>Hello WIdget</h2>
-</span>
-
 {% schema %}
 {
   "name": "Build A Fit Widget",
   "target": "body"
 }
 {% endschema %}
+
+{% comment %} Get URL settings from metafields (JSON metafields are automatically parsed) {% endcomment %}
+{% assign url_settings_json = app.metafields['baf_app_widget_theme-extension']['url-settings'] %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+
+
+    // Parse URL settings
+    let urlSettings = {
+      isHomePageOnly: true,
+      excludeUrls: [],
+    };
+      {% if url_settings_json and url_settings_json != blank %}
+      const parsedSettings = {{ url_settings_json }};
+      if(Object.keys(parsedSettings)?.length > 0){
+        urlSettings = parsedSettings;
+      }
+      {% endif %}
+    const currentPath = window.location.pathname;
+
+    let shouldDisplay = true;
+
+    // Homepage check
+    const isHomePageOnly = urlSettings?.isHomePageOnly === true;
+    const isHomePage = currentPath === '/';
+
+    if (isHomePageOnly && !isHomePage) {
+      shouldDisplay = false;
+    }
+
+    // Exclude URLs check
+    if (shouldDisplay && Array.isArray(urlSettings?.excludeUrls)) {
+      if (urlSettings.excludeUrls.includes(currentPath)) {
+        shouldDisplay = false;
+      }
+    }
+
+    // Only create player if allowed
+    if (!shouldDisplay) return;
+
+    // Load player script
+    const script = document.createElement('script');
+    script.src = "{{ 'custom-elements.js' | asset_url }}";
+    script.defer = true
+    document.body.appendChild(script);
+
+    try {
+      const response = await fetch('/apps/build-afit-app-001/store-settings', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) {
+        return;
+      }
+
+      const result = await response.json();
+      if (!result || !result.data || typeof result.data !== 'object') {
+        console.error('Invalid store settings data received');
+        return;
+      }
+
+      const apiSettings = result.data;
+
+      const finalSettings = {
+        ...apiSettings,
+      };
+
+      // Create the player element
+      const widget = document.createElement('build-a-fit-app');
+      widget.id = 'build-a-fit-app';
+      widget.setAttribute('data', JSON.stringify(finalSettings));
+      document.body.appendChild(widget);
+
+    } catch (error) {
+      console.error('Failed to fetch store settings:', error);
+    }
+  });
+</script>

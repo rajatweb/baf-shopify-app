@@ -7,6 +7,7 @@ export type TCollectionSettings = {
   title: string;
   productCount: number;
   productLimit: number;
+  collectionHandle: string;
 };
 export type TAppearanceSettings = {
   position: "bottom-right" | "bottom-left" | "top-right" | "top-left";
@@ -24,7 +25,7 @@ export type TCanvasSettings = {
 export type TBrandingSettings = {
   showWatermark: boolean;
   customLogo: string;
-  logoSize: "small" | "medium" | "large";
+  logoSize: number;
 };
 export type TAdditionalSettings = {
   enableAddToCart: boolean;
