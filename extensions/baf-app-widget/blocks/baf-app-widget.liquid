@@ -77,6 +77,9 @@
       const widget = document.createElement('build-a-fit-app');
       widget.id = 'build-a-fit-app';
       widget.setAttribute('data', JSON.stringify(finalSettings));
+      widget.addEventListener('add-to-cart', (e) => console.log('ADD TO CART:', e.detail));
+      widget.addEventListener('product-click', (e) => console.log('PRODUCT CLICK:', e.detail));
+      widget.addEventListener('product-share', (e) => console.log('PRODUCT SHARE:', e.detail));
       document.body.appendChild(widget);
 
     } catch (error) {
