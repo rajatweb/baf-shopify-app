@@ -8,6 +8,7 @@ const Plans = lazy(() => import("../pages/Plans"));
 const Settings = lazy(() => import("../pages/Settings"));
 const FeatureRequests = lazy(() => import("../pages/FeatureRequests"));
 const Documentation = lazy(() => import("../pages/Documentation"));
+const Analytics = lazy(() => import("../pages/Analytics"));
 
 export const appRoutes = createBrowserRouter([
   {
@@ -18,6 +19,15 @@ export const appRoutes = createBrowserRouter([
         element: (
           <Suspense fallback={<AppSkeleton />}>
             <Home />
+          </Suspense>
+        ),
+      },
+
+      {
+        path: "/analytics",
+        element: (
+          <Suspense fallback={<AppSkeleton />}>
+            <Analytics />
           </Suspense>
         ),
       },
