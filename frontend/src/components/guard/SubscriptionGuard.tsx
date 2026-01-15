@@ -38,6 +38,7 @@ export const SubscriptionGuard = () => {
         <Link to="/" rel="home">
           Home
         </Link>
+        <Link to="/analytics">Analytics</Link>
         <Link to="/settings">Settings</Link>
         <Link to="/plans">Plans</Link>
         <Link to="/documentation">Documentation</Link>
