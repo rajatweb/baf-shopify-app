@@ -16,6 +16,7 @@ import {
 } from "../../store/api/settings";
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useResourcePicker } from "../../hooks/useResourcePicker";
 
 import AppHeader from "../../components/commons/Header";
 
@@ -77,11 +78,12 @@ export default function Home() {
   const collectionId = settings?.collectionSettings?.id;
   const navigate = useNavigate();
   const shopify = useAppBridge();
+  const { openResourcePicker } = useResourcePicker();
 
-  const openResourcePicker = useCallback(async () => {
+  const openResourcePickerHandler = useCallback(async () => {
     if (settings) {
       try {
-        const selected = await shopify.resourcePicker({ type: "collection" });
+        const selected = await openResourcePicker({ type: "collection", action: "select" });
         if (selected?.selection[0]) {
           const selectedCollection = selected?.selection[0] as {
             id: string;
@@ -124,14 +126,15 @@ export default function Home() {
         }
       }
     }
-  }, [shopify, settings, updateSettings]);
+  }, [openResourcePicker, shopify, settings, updateSettings]);
 
   const handleCollectionChange = useCallback(
     async (collectionId: string) => {
       if (settings && collectionId) {
         try {
-          const selected = await shopify.resourcePicker({
+          const selected = await openResourcePicker({
             type: "collection",
+            action: "select",
             selectionIds: [{ id: collectionId }],
           });
           if (selected?.selection[0]) {
@@ -176,7 +179,7 @@ export default function Home() {
         }
       }
     },
-    [shopify, updateSettings, settings]
+    [openResourcePicker, shopify, updateSettings, settings]
   );
 
   const handleUpgrade = useCallback(() => {
@@ -222,7 +225,7 @@ export default function Home() {
             description="Select a collection and customize how the widget appears on your store."
             primaryAction={{
               label: "Get Started",
-              onClick: openResourcePicker,
+              onClick: openResourcePickerHandler,
             }}
           />
         </s-stack>
