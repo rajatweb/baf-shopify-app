@@ -1,4 +1,5 @@
 import shopify from "../utils/shopify";
+import appOrderHandler from "./app_orders";
 import { handleAppSubscriptionUpdate } from "./app_subscription";
 import appUninstallHandler from "./app_uninstalled";
 import { Request, Response } from "express";
@@ -34,10 +35,21 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
           await handleAppSubscriptionUpdate(req, res);
           return; // Return early since the handler sends its own response
         case "ORDERS_CREATE":
+          await appOrderHandler(
+            topic as string,
+            shop as string,
+            req.body as string
+          );
+          break;
         case "ORDERS_UPDATED":
         case "ORDERS_CANCELLED":
         case "ORDERS_FULFILLED":
-          console.log("ORDERS_CREATE", "ORDERS_UPDATED", "ORDERS_CANCELLED", "ORDERS_FULFILLED");
+          console.log(
+            "ORDERS_CREATE",
+            "ORDERS_UPDATED",
+            "ORDERS_CANCELLED",
+            "ORDERS_FULFILLED"
+          );
           break;
         default:
           throw new Error(`Can't find a handler for ${validateWebhook.topic}`);

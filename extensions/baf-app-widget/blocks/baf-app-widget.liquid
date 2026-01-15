@@ -77,9 +77,27 @@
       const widget = document.createElement('build-a-fit-app');
       widget.id = 'build-a-fit-app';
       widget.setAttribute('data', JSON.stringify(finalSettings));
-      widget.addEventListener('add-to-cart', (e) => console.log('ADD TO CART:', e.detail));
-      widget.addEventListener('product-click', (e) => console.log('PRODUCT CLICK:', e.detail));
-      widget.addEventListener('product-share', (e) => console.log('PRODUCT SHARE:', e.detail));
+      widget.addEventListener('add-to-cart', (e) => {
+        fetch('/apps/build-afit-app-001/product-add-to-cart', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId: e.detail.toString() }),
+        });
+        } );
+      widget.addEventListener('product-click', (e) =>{
+        fetch('/apps/build-afit-app-001/product-click', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId: e.detail.id.toString(), productTitle: e.detail.title, productImageUrl: e.detail.imageUrl }),
+        });
+      });
+      widget.addEventListener('product-share', (e) => {
+        fetch('/apps/build-afit-app-001/fits-shared', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productIds: e.detail.map((p) => p.toString()) }),
+        });
+      });
       document.body.appendChild(widget);
 
     } catch (error) {

@@ -14,6 +14,7 @@ export const RangeSliderComponent = ({
   isTextField,
   details,
   disabled = false,
+  isTextFieldDisabled = false,
 }: TRangeSliderProps) => {
   return (
     <s-stack direction="block" gap="small">
@@ -47,7 +48,7 @@ export const RangeSliderComponent = ({
               value={String(value)}
               prefix={prefix}
               suffix={suffix}
-              disabled={disabled}
+              disabled={disabled || isTextFieldDisabled}
             />
           )}
         </s-box>

@@ -1,17 +1,45 @@
-interface Stat {
-  label: string;
-  value: string | number;
-  change?: {
-    value: string;
-    positive?: boolean;
-  };
-}
+import { TStoreAnalytics } from "../../store/api/shop-analytics/types";
 
-interface StatsGridProps {
-  stats: Stat[];
-}
+export const StatsGrid = ({ analytics }: { analytics: TStoreAnalytics }) => {
+  const stats = [
+    {
+      label: "Revenue",
+      value: analytics.totalRevenue,
+      change: analytics.totalRevenueChange,
+      formatter: (val: number) => `$${val.toLocaleString()}`,
+    },
+    {
+      label: "Fits Shared",
+      value: analytics.totalFitsShared,
+      change: analytics.totalFitsSharedChange,
+      formatter: (val: number) => val.toLocaleString(),
+    },
+    {
+      label: "Product Clicks",
+      value: analytics.totalClicks,
+      change: analytics.totalClicksChange,
+      formatter: (val: number) => val.toLocaleString(),
+    },
+    {
+      label: "Add to Cart",
+      value: analytics.totalAddToCartCount,
+      change: analytics.totalAddToCartCountChange,
+      formatter: (val: number) => val.toLocaleString(),
+    },
+    {
+      label: "Purchases",
+      value: analytics.totalPurchaseCount,
+      change: analytics.totalPurchaseCountChange,
+      formatter: (val: number) => val.toLocaleString(),
+    },
+    {
+      label: "Conversion",
+      value: analytics.conversionRate,
+      change: analytics.conversionRateChange,
+      formatter: (val: number) => `${val.toFixed(1)}%`,
+    },
+  ];
 
-export const StatsGrid = ({ stats }: StatsGridProps) => {
   return (
     <div
       style={{
@@ -34,9 +62,7 @@ export const StatsGrid = ({ stats }: StatsGridProps) => {
               {stat.label}
             </span>
             <span style={{ fontSize: "28px", fontWeight: 700 }}>
-              {typeof stat.value === "number" 
-                ? stat.value.toLocaleString() 
-                : stat.value}
+              {stat.formatter(stat.value)}
             </span>
             {stat.change && (
               <span

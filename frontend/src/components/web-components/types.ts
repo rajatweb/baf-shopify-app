@@ -29,6 +29,7 @@ export type TRangeSliderProps = {
   isTextField?: boolean;
   details?: string;
   disabled?: boolean;
+  isTextFieldDisabled?: boolean;
 };
 
 export type TKnobProps = {

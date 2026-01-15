@@ -23,8 +23,7 @@ let shopify = shopifyApi({
   },
   logger: {
     level:
-      process.env.NODE_ENV === "development" ||
-      process.env.NODE_ENV === "stage"
+      process.env.NODE_ENV === "development" || process.env.NODE_ENV === "stage"
         ? LogSeverity.Debug
         : LogSeverity.Error,
   },
@@ -39,6 +38,7 @@ const webhooksTopic = [
     topics: ["app_subscriptions/update"],
     url: "/api/webhooks/app_subscription",
   },
+  { topics: ["orders/create"], url: "/api/webhooks/app_orders" },
 ];
 
 export default shopify;

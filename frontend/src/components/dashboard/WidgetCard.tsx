@@ -1,15 +1,11 @@
-interface TopProduct {
-  rank: number;
-  name: string;
-  fitsCount: number;
-  clicksCount: number;
-}
+import { TProductAnalytics } from "../../store/api/shop-analytics/types";
+
 
 interface WidgetCardProps {
   isLive: boolean;
   widgetName: string;
   widgetMeta: string;
-  topProducts?: TopProduct[];
+  topProducts?: TProductAnalytics[];
   onEditSettings?: () => void;
   onChangeCollection?: () => void;
 }
@@ -81,68 +77,70 @@ export const WidgetCard = ({
               )}
             </s-stack>
           )}
-          {topProducts && topProducts.length > 0 && (
-            <div
-              style={{
-                marginTop: "20px",
-                paddingTop: "20px",
-                borderTop: "1px solid #e1e3e5",
-              }}
-            >
-              <s-stack direction="block" gap="base">
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "#6d7175" }}>
-                  Top 3 Most Used in Fits
-                </span>
-                {topProducts.map((product, index) => (
+          <div
+            style={{
+              marginTop: "20px",
+              paddingTop: "20px",
+              borderTop: "1px solid #e1e3e5",
+            }}
+          >
+            <s-stack direction="block" gap="base">
+              <span style={{ fontSize: "13px", fontWeight: 600, color: "#6d7175" }}>
+                Top 3 Most Used in Fits
+              </span>
+              {topProducts && topProducts.length > 0 ? topProducts.map((product, index) => (
+                <div
+                  key={index}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    padding: "10px 0",
+                    borderBottom: index < topProducts.length - 1 ? "1px solid #f1f2f3" : "none",
+                  }}
+                >
                   <div
-                    key={index}
                     style={{
+                      width: "22px",
+                      height: "22px",
+                      background: "#f6f6f7",
+                      borderRadius: "6px",
                       display: "flex",
                       alignItems: "center",
-                      gap: "12px",
-                      padding: "10px 0",
-                      borderBottom: index < topProducts.length - 1 ? "1px solid #f1f2f3" : "none",
+                      justifyContent: "center",
+                      fontSize: "11px",
+                      fontWeight: 600,
+                      color: "#6d7175",
                     }}
                   >
-                    <div
-                      style={{
-                        width: "22px",
-                        height: "22px",
-                        background: "#f6f6f7",
-                        borderRadius: "6px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "11px",
-                        fontWeight: 600,
-                        color: "#6d7175",
-                      }}
-                    >
-                      {product.rank}
-                    </div>
-                    <div
-                      style={{
-                        width: "40px",
-                        height: "40px",
-                        background: "#e1e3e5",
-                        borderRadius: "6px",
-                      }}
-                    />
-                    <div style={{ flex: 1 }}>
-                      <s-stack direction="block" gap="small-300">
-                        <span style={{ fontSize: "13px", fontWeight: 600 }}>
-                          {product.name}
-                        </span>
-                        <span style={{ fontSize: "12px", color: "#6d7175" }}>
-                          {product.fitsCount} fits • {product.clicksCount} clicks
-                        </span>
-                      </s-stack>
-                    </div>
+                    {index + 1}
                   </div>
-                ))}
-              </s-stack>
-            </div>
-          )}
+                  <div
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      background: "#e1e3e5",
+                      borderRadius: "6px",
+                    }}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <s-stack direction="block" gap="small-300">
+                      <span style={{ fontSize: "13px", fontWeight: 600 }}>
+                        {product.productTitle}
+                      </span>
+                      <span style={{ fontSize: "12px", color: "#6d7175" }}>
+                        {product.totalProductClicks} clicks • {product.shared} fits
+                      </span>
+                    </s-stack>
+                  </div>
+                </div>
+              )) : (
+                <span style={{ fontSize: "13px", fontWeight: 600, color: "#6d7175" }}>
+                  No products found
+                </span>
+              )}
+            </s-stack>
+          </div>
         </s-stack>
       </s-box>
     </div>

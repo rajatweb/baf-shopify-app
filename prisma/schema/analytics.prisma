@@ -1,0 +1,20 @@
+// Product-level analytics - tracks individual product performance
+model ProductAnalytics {
+  shop            String   // Shopify shop domain
+  productId       String   // Shopify product ID
+  productTitle    String   // Product title
+  productImageUrl String?  // Product image URL (optional)
+  revenue         Float    @default(0) // Revenue from this product
+  totalProductClicks Int   @default(0) // Total clicks for this product
+  shared          Int      @default(0) // Number of times this product was shared
+  addToCartCount  Int      @default(0) // Count of add to cart events
+  purchaseCount   Int      @default(0) // Count of purchases
+  conversionRate  Float    @default(0) // Conversion rate: (purchaseCount / addToCartCount) * 100
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([shop, productId]) // Ensure one record per product per shop
+  @@index([shop])
+  @@index([productId])
+  @@index([createdAt])
+}

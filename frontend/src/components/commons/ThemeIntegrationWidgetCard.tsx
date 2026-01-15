@@ -1,9 +1,12 @@
 import { useGetThemeStatusQuery } from "../../store/api/store";
-import { AlertTriangle, Check } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 
 export const ThemeIntegrationWidgetCard = () => {
   const { data: themeStatus, isLoading: isThemeStatusLoading } =
     useGetThemeStatusQuery();
+
+  // @ts-expect-error - process.env is defined in vite.config.ts
+  const apiKey: string = process.env.SHOPIFY_API_KEY || "";
 
   return (
     <div style={{ marginBottom: "18px" }}>
@@ -16,7 +19,7 @@ export const ThemeIntegrationWidgetCard = () => {
         >
           <s-text color="subdued">Loading theme status...</s-text>
         </s-box>
-      ) : themeStatus?.isThemeExtensionDisabled ? (
+      ) : themeStatus?.isThemeExtensionDisabled && (
         <s-box
           background="base"
           border="base"
@@ -42,7 +45,7 @@ export const ThemeIntegrationWidgetCard = () => {
               variant="primary"
               onClick={() =>
                 window.open(
-                  `shopify://admin/themes/current/editor?context=apps&template=product&activateAppId=${process.env.SHOPIFY_API_KEY}/music_player`,
+                  `shopify://admin/themes/current/editor?context=apps&template=product&activateAppId=${apiKey}/baf-app-widget`,
                   "_blank"
                 )
               }
@@ -51,32 +54,6 @@ export const ThemeIntegrationWidgetCard = () => {
             </s-button>
           </s-stack>
         </s-box>
-      ) : (
-        <div
-          style={{
-            background: "#f0fdf4",
-            border: "1px solid #86efac",
-            borderRadius: "8px",
-            padding: "16px 20px",
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-          }}
-        >
-          <div
-            style={{
-              color: "#15803d",
-              fontSize: "14px",
-              fontWeight: 500,
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
-            <Check size={16} color="#15803d" />
-            <s-text type="strong">Theme integration active</s-text>
-          </div>
-        </div>
       )}
     </div>
   );
