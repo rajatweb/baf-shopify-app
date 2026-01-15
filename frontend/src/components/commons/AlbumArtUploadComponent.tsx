@@ -108,7 +108,7 @@ export const AlbumArtUploadComponent: React.FC<Props> = ({
     <s-box background="subdued" border="base" borderRadius="base" padding="base">
       <s-stack direction="block" gap="small">
         <s-text type="strong">
-          Album Art <span style={{ color: "#6d7175" }}>(optional)</span>
+          Logo <span style={{ color: "#6d7175" }}>(optional)</span>
         </s-text>
 
         {previewUrl ? (
