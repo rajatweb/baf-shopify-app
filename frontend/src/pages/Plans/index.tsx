@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Modal } from "@shopify/polaris";
+import { useAppBridge } from "@shopify/app-bridge-react";
+import { useNavigate } from "react-router-dom";
 import {
   useGetActiveSubscriptionsQuery,
   useCreateSubscriptionMutation,
@@ -9,7 +11,6 @@ import { useGetShopQuery } from "../../store/api/shop";
 import { formatPrice } from "../../utils/currency";
 import { ButtonGroupComponent } from "../../components/web-components/ButtonGroupComponent";
 import AppSkeleton from "../../components/commons/AppSkeleton";
-import AppHeader from "../../components/commons/Header";
 
 interface Plan {
   id: string;
@@ -92,6 +93,8 @@ const PLANS: Plan[] = [
 ];
 
 export default function Plans() {
+  const navigate = useNavigate();
+  const shopify = useAppBridge();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
@@ -99,7 +102,7 @@ export default function Plans() {
     "EVERY_30_DAYS" | "ANNUAL"
   >("EVERY_30_DAYS");
 
-  const { data: shop } = useGetShopQuery();
+  const { data: { data: shopData } = {} } = useGetShopQuery();
   const { data: subscriptions, isLoading: subscriptionsLoading } =
     useGetActiveSubscriptionsQuery();
 
@@ -124,9 +127,7 @@ export default function Plans() {
     (currentUsage.itemsUsed / currentUsage.itemsLimit) * 100;
 
   const showToast = (message: string, isError = false) => {
-    if (typeof shopify !== "undefined" && shopify.toast) {
-      shopify.toast.show(message, { isError });
-    }
+    shopify.toast.show(message, { isError });
   };
 
   const handleUpgrade = async () => {
@@ -149,8 +150,7 @@ export default function Plans() {
           window.location.href = result.confirmationUrl;
         }
       }
-    } catch (error) {
-      console.error("Failed to create subscription:", error);
+    } catch {
       showToast("Failed to upgrade plan. Please try again.", true);
     }
   };
@@ -165,8 +165,7 @@ export default function Plans() {
       setTimeout(() => {
         window.location.reload();
       }, 1500);
-    } catch (error) {
-      console.error("Failed to cancel subscription:", error);
+    } catch {
       showToast("Failed to cancel subscription. Please try again.", true);
     }
   };
@@ -179,8 +178,7 @@ export default function Plans() {
       setTimeout(() => {
         window.location.reload();
       }, 1500);
-    } catch (error) {
-      console.error("Failed to switch to free plan:", error);
+    } catch {
       showToast("Failed to switch to free plan. Please try again.", true);
     }
   };
@@ -317,11 +315,11 @@ export default function Plans() {
                 >
                   {plan.monthlyPrice === 0
                     ? "$0"
-                    : formatPrice(
+                    :                       formatPrice(
                         selectedInterval === "EVERY_30_DAYS"
                           ? plan.monthlyPrice
                           : plan.yearlyPrice,
-                        shop?.data?.shop.currencyCode || "USD"
+                        shopData?.currencyCode || "USD"
                       )}
                 </div>
                 {plan.monthlyPrice > 0 && (
@@ -337,7 +335,7 @@ export default function Plans() {
                     Save{" "}
                     {formatPrice(
                       plan.monthlyPrice * 12 - plan.yearlyPrice,
-                      shop?.data?.shop.currencyCode || "USD"
+                      shopData?.currencyCode || "USD"
                     )}
                   </s-badge>
                 </div>
@@ -430,15 +428,24 @@ export default function Plans() {
   }
 
   return (
-    <div style={{ paddingBottom: "var(--p-space-1600)" }}>
-      <s-page>
-        <AppHeader
-          title="Plans"
-          subtitle="Choose the plan that best suits your needs"
-          showBackButton={true}
-          backButtonPath="/"
-          backButtonLabel="Back"
-        />
+    <div
+      style={{
+        marginTop: "var(--p-space-800)",
+        paddingBottom: "var(--p-space-1600)",
+      }}
+    >
+      <s-page heading="Plans">
+        <s-link slot="breadcrumb-actions" href="/">
+          Home
+        </s-link>
+        <s-button
+          slot="secondary-actions"
+          variant="secondary"
+          icon="arrow-left"
+          onClick={() => navigate("/")}
+        >
+          Back to Home
+        </s-button>
 
         {/* Current Plan Status */}
         {isSubscribed && (
@@ -481,28 +488,17 @@ export default function Plans() {
                 borderRadius="base"
                 padding="base"
               >
-                <s-stack
-                  direction="inline"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  gap="large"
-                >
-                  <div>
-                    <div
-                      style={{
-                        fontSize: "13px",
-                        color: "#6d7175",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      Current usage
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "24px", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                  <div style={{ minWidth: "200px" }}>
+                    <div style={{ fontSize: "13px", marginBottom: "4px" }}>
+                      <s-text color="subdued">Current usage</s-text>
                     </div>
                     <div style={{ fontSize: "20px", fontWeight: 600 }}>
                       {currentUsage.itemsUsed} of {currentUsage.itemsLimit}{" "}
                       items
                     </div>
                   </div>
-                  <div style={{ flex: 1, maxWidth: "300px" }}>
+                  <div style={{ flex: 1, minWidth: "200px", maxWidth: "300px" }}>
                     <div
                       style={{
                         width: "100%",
@@ -527,17 +523,13 @@ export default function Plans() {
                         }}
                       />
                     </div>
-                    <div
-                      style={{
-                        fontSize: "12px",
-                        color: "#6d7175",
-                        textAlign: "right",
-                      }}
-                    >
-                      {Math.round(usagePercentage)}% of plan limit
+                    <div style={{ fontSize: "12px", textAlign: "right" }}>
+                      <s-text color="subdued">
+                        {Math.round(usagePercentage)}% of plan limit
+                      </s-text>
                     </div>
                   </div>
-                </s-stack>
+                </div>
               </s-box>
             </div>
 
@@ -676,7 +668,7 @@ export default function Plans() {
                         selectedInterval === "EVERY_30_DAYS"
                           ? selectedPlan?.monthlyPrice || 0
                           : selectedPlan?.yearlyPrice || 0,
-                        shop?.data?.shop.currencyCode || "USD"
+                        shopData?.currencyCode || "USD"
                       )}{" "}
                       per{" "}
                       {selectedInterval === "EVERY_30_DAYS" ? "month" : "year"}.
@@ -687,7 +679,7 @@ export default function Plans() {
                         {formatPrice(
                           (selectedPlan?.monthlyPrice || 0) * 12 -
                             (selectedPlan?.yearlyPrice || 0),
-                          shop?.data?.shop.currencyCode || "USD"
+                          shopData?.currencyCode || "USD"
                         )}{" "}
                         by switching to yearly billing!
                       </s-text>
@@ -712,7 +704,7 @@ export default function Plans() {
                         selectedInterval === "EVERY_30_DAYS"
                           ? selectedPlan?.monthlyPrice || 0
                           : selectedPlan?.yearlyPrice || 0,
-                        shop?.data?.shop.currencyCode || "USD"
+                        shopData?.currencyCode || "USD"
                       )}{" "}
                       per{" "}
                       {selectedInterval === "EVERY_30_DAYS" ? "month" : "year"}.

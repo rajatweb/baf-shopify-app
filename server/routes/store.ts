@@ -128,12 +128,15 @@ storeRoutes.get("/theme/status", async (req: Request, res: Response) => {
     let isThemeExtensionDisabled = true;
 
     Object.values(settingsJson.current.blocks || {}).forEach((block: any) => {
-      const isMusicPlayerBlock =
+      const isBuildAFitBlock =
         block.type.includes("blocks/baf-app-widget") ||
         block.type.includes("baf-app-widget") ||
         block.type.includes(process.env.APP_HANDLE);
 
-      if (isMusicPlayerBlock) {
+      // console.log(isBuildAFitBlock);
+      // console.log(block);
+
+      if (isBuildAFitBlock) {
         isThemeExtensionDisabled = block.disabled;
       }
     });

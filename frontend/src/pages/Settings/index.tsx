@@ -1,19 +1,29 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAppBridge } from "@shopify/app-bridge-react";
+import { useNavigate } from "react-router-dom";
 import {
   useGetSettingsQuery,
   useUpdateSettingsMutation,
 } from "../../store/api/settings";
 import { AppSkeleton } from "../../components/commons";
-import AppHeader from "../../components/commons/Header";
 import {
   SelectComponent,
   TextFieldComponent,
   KnobComponent,
 } from "../../components/web-components";
-import { TAdditionalSettings, TBrandingSettings, TGeneralSettings, TStoreSettings, TUrlSettings } from "../../store/api/settings/type";
+import {
+  TAdditionalSettings,
+  TBrandingSettings,
+  TGeneralSettings,
+  TStoreSettings,
+  TUrlSettings,
+} from "../../store/api/settings/type";
 import _ from "lodash";
-import { AdditionalSettings, BrandingSettings, GeneralSettings } from "../../components/settings";
+import {
+  AdditionalSettings,
+  BrandingSettings,
+  GeneralSettings,
+} from "../../components/settings";
 
 function Settings() {
   const { data: { data: settings } = {}, isLoading } = useGetSettingsQuery();
@@ -22,7 +32,8 @@ function Settings() {
   const [localSettings, setLocalSettings] = useState<TStoreSettings | null>(
     null
   );
-  const shopify = useAppBridge()
+  const shopify = useAppBridge();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (settings) {
@@ -73,33 +84,48 @@ function Settings() {
     [localSettings]
   );
 
-  const handleBrandingSetttings = useCallback((brandingSettings: TBrandingSettings) => {
-    if (localSettings) {
-      setLocalSettings({
-        ...localSettings,
-        brandingSettings: brandingSettings,
-      });
-    }
-  }, [localSettings])
+  const handleBrandingSetttings = useCallback(
+    (brandingSettings: TBrandingSettings) => {
+      if (localSettings) {
+        setLocalSettings({
+          ...localSettings,
+          brandingSettings: brandingSettings,
+        });
+      }
+    },
+    [localSettings]
+  );
 
-  const handleAdditionalAndUrlSettings = useCallback(({ additionalSettings, urlSettings }: { additionalSettings: TAdditionalSettings; urlSettings: TUrlSettings }) => {
-    if (localSettings) {
-      setLocalSettings({
-        ...localSettings,
-        additionalSettings: additionalSettings,
-        urlSettings: urlSettings,
-      });
-    }
-  }, [localSettings]);
+  const handleAdditionalAndUrlSettings = useCallback(
+    ({
+      additionalSettings,
+      urlSettings,
+    }: {
+      additionalSettings: TAdditionalSettings;
+      urlSettings: TUrlSettings;
+    }) => {
+      if (localSettings) {
+        setLocalSettings({
+          ...localSettings,
+          additionalSettings: additionalSettings,
+          urlSettings: urlSettings,
+        });
+      }
+    },
+    [localSettings]
+  );
 
-  const handleGeneralSettings = useCallback((generalSettings: TGeneralSettings) => {
-    if (localSettings) {
-      setLocalSettings({
-        ...localSettings,
-        generalSettings: generalSettings,
-      });
-    }
-  }, [localSettings]);
+  const handleGeneralSettings = useCallback(
+    (generalSettings: TGeneralSettings) => {
+      if (localSettings) {
+        setLocalSettings({
+          ...localSettings,
+          generalSettings: generalSettings,
+        });
+      }
+    },
+    [localSettings]
+  );
 
   useEffect(() => {
     if (settings && localSettings) {
@@ -117,8 +143,24 @@ function Settings() {
   }
 
   return (
-    <div style={{ paddingBottom: "var(--p-space-1600)" }}>
-      <s-page>
+    <div
+      style={{
+        marginTop: "var(--p-space-800)",
+        paddingBottom: "var(--p-space-1600)",
+      }}
+    >
+      <s-page heading="Settings">
+        <s-link slot="breadcrumb-actions" href="/">
+          Home
+        </s-link>
+        <s-button
+          slot="secondary-actions"
+          variant="secondary"
+          icon="arrow-left"
+          onClick={() => navigate("/")}
+        >
+          Back to Home
+        </s-button>
         <ui-save-bar id="settings-save-bar">
           <>
             <button
@@ -134,16 +176,8 @@ function Settings() {
             </button>
           </>
         </ui-save-bar>
-        <AppHeader
-          title="Settings"
-          subtitle="Customize your BAF appearance, behavior, and branding"
-          showBackButton={true}
-          backButtonPath="/"
-          backButtonLabel="Back"
-        />
 
         <s-stack direction="block" gap="base">
-
           {/* Widget Section */}
           <s-box
             background="base"
@@ -151,35 +185,45 @@ function Settings() {
             borderRadius="base"
             padding="base"
           >
-            <s-stack direction="block" gap="base">
-              <span style={{ fontSize: "16px", fontWeight: 600 }}>Widget</span>
-              <s-stack direction="block" gap="base">
-                <TextFieldComponent
-                  label="Button Text"
-                  name="buttonText"
-                  value={
-                    localSettings.appearanceSettings?.buttonText ||
-                    "Build A Fit"
-                  }
-                  onValueChange={({ name, value }) =>
-                    handleChange("appearanceSettings", name, value)
-                  }
-                  maxLength={15}
-                />
-                <SelectComponent
-                  label="Position"
-                  name="position"
-                  value={
-                    localSettings.appearanceSettings?.position || "bottom-right"
-                  }
-                  options={[
-                    { label: "Bottom Right", value: "bottom-right" },
-                    { label: "Bottom Left", value: "bottom-left" },
-                  ]}
-                  onValueChange={({ name, value }) =>
-                    handleChange("appearanceSettings", name, value)
-                  }
-                />
+            <s-stack direction="block" gap="small">
+              <s-text type="strong">Widget</s-text>
+              <s-divider />
+              <s-stack direction="block" gap="small">
+                <s-stack direction="inline" gap="base" alignItems="start">
+                  <div style={{ flex: 1 }}>
+                    <s-box paddingBlockStart="small">
+                      <TextFieldComponent
+                        label="Button Text"
+                        name="buttonText"
+                        value={
+                          localSettings.appearanceSettings?.buttonText ||
+                          "Build A Fit"
+                        }
+                        onValueChange={({ name, value }) =>
+                          handleChange("appearanceSettings", name, value)
+                        }
+                        maxLength={15}
+                      />
+                    </s-box>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <SelectComponent
+                      label="Position"
+                      name="position"
+                      value={
+                        localSettings.appearanceSettings?.position ||
+                        "bottom-right"
+                      }
+                      options={[
+                        { label: "Bottom Right", value: "bottom-right" },
+                        { label: "Bottom Left", value: "bottom-left" },
+                      ]}
+                      onValueChange={({ name, value }) =>
+                        handleChange("appearanceSettings", name, value)
+                      }
+                    />
+                  </div>
+                </s-stack>
                 <SelectComponent
                   label="Color Theme"
                   name="theme"
@@ -209,34 +253,21 @@ function Settings() {
           </s-box>
 
           {/* General Section */}
-          <s-box
-            background="base"
-            border="base"
-            borderRadius="base"
-            padding="base"
-          >
-            <s-stack direction="block" gap="base">
-              <GeneralSettings
-                generalSettings={localSettings.generalSettings}
-                updateSettings={(settings) => handleGeneralSettings(settings)}
-              />
-            </s-stack>
-          </s-box>
+          <GeneralSettings
+            generalSettings={localSettings.generalSettings}
+            updateSettings={(settings) => handleGeneralSettings(settings)}
+          />
 
           {/* Additional Section */}
-          <s-box
-            background="base"
-            border="base"
-            borderRadius="base"
-            padding="base"
-          >
-            <s-stack direction="block" gap="base">
-              <AdditionalSettings
-                additionalSettings={{ additionalSettings: localSettings.additionalSettings, urlSettings: localSettings.urlSettings }}
-                updateSettings={(settings) => handleAdditionalAndUrlSettings(settings)}
-              />
-            </s-stack>
-          </s-box>
+          <AdditionalSettings
+            additionalSettings={{
+              additionalSettings: localSettings.additionalSettings,
+              urlSettings: localSettings.urlSettings,
+            }}
+            updateSettings={(settings) =>
+              handleAdditionalAndUrlSettings(settings)
+            }
+          />
 
           {/* Branding Section */}
           <s-box
@@ -245,21 +276,18 @@ function Settings() {
             borderRadius="base"
             padding="base"
           >
-            <s-stack direction="block" gap="base">
+            <s-stack direction="block" gap="small">
               <s-stack direction="block" gap="small-300">
-                <span style={{ fontSize: "16px", fontWeight: 600 }}>
-                  Branding
-                </span>
-                <span style={{ fontSize: "13px", color: "#6d7175" }}>
+                <s-text type="strong">Branding</s-text>
+                <s-text color="subdued">
                   Your logo + store URL appears on all exported fits
-                </span>
+                </s-text>
               </s-stack>
               <s-divider />
               <BrandingSettings
                 brandingSettings={localSettings.brandingSettings}
                 updateSettings={(settings) => handleBrandingSetttings(settings)}
               />
-
             </s-stack>
           </s-box>
         </s-stack>

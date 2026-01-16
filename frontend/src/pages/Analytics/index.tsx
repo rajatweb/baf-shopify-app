@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Pagination, Spinner } from "@shopify/polaris";
-import AppHeader from "../../components/commons/Header";
+import { useNavigate } from "react-router-dom";
 import { StatsGrid } from "../../components/dashboard";
 import { useLazyGetShopAnalyticsQuery } from "../../store/api/shop-analytics";
 import { TProductAnalytics } from "../../store/api/shop-analytics/types";
@@ -13,6 +13,7 @@ const timePeriodOptions = [
 ];
 
 function Analytics() {
+  const navigate = useNavigate();
   const [timePeriod, setTimePeriod] = useState("30");
   const [pagination, setPagination] = useState({
     page: 1,
@@ -52,19 +53,28 @@ function Analytics() {
   const products = shopAnalytics?.data?.products || [];
 
   return (
-    <div style={{ paddingBottom: "var(--p-space-1600)" }}>
-      <s-page>
-        <AppHeader
-          title="Analytics"
-          subtitle="Track engagement and revenue from Build A Fit"
-          showBackButton={true}
-          backButtonPath="/"
-          backButtonLabel="Back"
-        />
+    <div
+      style={{
+        marginTop: "var(--p-space-800)",
+        paddingBottom: "var(--p-space-1600)",
+      }}
+    >
+      <s-page heading="Analytics">
+        <s-link slot="breadcrumb-actions" href="/">
+          Home
+        </s-link>
+        <s-button
+          slot="secondary-actions"
+          variant="secondary"
+          icon="arrow-left"
+          onClick={() => navigate("/")}
+        >
+          Back to Home
+        </s-button>
 
         <s-stack direction="block" gap="base">
           {/* Time Period Selector */}
-          <div style={{ marginBottom: "24px", maxWidth: "200px" }}>
+          <div style={{ width: "100%", maxWidth: "200px" }}>
             <s-select
               name="timePeriod"
               value={timePeriod}
@@ -82,7 +92,14 @@ function Analytics() {
           </div>
 
           {!analytics && (isLoading || isShopLoading) ? (
-            <div style={{ display: "flex", justifyContent: "center", padding: "40px" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                padding: "40px 20px",
+                width: "100%",
+              }}
+            >
               <Spinner accessibilityLabel="Loading analytics" size="large" />
             </div>
           ) : analytics ? (
@@ -98,22 +115,27 @@ function Analytics() {
                 padding="base"
               >
                 <s-stack direction="block" gap="base">
-                  <span
-                    style={{
-                      fontSize: "16px",
-                      fontWeight: 600,
-                      marginBottom: "16px",
-                    }}
-                  >
-                    Top Products in Fits
-                  </span>
+                  <s-text type="strong">Top Products in Fits</s-text>
                   {isLoading ? (
-                    <div style={{ display: "flex", justifyContent: "center", padding: "40px" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        padding: "40px 20px",
+                      }}
+                    >
                       <Spinner accessibilityLabel="Loading products" size="large" />
                     </div>
                   ) : products.length === 0 ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#6d7175" }}>
-                      <p>No products found for this time period.</p>
+                    <div
+                      style={{
+                        padding: "40px 20px",
+                        textAlign: "center",
+                      }}
+                    >
+                      <s-text color="subdued">
+                        No products found for this time period.
+                      </s-text>
                     </div>
                   ) : (
                     <>
@@ -124,61 +146,84 @@ function Analytics() {
                             key={product.productId}
                             style={{
                               display: "flex",
-                              alignItems: "center",
+                              alignItems: "flex-start",
                               gap: "12px",
                               padding: "10px 0",
                               borderBottom:
                                 index < products.length - 1
                                   ? "1px solid #f1f2f3"
                                   : "none",
+                              flexWrap: "wrap",
                             }}
                           >
                             <div
                               style={{
-                                width: "22px",
-                                height: "22px",
-                                background: "#f6f6f7",
-                                borderRadius: "6px",
                                 display: "flex",
                                 alignItems: "center",
-                                justifyContent: "center",
-                                fontSize: "11px",
-                                fontWeight: 600,
-                                color: "#6d7175",
+                                gap: "12px",
+                                flex: "1 1 auto",
+                                minWidth: "200px",
                               }}
                             >
-                              {rank}
-                            </div>
-                            <div
-                              style={{
-                                width: "40px",
-                                height: "40px",
-                                background: "#e1e3e5",
-                                borderRadius: "6px",
-                                backgroundImage: product.productImageUrl
-                                  ? `url(${product.productImageUrl})`
-                                  : "none",
-                                backgroundSize: "cover",
-                                backgroundPosition: "center",
-                              }}
-                            />
-                            <div style={{ flex: 1 }}>
-                              <s-stack direction="block" gap="small-300">
-                                <span style={{ fontSize: "13px", fontWeight: 600 }}>
-                                  {product.productTitle}
-                                </span>
-                                <span style={{ fontSize: "12px", color: "#6d7175" }}>
-                                  {product.totalProductClicks}{" "} clicks •
-                                  {product.shared} shares •
-                                  {storeCurrencySymbol} {product.revenue.toFixed(2)} revenue
-                                  {product.addToCartCount > 0 && (
-                                    <> • {product.addToCartCount} add to carts</>
-                                  )}
-                                  {product.purchaseCount > 0 && (
-                                    <> • {product.purchaseCount} purchases</>
-                                  )}
-                                </span>
-                              </s-stack>
+                              <div
+                                style={{
+                                  width: "22px",
+                                  height: "22px",
+                                  background: "#f6f6f7",
+                                  borderRadius: "6px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  fontSize: "11px",
+                                  fontWeight: 600,
+                                  color: "#6d7175",
+                                  flexShrink: 0,
+                                }}
+                              >
+                                {rank}
+                              </div>
+                              <div
+                                style={{
+                                  width: "40px",
+                                  height: "40px",
+                                  background: "#e1e3e5",
+                                  borderRadius: "6px",
+                                  backgroundImage: product.productImageUrl
+                                    ? `url(${product.productImageUrl})`
+                                    : "none",
+                                  backgroundSize: "cover",
+                                  backgroundPosition: "center",
+                                  flexShrink: 0,
+                                }}
+                              />
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <s-stack direction="block" gap="small-300">
+                                  <span
+                                    style={{
+                                      fontSize: "13px",
+                                      fontWeight: 600,
+                                      wordBreak: "break-word",
+                                    }}
+                                  >
+                                    {product.productTitle}
+                                  </span>
+                                  <span
+                                    style={{
+                                      fontSize: "12px",
+                                      color: "#6d7175",
+                                      wordBreak: "break-word",
+                                    }}
+                                  >
+                                    {product.totalProductClicks} clicks • {product.shared} shares • {storeCurrencySymbol}{product.revenue.toFixed(2)} revenue
+                                    {product.addToCartCount > 0 && (
+                                      <> • {product.addToCartCount} add to carts</>
+                                    )}
+                                    {product.purchaseCount > 0 && (
+                                      <> • {product.purchaseCount} purchases</>
+                                    )}
+                                  </span>
+                                </s-stack>
+                              </div>
                             </div>
                           </div>
                         );
@@ -186,7 +231,14 @@ function Analytics() {
 
                       {/* Pagination Controls */}
                       {pagination.totalPages > 1 && (
-                        <div style={{ marginTop: "24px", paddingTop: "16px", borderTop: "1px solid #f1f2f3" }}>
+                        <div
+                          style={{
+                            marginTop: "24px",
+                            paddingTop: "16px",
+                            borderTop: "1px solid #f1f2f3",
+                            overflowX: "auto",
+                          }}
+                        >
                           <Pagination
                             hasPrevious={pagination.hasPreviousPage}
                             onPrevious={() => handlePageChange(pagination.page - 1)}

@@ -8,6 +8,7 @@ interface WidgetCardProps {
   topProducts?: TProductAnalytics[];
   onEditSettings?: () => void;
   onChangeCollection?: () => void;
+  isChangingCollection?: boolean;
 }
 
 export const WidgetCard = ({
@@ -17,6 +18,7 @@ export const WidgetCard = ({
   topProducts,
   onEditSettings,
   onChangeCollection,
+  isChangingCollection = false,
 }: WidgetCardProps) => {
   return (
     <div style={{ position: "relative" }}>
@@ -56,12 +58,17 @@ export const WidgetCard = ({
         )}
         <s-stack direction="block" gap="base">
           <s-stack direction="block" gap="small-300">
-            <span style={{ fontSize: "20px", fontWeight: 600 }}>
-              {widgetName}
-            </span>
-            <span style={{ fontSize: "14px", color: "#6d7175" }}>
+            <s-stack direction="block" gap="small-300">
+              <s-badge tone="info">
+                Collection
+              </s-badge>
+              <span style={{ fontSize: "20px", fontWeight: 600 }}>
+                {widgetName}
+              </span>
+            </s-stack>
+            <s-text color="subdued">
               {widgetMeta}
-            </span>
+            </s-text>
           </s-stack>
           {(onEditSettings || onChangeCollection) && (
             <s-stack direction="inline" gap="base">
@@ -71,7 +78,12 @@ export const WidgetCard = ({
                 </s-button>
               )}
               {onChangeCollection && (
-                <s-button variant="secondary" onClick={onChangeCollection}>
+                <s-button
+                  variant="secondary"
+                  onClick={onChangeCollection}
+                  loading={isChangingCollection}
+                  disabled={isChangingCollection}
+                >
                   Change Collection
                 </s-button>
               )}
@@ -135,9 +147,9 @@ export const WidgetCard = ({
                   </div>
                 </div>
               )) : (
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "#6d7175" }}>
-                  No products found
-                </span>
+                <s-text color="subdued">
+                  No products used in fits yet. Analytics will appear here once customers start creating fits.
+                </s-text>
               )}
             </s-stack>
           </div>

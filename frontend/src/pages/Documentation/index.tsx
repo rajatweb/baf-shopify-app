@@ -1,5 +1,5 @@
 import { useState } from "react";
-import AppHeader from "../../components/commons/Header";
+import { useNavigate } from "react-router-dom";
 
 interface FAQItem {
   question: string;
@@ -48,16 +48,21 @@ function FAQItemComponent({
         onClick={onToggle}
         style={{
           padding: "16px 0",
-          fontWeight: 500,
           cursor: "pointer",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          fontSize: "14px",
         }}
       >
-        <span>{item.question}</span>
-        <span style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>
+        <s-text type="strong">{item.question}</s-text>
+        <span
+          style={{
+            transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+            transition: "transform 0.2s",
+            fontSize: "12px",
+            color: "#6d7175",
+          }}
+        >
           ▼
         </span>
       </div>
@@ -65,12 +70,11 @@ function FAQItemComponent({
         <div
           style={{
             padding: "0 0 16px",
-            color: "#6d7175",
             fontSize: "14px",
             lineHeight: 1.6,
           }}
         >
-          {item.answer}
+          <s-text color="subdued">{item.answer}</s-text>
         </div>
       )}
     </div>
@@ -78,39 +82,55 @@ function FAQItemComponent({
 }
 
 export default function Documentation() {
-  const [openFAQIndex, setOpenFAQIndex] = useState<number | null>(0); // First FAQ open by default
+  const navigate = useNavigate();
+  const [openFAQIndex, setOpenFAQIndex] = useState<number | null>(0);
 
   const toggleFAQ = (index: number) => {
     setOpenFAQIndex(openFAQIndex === index ? null : index);
   };
 
   return (
-    <div style={{ paddingBottom: "var(--p-space-1600)" }}>
-      <s-page>
-        <AppHeader
-          title="Documentation"
-          subtitle="Learn how to use Build A Fit"
-          showBackButton={true}
-          backButtonPath="/"
-          backButtonLabel="Back"
-        />
+    <div
+      style={{
+        marginTop: "var(--p-space-800)",
+        paddingBottom: "var(--p-space-1600)",
+      }}
+    >
+      <s-page heading="Documentation">
+        <s-link slot="breadcrumb-actions" href="/">
+          Home
+        </s-link>
+        <s-button
+          slot="secondary-actions"
+          variant="secondary"
+          icon="arrow-left"
+          onClick={() => navigate("/")}
+        >
+          Back to Home
+        </s-button>
 
         <s-stack direction="block" gap="base">
           {/* Getting Started Video Card */}
-          <div style={{ marginBottom: "24px" }}>
-            <s-box background="base" border="base" borderRadius="base" padding="base">
-              <div
-                style={{
-                  display: "flex",
-                  gap: "24px",
-                  alignItems: "flex-start",
-                }}
-              >
+          <s-box
+            background="base"
+            border="base"
+            borderRadius="base"
+            padding="base"
+          >
+            <div
+              style={{
+                display: "flex",
+                gap: "24px",
+                alignItems: "flex-start",
+                flexWrap: "wrap",
+              }}
+            >
               <div
                 style={{
                   background: "#000",
                   borderRadius: "8px",
-                  width: "240px",
+                  width: "100%",
+                  maxWidth: "240px",
                   height: "135px",
                   display: "flex",
                   alignItems: "center",
@@ -122,38 +142,39 @@ export default function Documentation() {
                 }}
                 onClick={() => {
                   // TODO: Implement video playback
-                  console.log("Play video");
                 }}
               >
                 ▶
               </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ marginBottom: "8px" }}>
-                  <span style={{ fontSize: "18px", fontWeight: 600 }}>Getting Started</span>
-                </div>
-                <div style={{ color: "#6d7175", fontSize: "14px", lineHeight: 1.5, marginBottom: "16px" }}>
-                  Set up your outfit builder and start driving engagement in under 2 minutes.
-                </div>
-                <s-button
-                  variant="primary"
-                  onClick={() => {
-                    // TODO: Implement video playback
-                    console.log("Watch video");
-                  }}
-                >
-                  Watch Video
-                </s-button>
+              <div style={{ flex: 1, minWidth: "200px" }}>
+                <s-stack direction="block" gap="small">
+                  <s-text type="strong">Getting Started</s-text>
+                  <s-text color="subdued">
+                    Set up your outfit builder and start driving engagement in
+                    under 2 minutes.
+                  </s-text>
+                  <s-button
+                    variant="primary"
+                    onClick={() => {
+                      // TODO: Implement video playback
+                    }}
+                  >
+                    Watch Video
+                  </s-button>
+                </s-stack>
               </div>
             </div>
-            </s-box>
-          </div>
+          </s-box>
 
           {/* FAQ Section */}
-          <s-box background="base" border="base" borderRadius="base" padding="base">
+          <s-box
+            background="base"
+            border="base"
+            borderRadius="base"
+            padding="base"
+          >
             <s-stack direction="block" gap="base">
-              <span style={{ fontSize: "16px", fontWeight: 600, marginBottom: "16px" }}>
-                FAQ
-              </span>
+              <s-text type="strong">FAQ</s-text>
               {faqItems.map((item, index) => (
                 <FAQItemComponent
                   key={index}

@@ -14,11 +14,9 @@ import {
   useGetSettingsQuery,
   useUpdateSettingsMutation,
 } from "../../store/api/settings";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useResourcePicker } from "../../hooks/useResourcePicker";
-
-import AppHeader from "../../components/commons/Header";
 import { useGetShopAnalyticsQuery } from "../../store/api/shop-analytics";
 import { useGetShopQuery } from "../../store/api/shop";
 
@@ -31,15 +29,21 @@ const dummyPlanData = {
 };
 
 export default function Home() {
-
-
   const { data: { data: settings } = {}, isLoading } = useGetSettingsQuery();
-  const { data: { data: shopAnalytics } = {}, isLoading: isShopAnalyticsLoading } = useGetShopAnalyticsQuery({ params: { days: "30", limit: 3 } });
-  const { data: { data: shopData } = {}, isLoading: isShopLoading } = useGetShopQuery();
+  const {
+    data: { data: shopAnalytics } = {},
+    isLoading: isShopAnalyticsLoading,
+  } = useGetShopAnalyticsQuery({ params: { days: "30", limit: 3 } });
+  const { data: { data: shopData } = {}, isLoading: isShopLoading } =
+    useGetShopQuery();
 
   const [updateSettings] = useUpdateSettingsMutation();
+  const [isChangingCollection, setIsChangingCollection] = useState(false);
 
-  const storeCurrencySymbol = useMemo(() => shopData?.currencyFormats?.currencySymbol || "$", [shopData]);
+  const storeCurrencySymbol = useMemo(
+    () => shopData?.currencyFormats?.currencySymbol || "$",
+    [shopData]
+  );
   const collectionId = settings?.collectionSettings?.id;
   const navigate = useNavigate();
   const shopify = useAppBridge();
@@ -96,6 +100,7 @@ export default function Home() {
   const handleCollectionChange = useCallback(
     async (collectionId: string) => {
       if (settings && collectionId) {
+        setIsChangingCollection(true);
         try {
           const selected = await openResourcePicker({
             type: "collection",
@@ -141,6 +146,8 @@ export default function Home() {
               isError: true,
             });
           }
+        } finally {
+          setIsChangingCollection(false);
         }
       }
     },
@@ -171,80 +178,92 @@ export default function Home() {
   const widgetPositionOptions = [
     { label: "Bottom Right", value: "bottom-right" },
     { label: "Bottom Left", value: "bottom-left" },
-  ]
+  ];
 
   return (
     <div
       style={{
+        marginTop: "var(--p-space-800)",
         paddingBottom: "var(--p-space-1600)",
       }}
     >
-      {!collectionId ? <s-page>
+      <s-page heading="Build A Fit">
+        <s-button
+          slot="primary-action"
+          variant="primary"
+          icon="settings"
+          onClick={handleEditSettings}
+        >
+          Settings
+        </s-button>
+
         <ThemeIntegrationWidgetCard />
-        <s-stack direction="block" gap="base">
-          <EmptyState
-            heading="Set up your outfit builder"
-            description="Select a collection and customize how the widget appears on your store."
-            primaryAction={{
-              label: "Get Started",
-              onClick: openResourcePickerHandler,
-            }}
-          />
-        </s-stack>
-      </s-page> :
-        <s-page>
-          <AppHeader
-            title="Build A Fit"
-            subtitle="Let customers create and share outfit combinations"
-            actionButton={{
-              label: "Settings",
-              variant: "primary",
-              onClick: () => {
-                navigate("/settings");
-              },
-            }}
-          />
 
-          <PlanBanner
-            planName={dummyPlanData.planName}
-            planDetails={dummyPlanData.planDetails}
-            itemsUsed={dummyPlanData.itemsUsed}
-            itemsLimit={dummyPlanData.itemsLimit}
-            onUpgrade={handleUpgrade}
-          />
+        {!collectionId ? (
           <s-stack direction="block" gap="base">
-            {isNearLimit ? (
-              <StatusBanner
-                type="warning"
-                title="You're almost at your item limit"
-                description="Upgrade to Pro for 150 items or Plus for unlimited."
-                actionLabel="Upgrade Now"
-                onAction={handleUpgrade}
-              />
-            ) : (
-              <StatusBanner
-                type="success"
-                title="Widget is live on your store"
-                actionLabel="Preview"
-                onAction={handlePreview}
-              />
-            )}
-
-            {shopAnalytics?.analytics && <StatsGrid analytics={shopAnalytics.analytics} currentCurrencySymbol={storeCurrencySymbol} />}
-
-            <WidgetCard
-              isLive={true}
-              widgetName={
-                settings?.collectionSettings?.title
-              }
-              widgetMeta={`${settings?.collectionSettings?.productCount
-                } products • ${widgetPositionOptions.find(option => option.value === settings?.appearanceSettings?.position)?.label}`}
-              topProducts={shopAnalytics?.products || []}
-              onEditSettings={handleEditSettings}
-              onChangeCollection={() => handleCollectionChange(collectionId)}
+            <EmptyState
+              heading="Set up your outfit builder"
+              description="Select a collection and customize how the widget appears on your store."
+              primaryAction={{
+                label: "Get Started",
+                onClick: openResourcePickerHandler,
+              }}
             />
           </s-stack>
-        </s-page>}
+        ) : (
+          <>
+            <PlanBanner
+              planName={dummyPlanData.planName}
+              planDetails={dummyPlanData.planDetails}
+              itemsUsed={dummyPlanData.itemsUsed}
+              itemsLimit={dummyPlanData.itemsLimit}
+              onUpgrade={handleUpgrade}
+            />
+            <s-stack direction="block" gap="base">
+              {isNearLimit ? (
+                <StatusBanner
+                  type="warning"
+                  title="You're almost at your item limit"
+                  description="Upgrade to Pro for 150 items or Plus for unlimited."
+                  actionLabel="Upgrade Now"
+                  onAction={handleUpgrade}
+                />
+              ) : (
+                <StatusBanner
+                  type="success"
+                  title="Widget is live on your store"
+                  actionLabel="Preview"
+                  onAction={handlePreview}
+                />
+              )}
+
+              {shopAnalytics?.analytics && (
+                <StatsGrid
+                  analytics={shopAnalytics.analytics}
+                  currentCurrencySymbol={storeCurrencySymbol}
+                />
+              )}
+
+              <WidgetCard
+                isLive={true}
+                widgetName={settings?.collectionSettings?.title}
+                widgetMeta={`${
+                  settings?.collectionSettings?.productCount
+                } products • ${
+                  widgetPositionOptions.find(
+                    (option) =>
+                      option.value === settings?.appearanceSettings?.position
+                  )?.label
+                }`}
+                topProducts={shopAnalytics?.products || []}
+                onEditSettings={handleEditSettings}
+                onChangeCollection={() => handleCollectionChange(collectionId)}
+                isChangingCollection={isChangingCollection}
+              />
+            </s-stack>
+          </>
+        )}
+      </s-page>
     </div>
   );
 }
