@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { TShopResponse } from "./types";
 
 export type ShopPlan = {
   name: string;
@@ -10,7 +11,7 @@ export type ShopPlan = {
   currencyCode: string;
 };
 
-export type ShopResponse = {
+export type ShopPlanResponse = {
   data: {
     shop: ShopPlan;
   };
@@ -22,11 +23,15 @@ export const shopApi = createApi({
     baseUrl: "/api/shop",
     credentials: "include",
   }),
-  tagTypes: ["Shop"],
+  tagTypes: ["Shop", "ShopPlan"],
   endpoints: (builder) => ({
-    getShop: builder.query<ShopResponse, void>({
-      query: () => "/plan",
+    getShop: builder.query<TShopResponse, void>({
+      query: () => "/",
       providesTags: ["Shop"],
+    }),
+    getShopPlan: builder.query<ShopPlanResponse, void>({
+      query: () => "/plan",
+      providesTags: ["ShopPlan"],
     }),
   }),
 });

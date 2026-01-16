@@ -1,12 +1,12 @@
 import { TStoreAnalytics } from "../../store/api/shop-analytics/types";
 
-export const StatsGrid = ({ analytics }: { analytics: TStoreAnalytics }) => {
+export const StatsGrid = ({ analytics,currentCurrencySymbol }: { analytics: TStoreAnalytics, currentCurrencySymbol: string }) => {
   const stats = [
     {
       label: "Revenue",
       value: analytics.totalRevenue,
       change: analytics.totalRevenueChange,
-      formatter: (val: number) => `$${val.toLocaleString()}`,
+      formatter: (val: number) => `${currentCurrencySymbol} ${val.toLocaleString()}`,
     },
     {
       label: "Fit Shared",

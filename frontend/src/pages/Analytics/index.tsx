@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Pagination, Spinner } from "@shopify/polaris";
 import AppHeader from "../../components/commons/Header";
 import { StatsGrid } from "../../components/dashboard";
 import { useLazyGetShopAnalyticsQuery } from "../../store/api/shop-analytics";
 import { TProductAnalytics } from "../../store/api/shop-analytics/types";
+import { useGetShopQuery } from "../../store/api/shop";
 
 const timePeriodOptions = [
   { label: "Last 30 days", value: "30" },
@@ -22,7 +23,9 @@ function Analytics() {
     hasPreviousPage: false,
   });
   const [getShopAnalytics, { data: shopAnalytics, isFetching: isLoading }] = useLazyGetShopAnalyticsQuery();
+  const { data: { data: shopData } = {}, isLoading: isShopLoading } = useGetShopQuery();
 
+  const storeCurrencySymbol = useMemo(() => shopData?.currencyFormats?.currencySymbol || "$", [shopData]);
   // Fetch analytics when timePeriod or pagination changes
   useEffect(() => {
     getShopAnalytics({ params: { days: timePeriod, page: pagination.page, limit: pagination.limit } });
@@ -78,14 +81,14 @@ function Analytics() {
             </s-select>
           </div>
 
-          {!analytics && isLoading ? (
+          {!analytics && (isLoading || isShopLoading) ? (
             <div style={{ display: "flex", justifyContent: "center", padding: "40px" }}>
               <Spinner accessibilityLabel="Loading analytics" size="large" />
             </div>
           ) : analytics ? (
             <>
               {/* Stats Grid */}
-              <StatsGrid analytics={analytics} />
+              <StatsGrid analytics={analytics} currentCurrencySymbol={storeCurrencySymbol} />
 
               {/* Top Products Card */}
               <s-box
@@ -165,8 +168,9 @@ function Analytics() {
                                   {product.productTitle}
                                 </span>
                                 <span style={{ fontSize: "12px", color: "#6d7175" }}>
-                                  {product.shared} shares • {product.totalProductClicks}{" "}
-                                  clicks • ${product.revenue.toFixed(2)} revenue
+                                  {product.totalProductClicks}{" "} clicks •
+                                  {product.shared} shares •
+                                  {storeCurrencySymbol} {product.revenue.toFixed(2)} revenue
                                   {product.addToCartCount > 0 && (
                                     <> • {product.addToCartCount} add to carts</>
                                   )}

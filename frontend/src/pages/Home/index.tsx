@@ -14,12 +14,13 @@ import {
   useGetSettingsQuery,
   useUpdateSettingsMutation,
 } from "../../store/api/settings";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useResourcePicker } from "../../hooks/useResourcePicker";
 
 import AppHeader from "../../components/commons/Header";
 import { useGetShopAnalyticsQuery } from "../../store/api/shop-analytics";
+import { useGetShopQuery } from "../../store/api/shop";
 
 // Dummy data for dashboard
 const dummyPlanData = {
@@ -30,10 +31,15 @@ const dummyPlanData = {
 };
 
 export default function Home() {
+
+
   const { data: { data: settings } = {}, isLoading } = useGetSettingsQuery();
   const { data: { data: shopAnalytics } = {}, isLoading: isShopAnalyticsLoading } = useGetShopAnalyticsQuery({ params: { days: "30", limit: 3 } });
-  console.log(shopAnalytics);
+  const { data: { data: shopData } = {}, isLoading: isShopLoading } = useGetShopQuery();
+
   const [updateSettings] = useUpdateSettingsMutation();
+
+  const storeCurrencySymbol = useMemo(() => shopData?.currencyFormats?.currencySymbol || "$", [shopData]);
   const collectionId = settings?.collectionSettings?.id;
   const navigate = useNavigate();
   const shopify = useAppBridge();
@@ -154,7 +160,7 @@ export default function Home() {
     shopify.toast.show("Preview functionality coming soon");
   }, [shopify]);
 
-  if (isLoading || isShopAnalyticsLoading) {
+  if (isLoading || isShopAnalyticsLoading || isShopLoading) {
     return <AppSkeleton />;
   }
   // Show dashboard with collection configured
@@ -224,7 +230,7 @@ export default function Home() {
               />
             )}
 
-            {shopAnalytics?.analytics && <StatsGrid analytics={shopAnalytics.analytics} />}
+            {shopAnalytics?.analytics && <StatsGrid analytics={shopAnalytics.analytics} currentCurrencySymbol={storeCurrencySymbol} />}
 
             <WidgetCard
               isLive={true}
