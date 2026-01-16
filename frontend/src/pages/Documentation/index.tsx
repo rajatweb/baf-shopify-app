@@ -1,5 +1,5 @@
 import { useState } from "react";
-import AppHeader from "../../components/commons/Header";
+// import AppHeader from "../../components/commons/Header";
 
 interface FAQItem {
   question: string;
@@ -85,15 +85,21 @@ export default function Documentation() {
   };
 
   return (
-    <div style={{ paddingBottom: "var(--p-space-1600)" }}>
-      <s-page>
-        <AppHeader
+    <div style={{ marginTop: "var(--p-space-800)", paddingBottom: "var(--p-space-1600)" }}>
+      <s-page heading="Documentation">
+        <s-link slot="breadcrumb-actions" href="/">
+          Home
+        </s-link>
+        <s-button slot="secondary-actions" variant="secondary" icon="arrow-left">
+          Back to Home
+        </s-button>
+        {/* <AppHeader
           title="Documentation"
           subtitle="Learn how to use Build A Fit"
           showBackButton={true}
           backButtonPath="/"
           backButtonLabel="Back"
-        />
+        /> */}
 
         <s-stack direction="block" gap="base">
           {/* Getting Started Video Card */}

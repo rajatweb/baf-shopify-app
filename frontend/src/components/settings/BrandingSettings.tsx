@@ -43,24 +43,21 @@ export const BrandingSettings = ({ brandingSettings, updateSettings }: TProps) =
     }, [settings, propSnapshot]);
 
     return (
-        <s-stack direction="block" gap="base">
-            <s-box background="base" border="base" borderRadius="base" padding="base">
-                <s-stack direction="block" gap="small">
-                    <s-stack direction="block" gap="small">
-                        <KnobComponent
-                            label="Show branding on shared images"
-                            name="showWatermark"
-                            selected={settings.showWatermark}
-                            onValueChange={({ name, value }) => handleChange(name as keyof TBrandingSettings, value)}
-                            description="Adds your logo and store URL to shared/downloaded images"
-                        />
-                        {settings.showWatermark && (<>
-
-                            {/* Preview */}
-                            <div>
-                                <div style={{ marginBottom: "8px" }}>
-                                    <s-text type="strong">Preview</s-text>
-                                </div>
+        <s-stack direction="block" gap="small">
+            <KnobComponent
+                label="Show branding on shared images"
+                name="showWatermark"
+                selected={settings.showWatermark}
+                onValueChange={({ name, value }) => handleChange(name as keyof TBrandingSettings, value)}
+                description="Adds your logo and store URL to shared/downloaded images"
+            />
+            {settings.showWatermark && (
+                <>
+                    {/* Preview */}
+                    <div>
+                        <div style={{ marginBottom: "8px" }}>
+                            <s-text type="strong">Preview</s-text>
+                        </div>
                                 <div
                                     style={{
                                         background: "#f6f6f7",
@@ -218,12 +215,8 @@ export const BrandingSettings = ({ brandingSettings, updateSettings }: TProps) =
                                     isTextFieldDisabled
                                 />
                             </s-stack>
-                        </>
-
-                        )}
-                    </s-stack>
-                </s-stack>
-            </s-box>
+            </>
+            )}
         </s-stack>
     );
 };

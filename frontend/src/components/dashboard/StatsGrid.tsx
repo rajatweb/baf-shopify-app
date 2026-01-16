@@ -44,7 +44,7 @@ export const StatsGrid = ({ analytics }: { analytics: TStoreAnalytics }) => {
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: `repeat(${stats.length}, 1fr)`,
+        gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
         gap: "16px",
         marginBottom: "24px",
       }}

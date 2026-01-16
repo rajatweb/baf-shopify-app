@@ -9,7 +9,7 @@ import { useGetShopQuery } from "../../store/api/shop";
 import { formatPrice } from "../../utils/currency";
 import { ButtonGroupComponent } from "../../components/web-components/ButtonGroupComponent";
 import AppSkeleton from "../../components/commons/AppSkeleton";
-import AppHeader from "../../components/commons/Header";
+// import AppHeader from "../../components/commons/Header";
 
 interface Plan {
   id: string;
@@ -430,15 +430,21 @@ export default function Plans() {
   }
 
   return (
-    <div style={{ paddingBottom: "var(--p-space-1600)" }}>
-      <s-page>
-        <AppHeader
+    <div style={{ marginTop: "var(--p-space-800)", paddingBottom: "var(--p-space-1600)" }}>
+      <s-page heading="Plans">
+        <s-link slot="breadcrumb-actions" href="/">
+          Home
+        </s-link>
+        <s-button slot="secondary-actions" variant="secondary" icon="arrow-left">
+          Back to Home
+        </s-button>
+        {/* <AppHeader
           title="Plans"
           subtitle="Choose the plan that best suits your needs"
           showBackButton={true}
           backButtonPath="/"
           backButtonLabel="Back"
-        />
+        /> */}
 
         {/* Current Plan Status */}
         {isSubscribed && (
