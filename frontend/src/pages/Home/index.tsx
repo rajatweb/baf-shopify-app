@@ -31,7 +31,7 @@ const dummyPlanData = {
 
 export default function Home() {
   const { data: { data: settings } = {}, isLoading } = useGetSettingsQuery();
-  const { data: { data: shopAnalytics } = {}, isLoading: isShopAnalyticsLoading } = useGetShopAnalyticsQuery({ params: { days: "7", limit: 3 } });
+  const { data: { data: shopAnalytics } = {}, isLoading: isShopAnalyticsLoading } = useGetShopAnalyticsQuery({ params: { days: "30", limit: 3 } });
   console.log(shopAnalytics);
   const [updateSettings] = useUpdateSettingsMutation();
   const collectionId = settings?.collectionSettings?.id;

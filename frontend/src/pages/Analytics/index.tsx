@@ -78,7 +78,7 @@ function Analytics() {
             </s-select>
           </div>
 
-          {isLoading ? (
+          {!analytics && isLoading ? (
             <div style={{ display: "flex", justifyContent: "center", padding: "40px" }}>
               <Spinner accessibilityLabel="Loading analytics" size="large" />
             </div>
@@ -104,7 +104,11 @@ function Analytics() {
                   >
                     Top Products in Fits
                   </span>
-                  {products.length === 0 ? (
+                  {isLoading ? (
+                    <div style={{ display: "flex", justifyContent: "center", padding: "40px" }}>
+                      <Spinner accessibilityLabel="Loading products" size="large" />
+                    </div>
+                  ) : products.length === 0 ? (
                     <div style={{ padding: "40px", textAlign: "center", color: "#6d7175" }}>
                       <p>No products found for this time period.</p>
                     </div>

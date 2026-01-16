@@ -9,9 +9,9 @@ export const StatsGrid = ({ analytics }: { analytics: TStoreAnalytics }) => {
       formatter: (val: number) => `$${val.toLocaleString()}`,
     },
     {
-      label: "Fits Shared",
-      value: analytics.totalFitsShared,
-      change: analytics.totalFitsSharedChange,
+      label: "Fit Shared",
+      value: analytics.totalFitShared,
+      change: analytics.totalFitSharedChange,
       formatter: (val: number) => val.toLocaleString(),
     },
     {
@@ -37,6 +37,12 @@ export const StatsGrid = ({ analytics }: { analytics: TStoreAnalytics }) => {
       value: analytics.conversionRate,
       change: analytics.conversionRateChange,
       formatter: (val: number) => `${val.toFixed(1)}%`,
+    },
+    {
+      label: "Total Items Shared",
+      value: analytics.totalFitsShared,
+      change: analytics.totalFitsSharedChange,
+      formatter: (val: number) => val.toLocaleString(),
     },
   ];
 

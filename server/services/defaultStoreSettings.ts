@@ -15,14 +15,14 @@ const defaultSettings = {
     theme: "light",
   },
   generalSettings: {
-    showFilters: true,
+    showFilters: false,
     hideSoldOut: false,
   },
   canvasSettings: {
     showProductLabels: false,
   },
   brandingSettings: {
-    showWatermark: false,
+    showWatermark: true,
     customLogo: "",
     logoSize: 100,
   },

@@ -56,6 +56,8 @@ router.get("/", async (req: Request, res: Response) => {
       const [
         currentAggregated,
         previousAggregated,
+        currentTopProductByShared,
+        previousTopProductByShared,
         currentProducts,
         totalProducts,
       ] = await Promise.all([
@@ -93,6 +95,38 @@ router.get("/", async (req: Request, res: Response) => {
             purchaseCount: true,
           },
         }),
+        // Get top product by shared count for current period
+        prisma.productAnalytics.findFirst({
+          where: {
+            shop: shop,
+            createdAt: {
+              gte: currentPeriodStart,
+              lte: currentPeriodEnd,
+            },
+          },
+          orderBy: {
+            shared: "desc",
+          },
+          select: {
+            shared: true,
+          },
+        }),
+        // Get top product by shared count for previous period
+        prisma.productAnalytics.findFirst({
+          where: {
+            shop: shop,
+            createdAt: {
+              gte: previousPeriodStart,
+              lte: previousPeriodEnd,
+            },
+          },
+          orderBy: {
+            shared: "desc",
+          },
+          select: {
+            shared: true,
+          },
+        }),
         // Paginated products list (only fetch what we need)
         // Order by revenue descending to show top products first
         prisma.productAnalytics.findMany({
@@ -106,7 +140,7 @@ router.get("/", async (req: Request, res: Response) => {
           skip: skip,
           take: limit,
           orderBy: {
-            totalProductClicks: "asc",
+            totalProductClicks: "desc",
           },
         }),
         // Get total count for pagination
@@ -126,7 +160,7 @@ router.get("/", async (req: Request, res: Response) => {
         totalRevenue: currentAggregated._sum?.revenue || 0,
         totalFitsShared: currentAggregated._sum?.shared || 0,
         totalClicks: currentAggregated._sum?.totalProductClicks || 0, // Sum of totalProductClicks from all products
-        totalFitShared: currentAggregated._sum?.shared || 0,
+        totalFitShared: currentTopProductByShared?.shared || 0, // Top product's shared count
         totalAddToCartCount: currentAggregated._sum?.addToCartCount || 0,
         totalPurchaseCount: currentAggregated._sum?.purchaseCount || 0,
       };
@@ -135,7 +169,7 @@ router.get("/", async (req: Request, res: Response) => {
         totalRevenue: previousAggregated._sum?.revenue || 0,
         totalFitsShared: previousAggregated._sum?.shared || 0,
         totalClicks: previousAggregated._sum?.totalProductClicks || 0, // Sum of totalProductClicks from all products
-        totalFitShared: previousAggregated._sum?.shared || 0,
+        totalFitShared: previousTopProductByShared?.shared || 0, // Top product's shared count
         totalAddToCartCount: previousAggregated._sum?.addToCartCount || 0,
         totalPurchaseCount: previousAggregated._sum?.purchaseCount || 0,
       };
