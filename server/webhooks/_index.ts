@@ -32,7 +32,13 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
           );
           break;
         case "APP_SUBSCRIPTIONS_UPDATE":
-          await handleAppSubscriptionUpdate(req, res);
+          await handleAppSubscriptionUpdate(
+            topic as string,
+            shop as string,
+            req.body as string,
+            webhookId as string,
+            apiVersion as string
+          );
           return; // Return early since the handler sends its own response
         case "ORDERS_CREATE":
           await appOrderHandler(

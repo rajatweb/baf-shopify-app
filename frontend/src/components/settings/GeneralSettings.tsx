@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { TGeneralSettings } from "../../store/api/settings/type";
 import _ from "lodash";
 import { KnobComponent } from "../web-components";
+import RestrictedWrapper from "../guard/RestrictedHandler";
 
 type TProps = {
     generalSettings: TGeneralSettings;
@@ -45,20 +46,24 @@ export const GeneralSettings = ({ generalSettings, updateSettings }: TProps) => 
                     <s-text type="strong">General</s-text>
                     <s-divider />
                     <s-stack direction="block" gap="small">
-                        <KnobComponent
-                            label="Show Filters"
-                            name="showFilters"
-                            selected={settings.showFilters}
-                            onValueChange={({ name, value }) => handleChange(name as keyof TGeneralSettings, value)}
-                            description="Display filter pills to filter products by type (e.g. Hats, Jackets, Pants)"
-                        />
-                        <KnobComponent
-                            label="Hide Sold Out"
-                            name="hideSoldOut"
-                            selected={settings.hideSoldOut}
-                            onValueChange={({ name, value }) => handleChange(name as keyof TGeneralSettings, value)}
-                            description="Hides products from the list when all variants are sold out"
-                        />
+                        <RestrictedWrapper sectionId="product-filters" mode="disabled">
+                            <KnobComponent
+                                label="Show Filters"
+                                name="showFilters"
+                                selected={settings.showFilters}
+                                onValueChange={({ name, value }) => handleChange(name as keyof TGeneralSettings, value)}
+                                description="Display filter pills to filter products by type (e.g. Hats, Jackets, Pants)"
+                            />
+                        </RestrictedWrapper>
+                        <RestrictedWrapper sectionId="hide-sold-out-products" mode="disabled">
+                            <KnobComponent
+                                label="Hide Sold Out"
+                                name="hideSoldOut"
+                                selected={settings.hideSoldOut}
+                                onValueChange={({ name, value }) => handleChange(name as keyof TGeneralSettings, value)}
+                                description="Hides products from the list when all variants are sold out"
+                            />
+                        </RestrictedWrapper>
                     </s-stack>
                 </s-stack>
             </s-box>

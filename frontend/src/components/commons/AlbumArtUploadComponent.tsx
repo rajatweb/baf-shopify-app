@@ -9,13 +9,15 @@ type Props = {
   albumArtUrl: string;
   onAlbumArtChange: (url: string) => void;
   onLoadingCallback?: (loading: boolean) => void;
+  disabled?: boolean;
 };
 
 export const AlbumArtUploadComponent: React.FC<Props> = ({
   albumArtUrl,
   onAlbumArtChange,
   onLoadingCallback,
-}) => {
+  disabled,
+}: Props) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(albumArtUrl || null);
   const [error, setError] = useState<string | null>(null);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
@@ -129,7 +131,7 @@ export const AlbumArtUploadComponent: React.FC<Props> = ({
               tone="critical"
               loading={isDeleting}
               onClick={handleRemove}
-              disabled={isDeleting}
+              disabled={isDeleting || disabled}
             >
               Remove
             </s-button>
@@ -138,7 +140,7 @@ export const AlbumArtUploadComponent: React.FC<Props> = ({
           <>
             <s-button
               variant="secondary"
-              disabled={isLoading}
+              disabled={isLoading || disabled}
               aria-label="Select album art image"
               onClick={() => document.getElementById("album-art-input")?.click()}
             >
@@ -159,7 +161,7 @@ export const AlbumArtUploadComponent: React.FC<Props> = ({
               type="file"
               accept="image/jpeg,image/png,image/webp"
               hidden
-              disabled={isLoading}
+              disabled={isLoading || disabled}
               tabIndex={-1}
               onChange={(e) => {
                 const file = e.target.files?.[0];

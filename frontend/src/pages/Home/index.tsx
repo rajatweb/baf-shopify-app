@@ -4,7 +4,6 @@ import {
 } from "../../components/commons";
 import {
   PlanBanner,
-  StatusBanner,
   StatsGrid,
   WidgetCard,
   EmptyState,
@@ -19,14 +18,6 @@ import { useNavigate } from "react-router-dom";
 import { useResourcePicker } from "../../hooks/useResourcePicker";
 import { useGetShopAnalyticsQuery } from "../../store/api/shop-analytics";
 import { useGetShopQuery } from "../../store/api/shop";
-
-// Dummy data for dashboard
-const dummyPlanData = {
-  planName: "Basic Plan",
-  planDetails: "50 items • Custom branding",
-  itemsUsed: 45,
-  itemsLimit: 50,
-};
 
 export default function Home() {
   const { data: { data: settings } = {}, isLoading } = useGetSettingsQuery();
@@ -154,26 +145,23 @@ export default function Home() {
     [openResourcePicker, shopify, updateSettings, settings]
   );
 
-  const handleUpgrade = useCallback(() => {
-    navigate("/plans");
-  }, [navigate]);
 
   const handleEditSettings = useCallback(() => {
     navigate("/settings");
   }, [navigate]);
 
-  const handlePreview = useCallback(() => {
-    // TODO: Implement preview functionality
-    shopify.toast.show("Preview functionality coming soon");
-  }, [shopify]);
+  // const handlePreview = useCallback(() => {
+  //   // TODO: Implement preview functionality
+  //   shopify.toast.show("Preview functionality coming soon");
+  // }, [shopify]);
 
   if (isLoading || isShopAnalyticsLoading || isShopLoading) {
     return <AppSkeleton />;
   }
   // Show dashboard with collection configured
-  const usagePercentage =
-    (dummyPlanData.itemsUsed / dummyPlanData.itemsLimit) * 100;
-  const isNearLimit = usagePercentage >= 90;
+  // const usagePercentage =
+  //   (dummyPlanData.itemsUsed / dummyPlanData.itemsLimit) * 100;
+  // const isNearLimit = usagePercentage >= 90;
 
   const widgetPositionOptions = [
     { label: "Bottom Right", value: "bottom-right" },
@@ -212,15 +200,9 @@ export default function Home() {
           </s-stack>
         ) : (
           <>
-            <PlanBanner
-              planName={dummyPlanData.planName}
-              planDetails={dummyPlanData.planDetails}
-              itemsUsed={dummyPlanData.itemsUsed}
-              itemsLimit={dummyPlanData.itemsLimit}
-              onUpgrade={handleUpgrade}
-            />
+            <PlanBanner />
             <s-stack direction="block" gap="base">
-              {isNearLimit ? (
+              {/* {isNearLimit ? (
                 <StatusBanner
                   type="warning"
                   title="You're almost at your item limit"
@@ -235,7 +217,7 @@ export default function Home() {
                   actionLabel="Preview"
                   onAction={handlePreview}
                 />
-              )}
+              )} */}
 
               {shopAnalytics?.analytics && (
                 <StatsGrid
@@ -247,14 +229,12 @@ export default function Home() {
               <WidgetCard
                 isLive={true}
                 widgetName={settings?.collectionSettings?.title}
-                widgetMeta={`${
-                  settings?.collectionSettings?.productCount
-                } products • ${
-                  widgetPositionOptions.find(
+                widgetMeta={`${settings?.collectionSettings?.productCount
+                  } products • ${widgetPositionOptions.find(
                     (option) =>
                       option.value === settings?.appearanceSettings?.position
                   )?.label
-                }`}
+                  }`}
                 topProducts={shopAnalytics?.products || []}
                 onEditSettings={handleEditSettings}
                 onChangeCollection={() => handleCollectionChange(collectionId)}

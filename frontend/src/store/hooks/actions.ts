@@ -1,9 +1,11 @@
 import { useDispatch } from "react-redux";
-import { storeApi } from "../api/store";
 import { bindActionCreators } from "@reduxjs/toolkit";
+import { PlanCancelModalActions } from "../slices/plans/PlanCancelModalSlice";
+import { planUpgradeModalActions } from "../slices/plans/PlanUpgradeModalSlice";
 
 const actions = {
-  getStoreSettings: storeApi.endpoints.getStoreSettings.initiate,
+  ...PlanCancelModalActions,
+  ...planUpgradeModalActions,
 };
 
 export const useActions = () => {

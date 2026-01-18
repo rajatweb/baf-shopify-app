@@ -1,6 +1,6 @@
 import prisma from "../utils/prisma";
 
-const defaultSettings = {
+export const defaultSettings = {
   collectionSettings: {
     id: "",
     title: "",

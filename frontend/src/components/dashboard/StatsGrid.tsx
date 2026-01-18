@@ -1,6 +1,6 @@
 import { TStoreAnalytics } from "../../store/api/shop-analytics/types";
 
-export const StatsGrid = ({ analytics,currentCurrencySymbol }: { analytics: TStoreAnalytics, currentCurrencySymbol: string }) => {
+export const StatsGrid = ({ analytics, currentCurrencySymbol }: { analytics: TStoreAnalytics, currentCurrencySymbol: string }) => {
   const stats = [
     {
       label: "Revenue",
@@ -53,6 +53,7 @@ export const StatsGrid = ({ analytics,currentCurrencySymbol }: { analytics: TSto
         gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
         gap: "16px",
         marginBottom: "24px",
+        marginTop: "24px"
       }}
     >
       {stats.map((stat, index) => (

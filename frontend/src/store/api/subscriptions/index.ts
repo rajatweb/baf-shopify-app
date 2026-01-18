@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { CreateSubscriptionAPIResponse, SubscriptionResponse } from "./types";
+import { TCreateSubscriptionAPIResponse, TSubscriptionResponse } from "./types";
 
 export const subscriptionsApi = createApi({
   reducerPath: "subscriptionsApi",
@@ -9,12 +9,12 @@ export const subscriptionsApi = createApi({
   }),
   tagTypes: ["Subscriptions"],
   endpoints: (builder) => ({
-    getActiveSubscriptions: builder.query<SubscriptionResponse, void>({
+    getActiveSubscriptions: builder.query<TSubscriptionResponse, void>({
       query: () => "/active-subscriptions",
       providesTags: ["Subscriptions"],
     }),
     createSubscription: builder.mutation<
-      CreateSubscriptionAPIResponse,
+      TCreateSubscriptionAPIResponse,
       {
         planPrice: number;
         planName: string;
@@ -29,8 +29,8 @@ export const subscriptionsApi = createApi({
     }),
     cancelSubscription: builder.mutation<void, void>({
       query: () => ({
-        url: '/cancel-subscription',  
-        method: 'POST',
+        url: "/cancel-subscription",
+        method: "POST",
       }),
     }),
   }),
@@ -40,5 +40,5 @@ export const {
   useGetActiveSubscriptionsQuery,
   useCreateSubscriptionMutation,
   useCancelSubscriptionMutation,
-  useLazyGetActiveSubscriptionsQuery
+  useLazyGetActiveSubscriptionsQuery,
 } = subscriptionsApi;

@@ -1,19 +1,24 @@
-interface PlanBannerProps {
-  planName: string;
-  planDetails: string;
-  itemsUsed: number;
-  itemsLimit: number;
-  onUpgrade?: () => void;
-}
+import { useGetSettingsQuery } from "../../store/api/settings";
+import { useNavigate } from "react-router-dom";
+import { useGetActiveSubscriptionsQuery } from "../../store/api/subscriptions";
+import { PLANS } from "../../utils/planUtils";
+import { useMemo } from "react";
 
-export const PlanBanner = ({
-  planName,
-  planDetails,
-  itemsUsed,
-  itemsLimit,
-  onUpgrade,
-}: PlanBannerProps) => {
+export const PlanBanner = () => {
+  const { data: { data: storeSettings } = {} } = useGetSettingsQuery();
+  const { data: { data: subscriptions } = {} } = useGetActiveSubscriptionsQuery();
+  const currentPlan = useMemo(() => {
+    if (!subscriptions) return PLANS[0];
+    return PLANS.find((p) => p.name === subscriptions?.[0]?.name) || PLANS[0];
+  }, [subscriptions, PLANS]);
+  const navigate = useNavigate();
+  const itemsUsed = storeSettings?.collectionSettings?.productCount || 0;
+  const itemsLimit = storeSettings?.collectionSettings?.productLimit || 0;
   const usagePercentage = (itemsUsed / itemsLimit) * 100;
+
+  const handleUpgrade = () => {
+    navigate("/plans");
+  };
 
   // Determine color based on usage
   const getUsageColor = () => {
@@ -41,10 +46,10 @@ export const PlanBanner = ({
         <s-stack direction="inline" gap="large" alignItems="center">
           <s-stack direction="block" gap="small-300">
             <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "13px" }}>
-              {planName}
+              {currentPlan.name}
             </span>
             <span style={{ color: "#fff", fontSize: "16px", fontWeight: 600 }}>
-              {planDetails}
+              {`${currentPlan.features[0]}`}
             </span>
           </s-stack>
           <s-stack direction="block" gap="small-300">
@@ -74,11 +79,9 @@ export const PlanBanner = ({
             </span>
           </s-stack>
         </s-stack>
-        {onUpgrade && (
-          <s-button variant="secondary" onClick={onUpgrade}>
-            Upgrade
-          </s-button>
-        )}
+        <s-button variant="secondary" onClick={handleUpgrade}>
+          Upgrade
+        </s-button>
       </s-stack>
     </div>
   );

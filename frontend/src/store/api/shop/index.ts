@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { TShopResponse } from "./types";
 
-export type ShopPlan = {
+export type TShopPlan = {
   name: string;
   plan: {
     shopifyPlus: boolean;
@@ -13,7 +13,7 @@ export type ShopPlan = {
 
 export type ShopPlanResponse = {
   data: {
-    shop: ShopPlan;
+    shop: TShopPlan;
   };
 };
 

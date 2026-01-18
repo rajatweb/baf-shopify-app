@@ -167,6 +167,44 @@ subscriptionsRoutes.post(
         });
         return;
       }
+      const appinstallation = await client.request(`
+        {
+          currentAppInstallation {
+            id
+          }
+        }
+      `);
+
+      const urlSettings = JSON.stringify({
+        isHomePageOnly: true,
+        excludeUrls: [],
+      });
+
+      const metafieldInput = {
+        namespace: process.env.APP_THEME_EXTENSION_ID,
+        key: "url-settings",
+        type: "json",
+        ownerId: appinstallation.data.currentAppInstallation.id,
+        value: urlSettings,
+      };
+
+      await client.request(
+        `mutation ($metafieldsSetInput: [MetafieldsSetInput!]!) {
+          metafieldsSet(metafields: $metafieldsSetInput) {
+            metafields {
+              id
+              namespace
+              key
+              value
+            }
+            userErrors {
+              field
+              message
+            }
+          }
+        }`,
+        { variables: { metafieldsSetInput: [metafieldInput] } }
+      );
       res.status(200).json({
         success: true,
       });

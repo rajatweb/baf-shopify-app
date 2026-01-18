@@ -1,15 +1,16 @@
 import { TBrandingSettings } from "../../store/api/settings/type";
 import { useEffect, useState } from "react";
 import _ from "lodash";
-import { KnobComponent } from "../web-components";
+// import { KnobComponent } from "../web-components";
 import { AlbumArtUploadComponent } from "../commons/AlbumArtUploadComponent";
 import { RangeSliderComponent } from "../web-components/RangeSliderComponent";
 
 type TProps = {
     brandingSettings: TBrandingSettings;
     updateSettings: (settings: TBrandingSettings) => void;
+    disabled?: boolean;
 };
-export const BrandingSettings = ({ brandingSettings, updateSettings }: TProps) => {
+export const BrandingSettings = ({ brandingSettings, updateSettings, disabled }: TProps) => {
     const [settings, setSettings] =
         useState<TBrandingSettings>(brandingSettings);
     const [propSnapshot, setPropSnapshot] =
@@ -44,16 +45,16 @@ export const BrandingSettings = ({ brandingSettings, updateSettings }: TProps) =
 
     return (
         <s-stack direction="block" gap="base">
-            <s-box background="base" border="base" borderRadius="base" padding="base">
+            <s-box background={disabled ? "subdued" : "base"} border="base" borderRadius="base" padding="base">
                 <s-stack direction="block" gap="small">
                     <s-stack direction="block" gap="small">
-                        <KnobComponent
+                        {/* <KnobComponent
                             label="Show branding on shared images"
                             name="showWatermark"
                             selected={settings.showWatermark}
                             onValueChange={({ name, value }) => handleChange(name as keyof TBrandingSettings, value)}
                             description="Adds your logo and store URL to shared/downloaded images"
-                        />
+                        /> */}
                         {settings.showWatermark && (<>
 
                             {/* Preview */}
@@ -202,6 +203,7 @@ export const BrandingSettings = ({ brandingSettings, updateSettings }: TProps) =
                                 <AlbumArtUploadComponent
                                     albumArtUrl={settings.customLogo}
                                     onAlbumArtChange={(url) => handleChange("customLogo", url)}
+                                    disabled={disabled}
                                 />
                                 <RangeSliderComponent
                                     label="Logo Size"
@@ -216,6 +218,7 @@ export const BrandingSettings = ({ brandingSettings, updateSettings }: TProps) =
                                     isTextField
                                     suffix="%"
                                     isTextFieldDisabled
+                                    disabled={disabled}
                                 />
                             </s-stack>
                         </>

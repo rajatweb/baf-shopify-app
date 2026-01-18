@@ -7,8 +7,9 @@ type TAdditionalSettingsWithUrlSettings = { additionalSettings: TAdditionalSetti
 type TProps = {
     additionalSettings: TAdditionalSettingsWithUrlSettings;
     updateSettings: (settings: TAdditionalSettingsWithUrlSettings) => void;
+    disabled?: boolean;
 };
-export const AdditionalSettings = ({ additionalSettings, updateSettings }: TProps) => {
+export const AdditionalSettings = ({ additionalSettings, updateSettings, disabled }: TProps) => {
     const [settings, setSettings] =
         useState<TAdditionalSettingsWithUrlSettings>(additionalSettings);
     const [propSnapshot, setPropSnapshot] =
@@ -101,7 +102,7 @@ export const AdditionalSettings = ({ additionalSettings, updateSettings }: TProp
                 </s-stack>
             </s-stack>
         </s-box>
-        <s-box background="base" border="base" borderRadius="base" padding="base">
+        <s-box background={disabled ? "subdued" : "base"} border="base" borderRadius="base" padding="base">
             <s-stack direction="block" gap="small">
                 <s-text type="strong">URL Visibility Settings</s-text>
                 <s-divider />
@@ -113,47 +114,52 @@ export const AdditionalSettings = ({ additionalSettings, updateSettings }: TProp
                         onValueChange={({ name, value }) => {
                             handleUrlSettingsChange(name as keyof TUrlSettings, value);
                         }}
+                        disabled={disabled}
                         description="Widget visibility on homepage only"
                     />
-                    {!settings.urlSettings.isHomePageOnly && (
-                        <s-stack direction="block" gap="small">
-                            <s-divider />
+                    <div style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? "none" : "auto" }}>
+                        {!settings.urlSettings.isHomePageOnly && (
                             <s-stack direction="block" gap="small">
-                                <s-text color="subdued">
-                                    Excluded URLs will hide the music player widget on specific pages
-                                </s-text>
+                                <s-divider />
                                 <s-stack direction="block" gap="small">
-                                    {settings.urlSettings.excludeUrls.map((item, key) => (
-                                        <s-stack key={key} direction="inline" gap="small" alignItems="end">
-                                            <s-url-field
-                                                name={item}
-                                                value={item}
-                                                placeholder="/password"
-                                                label="URL"
-                                                labelAccessibilityVisibility="exclusive"
-                                                onChange={(event) => {
-                                                    const target = event.target as HTMLInputElement;
-                                                    handleExclusiveUrlChange(settings.urlSettings.excludeUrls, key, target.value);
-                                                }}
-                                            />
-                                            <s-button
-                                                icon="delete"
-                                                onClick={() => handleRemoveExcludeUrl(settings.urlSettings.excludeUrls, key)}
-                                            >
-                                                Remove
-                                            </s-button>
-                                        </s-stack>
-                                    ))}
+                                    <s-text color="subdued">
+                                        Excluded URLs will hide the music player widget on specific pages
+                                    </s-text>
+                                    <s-stack direction="block" gap="small">
+                                        {settings.urlSettings.excludeUrls.map((item, key) => (
+                                            <s-stack key={key} direction="inline" gap="small" alignItems="end">
+                                                <s-url-field
+                                                    name={item}
+                                                    value={item}
+                                                    placeholder="/password"
+                                                    label="URL"
+                                                    labelAccessibilityVisibility="exclusive"
+                                                    onChange={(event) => {
+                                                        const target = event.target as HTMLInputElement;
+                                                        handleExclusiveUrlChange(settings.urlSettings.excludeUrls, key, target.value);
+                                                    }}
+                                                />
+                                                <s-button
+                                                    icon="delete"
+                                                    onClick={() => handleRemoveExcludeUrl(settings.urlSettings.excludeUrls, key)}
+                                                >
+                                                    Remove
+                                                </s-button>
+                                            </s-stack>
+                                        ))}
+                                    </s-stack>
+                                    <s-button icon="note-add" onClick={handleAddExcludeUrl}>
+                                        Add URL to exclude music player widget
+                                    </s-button>
                                 </s-stack>
-                                <s-button icon="note-add" onClick={handleAddExcludeUrl}>
-                                    Add URL to exclude music player widget
-                                </s-button>
                             </s-stack>
-                        </s-stack>
-                    )}
+                        )}
+                    </div>
+
                 </s-stack>
             </s-stack>
         </s-box>
+
     </s-stack>
 
     );

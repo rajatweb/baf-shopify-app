@@ -24,6 +24,7 @@ import {
   BrandingSettings,
   GeneralSettings,
 } from "../../components/settings";
+import RestrictedWrapper from "../../components/guard/RestrictedHandler";
 
 function Settings() {
   const { data: { data: settings } = {}, isLoading } = useGetSettingsQuery();
@@ -259,15 +260,17 @@ function Settings() {
           />
 
           {/* Additional Section */}
-          <AdditionalSettings
-            additionalSettings={{
-              additionalSettings: localSettings.additionalSettings,
-              urlSettings: localSettings.urlSettings,
-            }}
-            updateSettings={(settings) =>
-              handleAdditionalAndUrlSettings(settings)
-            }
-          />
+          <RestrictedWrapper sectionId="homepage-only" mode="disabled">
+            <AdditionalSettings
+              additionalSettings={{
+                additionalSettings: localSettings.additionalSettings,
+                urlSettings: localSettings.urlSettings,
+              }}
+              updateSettings={(settings) =>
+                handleAdditionalAndUrlSettings(settings)
+              }
+            />
+          </RestrictedWrapper>
 
           {/* Branding Section */}
           <s-box
@@ -284,10 +287,12 @@ function Settings() {
                 </s-text>
               </s-stack>
               <s-divider />
-              <BrandingSettings
-                brandingSettings={localSettings.brandingSettings}
-                updateSettings={(settings) => handleBrandingSetttings(settings)}
-              />
+              <RestrictedWrapper sectionId="custom-branding" mode="disabled">
+                <BrandingSettings
+                  brandingSettings={localSettings.brandingSettings}
+                  updateSettings={(settings) => handleBrandingSetttings(settings)}
+                />
+              </RestrictedWrapper>
             </s-stack>
           </s-box>
         </s-stack>

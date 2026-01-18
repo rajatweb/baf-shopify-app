@@ -5,6 +5,8 @@ import { shopApi } from "./api/shop";
 import { settingsApi } from "./api/settings";
 import { shopAssetsApi } from "./api/shop-assests";
 import { shopAnalyticsApi } from "./api/shop-analytics";
+import { PlanCancelModalReducer } from "./slices/plans/PlanCancelModalSlice";
+import { planUpgradeModalReducer } from "./slices/plans/PlanUpgradeModalSlice";
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +16,8 @@ export const store = configureStore({
     [settingsApi.reducerPath]: settingsApi.reducer,
     [shopAssetsApi.reducerPath]: shopAssetsApi.reducer,
     [shopAnalyticsApi.reducerPath]: shopAnalyticsApi.reducer,
+    planCancelModal: PlanCancelModalReducer,
+    planUpgradeModal: planUpgradeModalReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat([

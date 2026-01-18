@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import { planEnforcement } from "../utils/planEnforcement";
 
 const prisma = new PrismaClient();
 
@@ -20,27 +21,27 @@ interface SubscriptionPayload {
 }
 
 export const handleAppSubscriptionUpdate = async (
-  req: Request,
-  res: Response
+  topic: string,
+  shop: string,
+  body: string,
+  webhookId: string,
+  apiVersion: string
 ) => {
-  // Parse the webhook body as JSON since it comes as text
-  let payload: SubscriptionPayload;
   try {
-    payload = JSON.parse(req.body as string) as SubscriptionPayload;
-  } catch (parseError) {
-    return;
-  }
-};
-
-export const handleAppSubscriptionCancelled = async (
-  req: Request,
-  res: Response
-) => {
-  // Parse the webhook body as JSON since it comes as text
-  let payload: SubscriptionPayload;
-  try {
-    payload = JSON.parse(req.body as string) as SubscriptionPayload;
-  } catch (parseError) {
-    return;
+    const payload = JSON.parse(body as string) as SubscriptionPayload;
+    const subscriptionData = payload.app_subscription;
+    const isCancelled =
+      subscriptionData.status === "CANCELLED" ||
+      subscriptionData.status === "EXPIRED";
+    if (isCancelled) {
+      await planEnforcement(shop, "free");
+    } else {
+      await planEnforcement(
+        shop,
+        subscriptionData?.name?.toLowerCase() || "free"
+      );
+    }
+  } catch (error) {
+    console.error("Error handling app subscription update:", error);
   }
 };
