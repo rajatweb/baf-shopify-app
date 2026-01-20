@@ -41,6 +41,31 @@ const appUninstallHandler = async (
 
     const sessionContent = decryptData(session?.content || "");
     const userEmail = sessionContent?.onlineAccessInfo?.associated_user?.email;
+
+     // Deactivate the store
+     await prisma.store.update({
+      where: {
+        shop: shop,
+      },
+      data: {
+        isActive: false,
+      },
+    });
+
+    // Delete the session
+    await prisma.session.deleteMany({
+      where: {
+        shop: shop,
+        isOnline: false,
+      },
+    });
+
+    // Delete the store settings
+    // await prisma.storeSettings.deleteMany({
+    //   where: {
+    //     shop: shop,
+    //   },
+    // });
   } catch (error) {
     console.error("Error handling app uninstall:", error);
     throw new Error(`Failed to process app uninstall for shop: ${shop}`);

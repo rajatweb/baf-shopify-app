@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   useGetActiveSubscriptionsQuery,
@@ -12,16 +12,9 @@ import { PLANS } from "../../utils/planUtils";
 import { PlansCancelModal, PlanLimitCard, PlanGridCard, PlanUpgradeModal } from "../../components/plans";
 
 
-
-
-
 export default function Plans() {
 
   const navigate = useNavigate();
-  const [selectedInterval, setSelectedInterval] = useState<
-    "EVERY_30_DAYS" | "ANNUAL"
-  >("EVERY_30_DAYS");
-
   const { data: { data: shopData } = {} } = useGetShopQuery();
   const { data: { data: subscriptions } = {}, isLoading: subscriptionsLoading } =
     useGetActiveSubscriptionsQuery();
@@ -32,6 +25,18 @@ export default function Plans() {
   const currentSubscription = useMemo(() => subscriptions?.[0] || null, [subscriptions]);
   const isSubscribed = useMemo(() => currentSubscription?.status === "ACTIVE" || false, [currentSubscription]);
   const currentBillingInterval = useMemo(() => isSubscribed ? currentSubscription?.lineItems?.[0]?.plan?.pricingDetails?.interval as "EVERY_30_DAYS" | "ANNUAL" : null, [currentSubscription, isSubscribed]);
+  
+  // Initialize selectedInterval - default to ANNUAL if current subscription is yearly
+  const [selectedInterval, setSelectedInterval] = useState<
+    "EVERY_30_DAYS" | "ANNUAL"
+  >("EVERY_30_DAYS");
+
+  // Update selectedInterval when subscription data loads and it's ANNUAL
+  useEffect(() => {
+    if (currentBillingInterval === "ANNUAL") {
+      setSelectedInterval("ANNUAL");
+    }
+  }, [currentBillingInterval]);
   const currentPlanConfig = useMemo(() => isSubscribed
     ? PLANS.find((p) => p.name === currentSubscription?.name) || PLANS[0]
     : PLANS[0], [isSubscribed, currentSubscription, PLANS]);

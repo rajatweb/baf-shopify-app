@@ -78,10 +78,10 @@ export const PlanUpgradeModal = () => {
 
     const primaryActionContent = useMemo(() => {
         return isDowngrade
-            ? "Downgrade Now"
+            ? `Downgrade to ${selectedPlan?.name}`
             : isSwitch
                 ? `Switch to ${selectedInterval === "EVERY_30_DAYS" ? "Monthly" : "Yearly"}`
-                : "Upgrade Now";
+                : `Upgrade to ${selectedPlan?.name}`;
     }, [isDowngrade, isSwitch, selectedPlan, selectedInterval])
 
     return (

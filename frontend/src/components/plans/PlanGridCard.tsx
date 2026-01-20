@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { TPlan } from "../../store/api/subscriptions/types";
 import { formatPrice } from "../../utils/currency";
 import { useActions } from "../../store/hooks/actions";
+import { Check } from "lucide-react";
 
 type TPlanCardProps = {
     plan: TPlan;
@@ -180,38 +181,58 @@ export const PlanGridCard = ({ plan, currentPlan, selectedInterval, isSubscribed
 
                     {/* Features */}
                     <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-                        <s-stack direction="block" gap="small-400" alignItems="start">
-                            <s-text type="strong">Features</s-text>
+                        <s-stack direction="block" gap="base" alignItems="start">
+                            <div style={{ marginBottom: "4px" }}>
+                                <s-text type="strong">
+                                    Features
+                                </s-text>
+                            </div>
                             <ul
                                 style={{
                                     margin: 0,
-                                    paddingLeft: "0",
+                                    paddingLeft: 0,
                                     listStyle: "none",
-                                    lineHeight: "1.8",
                                     width: "100%",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: "4px",
                                 }}
                             >
                                 {plan.features.map((feature, index) => (
                                     <li
                                         key={index}
                                         style={{
-                                            marginBottom: "12px",
                                             display: "flex",
                                             alignItems: "flex-start",
-                                            gap: "10px",
+                                            gap: "12px",
+                                            padding: "4px 0",
                                         }}
                                     >
                                         <div
                                             style={{
-                                                marginTop: "6px",
-                                                width: "6px",
-                                                height: "6px",
+                                                marginTop: "2px",
+                                                width: "20px",
+                                                height: "20px",
                                                 borderRadius: "50%",
-                                                background: "#6d7175",
+                                                background: "#000000",
+                                                border: "2px solid #000000",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
                                                 flexShrink: 0,
                                             }}
-                                        />
-                                        <s-text color="subdued">{feature}</s-text>
+                                        >
+                                            <Check 
+                                                size={12} 
+                                                color="#ffffff" 
+                                                strokeWidth={3}
+                                            />
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                            <s-text color="subdued">
+                                                {feature}
+                                            </s-text>
+                                        </div>
                                     </li>
                                 ))}
                             </ul>
@@ -241,12 +262,21 @@ export const PlanGridCard = ({ plan, currentPlan, selectedInterval, isSubscribed
                             }}
                         >
                             {isCurrentPlan && !isSwitch
-                                ? "Manage"
+                                ? "Current Plan"
                                 : isDowngrade
-                                    ? "Downgrade"
+                                    ? plan.id === "free"
+                                        ? "Downgrade to Free"
+                                        : `Downgrade to ${plan.name}`
                                     : isUpgrade
-                                        ? "Upgrade"
-                                        : "Get Started"}
+                                        ? `Upgrade to ${plan.name}`
+                                        : isSwitch
+                                            ? `Switch to ${selectedInterval === "EVERY_30_DAYS"
+                                                ? "Monthly"
+                                                : "Yearly"
+                                            }`
+                                            : plan.id === "free"
+                                                ? "Get Started"
+                                                : `Upgrade to ${plan.name}`}
                         </s-button>
                     </div>
                 </div>
