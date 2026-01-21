@@ -1,5 +1,4 @@
 import prisma from "./prisma";
-import { defaultSettings } from "../services/defaultStoreSettings";
 export const planEnforcement = async (
   shop: string,
   plan: string
