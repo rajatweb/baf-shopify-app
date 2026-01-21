@@ -8,9 +8,6 @@ const appOrderHandler = async (
   try {
     // Parse the webhook request body
     const webhookBody = JSON.parse(webhookRequestBody);
-
-    console.log(webhookBody, "webhookBody");
-
     const isBafOrder =
       webhookBody?.note_attributes?.find(
         (attribute: any) => attribute.name === "__order_from_baf"
@@ -53,7 +50,10 @@ const appOrderHandler = async (
       }
     }
   } catch (error) {
-    console.error(error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("Error handling app order");
   }
 };
 

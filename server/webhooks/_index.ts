@@ -66,10 +66,6 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
       res.status(400).send({ error: true });
     }
   } catch (e) {
-    console.error(
-      `---> Error while registering ${topic} webhook for ${shop}`,
-      e
-    );
     if (!res.headersSent) {
       res.status(500).send(e);
     }

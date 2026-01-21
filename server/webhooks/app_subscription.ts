@@ -41,7 +41,11 @@ export const handleAppSubscriptionUpdate = async (
         subscriptionData?.name?.toLowerCase() || "free"
       );
     }
+    return true;
   } catch (error) {
-    console.error("Error handling app subscription update:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("Error handling app subscription update");
   }
 };
