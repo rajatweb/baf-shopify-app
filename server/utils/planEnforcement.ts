@@ -14,7 +14,26 @@ export const planEnforcement = async (
   if (Object.keys(settings)?.length === 0) return false;
   let updatedSettings = settings;
   if (plan === "free") {
-    updatedSettings = defaultSettings;
+    updatedSettings = {
+      ...updatedSettings,
+      collectionSettings: {
+        ...updatedSettings.collectionSettings,
+        productLimit: 8,
+      },
+      urlSettings: {
+        isHomePageOnly: true,
+        excludeUrls: [],
+      },
+      brandingSettings: {
+        showWatermark: true,
+        customLogo: "",
+        logoSize: 100,
+      },
+      generalSettings: {
+        showFilters: false,
+        hideSoldOut: false,
+      },
+    };
   }
   if (plan === "starter") {
     updatedSettings = {
@@ -22,6 +41,15 @@ export const planEnforcement = async (
       collectionSettings: {
         ...updatedSettings.collectionSettings,
         productLimit: 25,
+      },
+      brandingSettings: {
+        showWatermark: true,
+        customLogo: "",
+        logoSize: 100,
+      },
+      generalSettings: {
+        showFilters: false,
+        hideSoldOut: false,
       },
     };
   }
