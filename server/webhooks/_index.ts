@@ -39,7 +39,7 @@ const webhookHandler = async (req: Request, res: Response): Promise<void> => {
             webhookId as string,
             apiVersion as string
           );
-          return; // Return early since the handler sends its own response
+          break;
         case "ORDERS_CREATE":
           await appOrderHandler(
             topic as string,
