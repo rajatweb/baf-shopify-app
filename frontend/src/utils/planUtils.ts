@@ -2,25 +2,25 @@ import { TPlan, TSubscription } from "../store/api/subscriptions/types";
 
 export const isPlusPlan = (subscriptions: TSubscription[]): boolean => {
   return !!subscriptions.find(
-    (subscription: TSubscription) => subscription.name === "Plus"
+    (subscription: TSubscription) => subscription.name === "Runway" || subscription.name === "Plus"
   );
 };
 
 export const isProPlan = (subscriptions: TSubscription[]): boolean => {
   return !!subscriptions.find(
-    (subscription: TSubscription) => subscription.name === "Pro"
+    (subscription: TSubscription) => subscription.name === "Showroom" || subscription.name === "Pro"
   );
 };
 
 export const isBasicPlan = (subscriptions: TSubscription[]): boolean => {
   return !!subscriptions.find(
-    (subscription: TSubscription) => subscription.name === "Basic"
+    (subscription: TSubscription) => subscription.name === "Flagship" || subscription.name === "Basic"
   );
 };
 
 export const isStarterPlan = (subscriptions: TSubscription[]): boolean => {
   return !!subscriptions.find(
-    (subscription: TSubscription) => subscription.name === "Starter"
+    (subscription: TSubscription) => subscription.name === "Boutique" || subscription.name === "Starter"
   );
 };
 
@@ -40,6 +40,7 @@ const PLAN_FEATURES: Record<string, string[]> = {
     "25 items max",
     "All backgrounds",
     "Site-wide",
+    "Product filters",
   ],
   basic: [
     "50 items max",
@@ -131,8 +132,8 @@ export const PLANS: TPlan[] = [
   },
   {
     id: "starter",
-    name: "Starter",
-    badge: "Starter",
+    name: "Boutique",
+    badge: "Boutique",
     monthlyPrice: 9,
     yearlyPrice: 90,
     features: buildCumulativeFeatures("starter"),
@@ -140,8 +141,8 @@ export const PLANS: TPlan[] = [
   },
   {
     id: "basic",
-    name: "Basic",
-    badge: "Basic",
+    name: "Flagship",
+    badge: "Flagship",
     monthlyPrice: 15,
     yearlyPrice: 150,
     features: buildCumulativeFeatures("basic"),
@@ -150,8 +151,8 @@ export const PLANS: TPlan[] = [
   },
   {
     id: "pro",
-    name: "Pro",
-    badge: "Pro",
+    name: "Showroom",
+    badge: "Showroom",
     monthlyPrice: 30,
     yearlyPrice: 300,
     features: buildCumulativeFeatures("pro"),
@@ -159,8 +160,8 @@ export const PLANS: TPlan[] = [
   },
   {
     id: "plus",
-    name: "Plus",
-    badge: "Plus",
+    name: "Runway",
+    badge: "Runway",
     monthlyPrice: 50,
     yearlyPrice: 500,
     features: buildCumulativeFeatures("plus"),

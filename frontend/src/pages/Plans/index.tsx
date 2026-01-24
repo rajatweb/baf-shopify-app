@@ -25,7 +25,7 @@ export default function Plans() {
   const currentSubscription = useMemo(() => subscriptions?.[0] || null, [subscriptions]);
   const isSubscribed = useMemo(() => currentSubscription?.status === "ACTIVE" || false, [currentSubscription]);
   const currentBillingInterval = useMemo(() => isSubscribed ? currentSubscription?.lineItems?.[0]?.plan?.pricingDetails?.interval as "EVERY_30_DAYS" | "ANNUAL" : null, [currentSubscription, isSubscribed]);
-  
+
   // Initialize selectedInterval - default to ANNUAL if current subscription is yearly
   const [selectedInterval, setSelectedInterval] = useState<
     "EVERY_30_DAYS" | "ANNUAL"
@@ -49,6 +49,9 @@ export default function Plans() {
   return (
     <div
       style={{
+        maxWidth: "998px",
+        margin: "0 auto",
+        padding: "20px 16px",
         marginTop: "var(--p-space-800)",
         paddingBottom: "var(--p-space-1600)",
       }}
@@ -66,71 +69,97 @@ export default function Plans() {
           Back to Home
         </s-button>
 
-        {/* Current Plan Status */}
-        {isSubscribed && (
-          <s-banner tone="success" onDismiss={undefined}>
-            <s-stack direction="block" gap="small-300">
-              <s-text type="strong">
-                You're currently on the {currentSubscription?.name} Plan
-              </s-text>
-              <s-text>
-                Your subscription is active and you have access to all features
-                included in your plan.
-              </s-text>
-              <s-text color="subdued">
-                Status: {currentSubscription?.status} • You can switch plans
-                anytime
-              </s-text>
-            </s-stack>
-          </s-banner>
-        )}
-
-        {!isSubscribed && (
-          <s-banner tone="warning" onDismiss={undefined}>
-            <s-stack direction="block" gap="small-300">
-              <s-text type="strong">You're currently on the Free Plan</s-text>
-              <s-text>
-                You have access to basic features. Upgrade to unlock more
-                capabilities.
-              </s-text>
-            </s-stack>
-          </s-banner>
-        )}
-
         <s-box>
+          {/* Usage Card */}
+          <PlanLimitCard />
           <s-stack direction="block" gap="base" alignItems="center">
-            {/* Usage Card */}
-            <PlanLimitCard />
 
             {/* Billing Interval Selector */}
-            <s-box padding="base">
-              <ButtonGroupComponent
-                label=""
-                name="interval"
-                value={selectedInterval}
-                options={[
-                  { label: "Monthly", value: "EVERY_30_DAYS" },
-                  { label: "Yearly (Save 17%)", value: "ANNUAL" },
-                ]}
-                onValueChange={(_, value) => {
-                  setSelectedInterval(value as "EVERY_30_DAYS" | "ANNUAL");
-                }}
-              />
-            </s-box>
+            <ButtonGroupComponent
+              label=""
+              name="interval"
+              value={selectedInterval}
+              options={[
+                { label: "Monthly", value: "EVERY_30_DAYS" },
+                { label: "Yearly (Save 17%)", value: "ANNUAL" },
+              ]}
+              onValueChange={(_, value) => {
+                setSelectedInterval(value as "EVERY_30_DAYS" | "ANNUAL");
+              }}
+            />
 
-            {/* Plans Grid */}
+            {/* Trial Banner */}
+            {selectedInterval === "EVERY_30_DAYS" && (
+              <div
+                style={{
+                  textAlign: "center",
+                  marginBottom: "20px",
+                  fontSize: "14px",
+                  color: "#16a34a",
+                  fontWeight: 500,
+                }}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 20 20"
+                  fill="#16a34a"
+                  style={{ verticalAlign: "middle", marginRight: "6px" }}
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                7-day free trial on all paid plans • Cancel anytime
+              </div>
+            )}
+
+            {/* Plans Grid - Top Row: Free, Boutique, Flagship */}
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-                gap: "20px",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gap: "12px",
                 width: "100%",
-                maxWidth: "1200px",
-                margin: "0 auto",
-                padding: "0 16px",
+                marginBottom: "12px",
+                alignItems: "stretch",
               }}
             >
-              {PLANS.map((plan) => (
+              {PLANS.slice(0, 3).map((plan) => (
+                <div
+                  key={plan.id}
+                  style={{
+                    display: "flex",
+                    width: "100%",
+                    height: "100%",
+                  }}
+                >
+                  <PlanGridCard
+                    plan={plan}
+                    currentPlan={currentPlanConfig}
+                    selectedInterval={selectedInterval}
+                    isSubscribed={isSubscribed}
+                    currentBillingInterval={currentBillingInterval}
+                    currencyCode={shopData?.currencyCode || "USD"} />
+                </div>
+              ))}
+            </div>
+
+            {/* Plans Grid - Bottom Row: Showroom, Runway (centered) */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(2, 1fr)",
+                gap: "12px",
+                width: "100%",
+                maxWidth: "66.666%",
+                margin: "0 auto",
+                alignItems: "stretch",
+              }}
+            >
+              {PLANS.slice(3).map((plan) => (
                 <div
                   key={plan.id}
                   style={{

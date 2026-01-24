@@ -47,7 +47,8 @@ export const planEnforcement = async (
         logoSize: 100,
       },
       generalSettings: {
-        showFilters: false,
+        ...updatedSettings.generalSettings,
+        // showFilters is allowed for paid plans - preserve existing value or allow user to enable
         hideSoldOut: false,
       },
     };
@@ -66,7 +67,7 @@ export const planEnforcement = async (
       },
       generalSettings: {
         ...updatedSettings.generalSettings,
-        showFilters: false,
+        // showFilters is allowed for paid plans - preserve existing value or allow user to enable
       },
     };
   }

@@ -179,8 +179,10 @@ const basicPlanSections = [
 ];
 
 // Starter plan has fewer than Basic (2 less features than Basic)
+// Product filters are available for all paid plans (starter and above)
 const starterPlanSections = [
     "homepage-only",
+    "product-filters",
 ];
 
 const featureNameMap = {
@@ -268,13 +270,13 @@ const RestrictedWrapper: React.FC<RestrictedWrapperProps> = ({
             featureNameMap[sectionId as keyof typeof featureNameMap] || "";
 
         if (requiredPlan === "pro") {
-            // Always use Pro/Plus (since Plus = Pro for now)
+            // Always use Showroom/Runway (since Runway = Showroom for now)
             return (
                 <PlanTextContainer>
                     Upgrade to{" "}
-                    <PlanNameHighlight>Plus</PlanNameHighlight>
+                    <PlanNameHighlight>Runway</PlanNameHighlight>
                     or
-                    <PlanNameHighlight>Pro</PlanNameHighlight>
+                    <PlanNameHighlight>Showroom</PlanNameHighlight>
                     {" "}plan to unlock{" "}
                     <FeatureNameHighlight>{featureName}</FeatureNameHighlight>
                 </PlanTextContainer>
@@ -283,7 +285,7 @@ const RestrictedWrapper: React.FC<RestrictedWrapperProps> = ({
             return (
                 <PlanTextContainer>
                     Upgrade to{" "}
-                    <PlanNameHighlight>Basic</PlanNameHighlight>
+                    <PlanNameHighlight>Flagship</PlanNameHighlight>
                     {" "}plan to unlock{" "}
                     <FeatureNameHighlight>{featureName}</FeatureNameHighlight>
                 </PlanTextContainer>
@@ -292,7 +294,7 @@ const RestrictedWrapper: React.FC<RestrictedWrapperProps> = ({
             return (
                 <PlanTextContainer>
                     Upgrade to{" "}
-                    <PlanNameHighlight>Starter</PlanNameHighlight>
+                    <PlanNameHighlight>Boutique</PlanNameHighlight>
                     {" "}plan to unlock{" "}
                     <FeatureNameHighlight>{featureName}</FeatureNameHighlight>
                 </PlanTextContainer>

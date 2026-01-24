@@ -41,105 +41,177 @@ export default function Home() {
   const { openResourcePicker } = useResourcePicker();
 
   const openResourcePickerHandler = useCallback(async () => {
-    if (settings) {
-      try {
-        const selected = await openResourcePicker({ type: "collection", action: "select" });
-        if (selected?.selection[0]) {
-          const selectedCollection = selected?.selection[0] as {
-            id: string;
-            title: string;
-            productsCount: number;
-            handle: string;
-          };
-          const {
-            id = "",
-            title = "",
-            productsCount = 0,
-            handle = "",
-          } = selectedCollection;
+    try {
+      const selected = await openResourcePicker({ type: "collection", action: "select" });
+      if (selected?.selection && selected.selection.length > 0) {
+        const selectedCollection = selected.selection[0] as {
+          id: string;
+          title: string;
+          productsCount: number;
+          handle: string;
+        };
+        const {
+          id = "",
+          title = "",
+          productsCount = 0,
+          handle = "",
+        } = selectedCollection;
 
-          await updateSettings({
-            settings: {
-              ...settings,
-              collectionSettings: {
-                ...settings.collectionSettings,
-                id,
-                title,
-                productCount: productsCount,
-                collectionHandle: handle,
-              },
+        // Strip the GID prefix before saving (to match backend format)
+        const strippedId = id.replace("gid://shopify/Collection/", "");
+
+        // Ensure we have settings object, use existing or create new structure
+        const currentSettings = settings || {
+          collectionSettings: {
+            id: "",
+            title: "",
+            productCount: 0,
+            productLimit: 8,
+            collectionHandle: "",
+          },
+          appearanceSettings: {
+            position: "bottom-right" as const,
+            theme: "light" as const,
+            showButtonText: true,
+            buttonText: "Build A Fit",
+          },
+          generalSettings: {
+            showFilters: false,
+            hideSoldOut: false,
+          },
+          canvasSettings: {
+            showProductLabels: false,
+          },
+          brandingSettings: {
+            showWatermark: true,
+            customLogo: "",
+            logoSize: 100,
+          },
+          additionalSettings: {
+            enableAddToCart: true,
+          },
+          customCssSettings: {
+            customCss: "",
+          },
+          urlSettings: {
+            isHomePageOnly: true,
+            excludeUrls: [],
+          },
+        };
+
+        await updateSettings({
+          settings: {
+            ...currentSettings,
+            collectionSettings: {
+              ...(currentSettings.collectionSettings || {
+                id: "",
+                title: "",
+                productCount: 0,
+                productLimit: 8,
+                collectionHandle: "",
+              }),
+              id: strippedId,
+              title,
+              productCount: productsCount,
+              collectionHandle: handle,
             },
-          }).unwrap();
-          shopify.toast.show("Collection selected successfully");
-        } else {
-          throw new Error("No collection selected to select");
-        }
-      } catch (error) {
-        if (error instanceof Error) {
-          shopify.toast.show(error.message, {
-            isError: true,
-          });
-        } else {
-          shopify.toast.show("Failed to select collection", {
-            isError: true,
-          });
-        }
+          },
+        }).unwrap();
+        shopify.toast.show("Collection selected successfully");
+      } else {
+        // User cancelled the picker - this is not an error
+        return;
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        shopify.toast.show(error.message, {
+          isError: true,
+        });
+      } else {
+        shopify.toast.show("Failed to select collection", {
+          isError: true,
+        });
       }
     }
   }, [openResourcePicker, shopify, settings, updateSettings]);
 
   const handleCollectionChange = useCallback(
     async (collectionId: string) => {
-      if (settings && collectionId) {
-        setIsChangingCollection(true);
-        try {
-          const selected = await openResourcePicker({
-            type: "collection",
-            action: "select",
-            selectionIds: [{ id: collectionId }],
-          });
-          if (selected?.selection[0]) {
-            const selectedCollection = selected?.selection[0] as {
-              id: string;
-              title: string;
-              productsCount: number;
-              handle: string;
-            };
-            const {
-              id = "",
-              title = "",
-              productsCount = 0,
-              handle = "",
-            } = selectedCollection;
-            await updateSettings({
-              settings: {
-                ...settings,
-                collectionSettings: {
-                  ...settings.collectionSettings,
-                  id,
-                  title,
-                  productCount: productsCount,
-                  collectionHandle: handle,
-                },
+      if (!settings || !collectionId) {
+        shopify.toast.show("Settings or collection ID is missing", {
+          isError: true,
+        });
+        return;
+      }
+
+      setIsChangingCollection(true);
+      try {
+        // Open resource picker without pre-selection to allow user to choose any collection
+        const selected = await openResourcePicker({
+          type: "collection",
+          action: "select",
+        });
+        
+        // Check if user made a selection (not cancelled)
+        if (selected?.selection && Array.isArray(selected.selection) && selected.selection.length > 0) {
+          const selectedCollection = selected.selection[0] as {
+            id: string;
+            title: string;
+            productsCount: number;
+            handle: string;
+          };
+          
+          if (!selectedCollection || !selectedCollection.id) {
+            throw new Error("Invalid collection data received");
+          }
+
+          const {
+            id = "",
+            title = "",
+            productsCount = 0,
+            handle = "",
+          } = selectedCollection;
+          
+          // Strip the GID prefix before saving (to match backend format)
+          const strippedId = id.replace("gid://shopify/Collection/", "");
+          
+          // Check if collection actually changed
+          const currentStrippedId = collectionId.replace("gid://shopify/Collection/", "");
+          if (strippedId === currentStrippedId && title === settings.collectionSettings?.title) {
+            shopify.toast.show("Same collection selected. No changes made.");
+            return;
+          }
+          
+          await updateSettings({
+            settings: {
+              ...settings,
+              collectionSettings: {
+                ...settings.collectionSettings,
+                id: strippedId,
+                title,
+                productCount: productsCount,
+                collectionHandle: handle,
               },
-            }).unwrap();
-            shopify.toast.show("Collection changed successfully");
-          } else {
-            throw new Error("No collection selected to change");
-          }
-        } catch (error) {
-          if (error instanceof Error) {
-            shopify.toast.show(error.message, {
-              isError: true,
-            });
-          } else {
-            shopify.toast.show("Failed to change collection", {
-              isError: true,
-            });
-          }
-        } finally {
-          setIsChangingCollection(false);
+            },
+          }).unwrap();
+          shopify.toast.show("Collection changed successfully");
+        } else {
+          // User cancelled - not an error, just return silently
+          return;
         }
+      } catch (error) {
+        console.error("Error changing collection:", error);
+        if (error instanceof Error) {
+          shopify.toast.show(error.message, {
+            isError: true,
+          });
+        } else {
+          shopify.toast.show("Failed to change collection. Please try again.", {
+            isError: true,
+          });
+        }
+      } finally {
+        setIsChangingCollection(false);
       }
     },
     [openResourcePicker, shopify, updateSettings, settings]
@@ -171,8 +243,9 @@ export default function Home() {
   return (
     <div
       style={{
-        marginTop: "var(--p-space-800)",
-        paddingBottom: "var(--p-space-1600)",
+        maxWidth: "998px",
+        margin: "0 auto",
+        padding: "20px 16px",
       }}
     >
       <s-page heading="Build A Fit">

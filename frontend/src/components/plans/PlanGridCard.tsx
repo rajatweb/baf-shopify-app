@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { TPlan } from "../../store/api/subscriptions/types";
 import { formatPrice } from "../../utils/currency";
 import { useActions } from "../../store/hooks/actions";
-import { Check } from "lucide-react";
+import { PLANS } from "../../utils/planUtils";
 
 type TPlanCardProps = {
     plan: TPlan;
@@ -13,20 +13,24 @@ type TPlanCardProps = {
     currencyCode: string;
 }
 
-const getBadgeColor = (badge: string) => {
+const getTierStyles = (badge: string) => {
     switch (badge.toLowerCase()) {
         case "free":
-            return "#6d7175";
+            return { background: "#f3f4f6", color: "#6b7280" };
+        case "boutique":
         case "starter":
-            return "#3b82f6";
+            return { background: "#dbeafe", color: "#1d4ed8" };
+        case "flagship":
         case "basic":
-            return "#10b981";
+            return { background: "#dcfce7", color: "#16a34a" };
+        case "showroom":
         case "pro":
-            return "#8b5cf6";
+            return { background: "#1a1a1a", color: "#fff" };
+        case "runway":
         case "plus":
-            return "#f59e0b";
+            return { background: "linear-gradient(135deg, #8b5cf6, #6366f1)", color: "#fff" };
         default:
-            return "#6d7175";
+            return { background: "#f3f4f6", color: "#6b7280" };
     }
 };
 
@@ -38,6 +42,10 @@ export const PlanGridCard = ({ plan, currentPlan, selectedInterval, isSubscribed
         plan.maxItems !== -1;
 
     const isSwitch = isSubscribed && currentPlan?.id === plan.id && plan.id !== "free" && currentBillingInterval !== selectedInterval;
+    // Find the next tier up from current plan
+    const nextTierUp = PLANS.find(p => p.maxItems > currentPlan?.maxItems && 
+        (!PLANS.find(p2 => p2.maxItems > currentPlan?.maxItems && p2.maxItems < p.maxItems)));
+    const isRecommended = !isCurrentPlan && currentPlan && nextTierUp?.id === plan.id;
 
     const { openPlanUpgradeModal } = useActions();
 
@@ -52,6 +60,32 @@ export const PlanGridCard = ({ plan, currentPlan, selectedInterval, isSubscribed
             currentBillingInterval: currentBillingInterval,
         });
     }, [openPlanUpgradeModal, plan, selectedInterval, isCurrentPlan, isSwitch, isDowngrade, isUpgrade, currentBillingInterval, currencyCode]);
+
+    const tierStyles = getTierStyles(plan.badge);
+    const monthlyPrice = plan.monthlyPrice;
+    const yearlyPrice = plan.yearlyPrice;
+    const displayPrice = selectedInterval === "EVERY_30_DAYS" ? monthlyPrice : yearlyPrice;
+    const savings = monthlyPrice > 0 ? monthlyPrice * 12 - yearlyPrice : 0;
+    const hasSavings = savings > 0 && selectedInterval === "ANNUAL";
+
+    // Calculate annual price text (matches HTML reference)
+    const getAnnualPriceText = () => {
+        if (plan.monthlyPrice === 0) return null;
+        const annualTotal = yearlyPrice;
+        if (selectedInterval === "ANNUAL") {
+            // When annual is selected, show "billed annually" without savings
+            return `$${annualTotal} billed annually`;
+        } else {
+            // When monthly is selected, show savings if applicable
+            if (hasSavings) {
+                return `$${annualTotal}/yr — save ${formatPrice(savings, currencyCode || "USD")}`;
+            }
+            return `$${annualTotal}/yr billed annually`;
+        }
+    };
+
+    const annualPriceText = getAnnualPriceText();
+
     return (
         <div
             style={{
@@ -62,8 +96,8 @@ export const PlanGridCard = ({ plan, currentPlan, selectedInterval, isSubscribed
                 position: "relative",
             }}
         >
-            {/* Popular Badge */}
-            {plan.popular && (
+            {/* Current/Recommended Badge */}
+            {(isCurrentPlan || isRecommended) && (
                 <div
                     style={{
                         position: "absolute",
@@ -75,212 +109,247 @@ export const PlanGridCard = ({ plan, currentPlan, selectedInterval, isSubscribed
                 >
                     <div
                         style={{
-                            background: "#202223",
-                            color: "white",
+                            background: "#1a1a1a",
+                            color: "#fff",
                             padding: "4px 12px",
-                            borderRadius: "4px",
-                            fontSize: "11px",
-                            fontWeight: 600,
+                            borderRadius: "12px",
+                            fontSize: "10px",
+                            fontWeight: 700,
+                            textTransform: "uppercase",
                             letterSpacing: "0.5px",
                             whiteSpace: "nowrap",
                         }}
                     >
-                        MOST POPULAR
+                        {isCurrentPlan ? "Current Plan" : "Recommended"}
                     </div>
                 </div>
             )}
 
-            <s-box
-                background="base"
-                border="base"
-                borderRadius="base"
-                padding="large"
+            {/* Plan Card */}
+            <div
+                style={{
+                    background: "#fff",
+                    border: isCurrentPlan || isRecommended 
+                        ? "2px solid #1a1a1a" 
+                        : "1px solid #e5e7eb",
+                    borderRadius: "12px",
+                    padding: "20px",
+                    position: "relative",
+                    transition: "all 0.15s",
+                    display: "flex",
+                    flexDirection: "column",
+                    height: "100%",
+                    boxShadow: isRecommended ? "0 4px 12px rgba(0,0,0,0.1)" : "none",
+                }}
+                onMouseEnter={(e) => {
+                    if (!isCurrentPlan && !isRecommended) {
+                        e.currentTarget.style.borderColor = "#d1d5db";
+                    }
+                }}
+                onMouseLeave={(e) => {
+                    if (!isCurrentPlan && !isRecommended) {
+                        e.currentTarget.style.borderColor = "#e5e7eb";
+                    }
+                }}
             >
-                <div
+                {/* Plan Tier Badge */}
+                <span
                     style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        height: "100%",
-                        width: "100%",
-                        gap: "24px",
+                        display: "inline-block",
+                        padding: "4px 10px",
+                        borderRadius: "6px",
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.3px",
+                        marginBottom: "16px",
+                        background: tierStyles.background,
+                        color: tierStyles.color,
+                        width: "fit-content",
                     }}
                 >
-                    {/* Header */}
-                    <s-stack direction="block" gap="small-200">
-                        <s-stack
-                            direction="inline"
-                            justifyContent="space-between"
-                            alignItems="center"
-                        >
-                            <div
-                                style={{
-                                    background: getBadgeColor(plan.badge),
-                                    color: "#fff",
-                                    padding: "6px 12px",
-                                    borderRadius: "6px",
-                                    fontSize: "12px",
-                                    fontWeight: 600,
-                                    display: "inline-block",
-                                }}
-                            >
-                                {plan.badge}
-                            </div>
-                            {isCurrentPlan && <s-badge tone="info">Current</s-badge>}
-                        </s-stack>
-                    </s-stack>
+                    {plan.badge}
+                </span>
 
-                    {/* Pricing */}
-                    <div>
-                        <div
-                            style={{
-                                display: "flex",
-                                alignItems: "baseline",
-                                gap: "6px",
-                                marginBottom: "8px",
-                                flexWrap: "wrap",
-                            }}
-                        >
-                            <div
-                                style={{
-                                    fontSize: "clamp(16px, 4vw, 32px)",
-                                    fontWeight: 600,
-                                    lineHeight: "1",
-                                    color: "#202223",
-                                }}
-                            >
-                                {plan.monthlyPrice === 0
-                                    ? "$0"
-                                    : formatPrice(
-                                        selectedInterval === "EVERY_30_DAYS"
-                                            ? plan.monthlyPrice
-                                            : plan.yearlyPrice,
-                                        currencyCode || "USD"
-                                    )}
-                            </div>
-                            {plan.monthlyPrice > 0 && (
-                                <s-text color="subdued">
-                                    /{selectedInterval === "EVERY_30_DAYS" ? "mo" : "yr"}
-                                </s-text>
-                            )}
-                        </div>
-
-                        {plan.monthlyPrice > 0 && selectedInterval === "ANNUAL" && (
-                            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                                <s-badge tone="success">
-                                    Save{" "}
-                                    {formatPrice(
-                                        plan.monthlyPrice * 12 - plan.yearlyPrice,
-                                        currencyCode || "USD"
-                                    )}
-                                </s-badge>
-                            </div>
-                        )}
-                    </div>
-
-                    <s-divider />
-
-                    {/* Features */}
-                    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-                        <s-stack direction="block" gap="base" alignItems="start">
-                            <div style={{ marginBottom: "4px" }}>
-                                <s-text type="strong">
-                                    Features
-                                </s-text>
-                            </div>
-                            <ul
-                                style={{
-                                    margin: 0,
-                                    paddingLeft: 0,
-                                    listStyle: "none",
-                                    width: "100%",
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    gap: "4px",
-                                }}
-                            >
-                                {plan.features.map((feature, index) => (
-                                    <li
-                                        key={index}
-                                        style={{
-                                            display: "flex",
-                                            alignItems: "flex-start",
-                                            gap: "12px",
-                                            padding: "4px 0",
-                                        }}
-                                    >
-                                        <div
-                                            style={{
-                                                marginTop: "2px",
-                                                width: "20px",
-                                                height: "20px",
-                                                borderRadius: "50%",
-                                                background: "#000000",
-                                                border: "2px solid #000000",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                                flexShrink: 0,
-                                            }}
-                                        >
-                                            <Check 
-                                                size={12} 
-                                                color="#ffffff" 
-                                                strokeWidth={3}
-                                            />
-                                        </div>
-                                        <div style={{ flex: 1 }}>
-                                            <s-text color="subdued">
-                                                {feature}
-                                            </s-text>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        </s-stack>
-                    </div>
-
-                    {/* Action Button */}
+                {/* Pricing */}
+                <div style={{ marginBottom: "4px" }}>
                     <div
                         style={{
-                            width: "100%",
-                            marginTop: "auto",
-                            paddingTop: "8px",
+                            display: "flex",
+                            alignItems: "baseline",
+                            gap: "6px",
+                            flexWrap: "wrap",
                         }}
                     >
-                        <s-button
-                            variant={isCurrentPlan && !isSwitch ? "secondary" : "primary"}
-                            disabled={isCurrentPlan && !isSwitch}
-                            onClick={() => {
-                                if (
-                                    isUpgrade ||
-                                    isSwitch ||
-                                    isDowngrade ||
-                                    (!isCurrentPlan && plan.id !== "free")
-                                ) {
-                                    handleUpgrade(plan);
-                                }
+                        <span
+                            style={{
+                                fontSize: "32px",
+                                fontWeight: 700,
+                                letterSpacing: "-1px",
+                                color: "#1a1a1a",
                             }}
                         >
-                            {isCurrentPlan && !isSwitch
-                                ? "Current Plan"
-                                : isDowngrade
-                                    ? plan.id === "free"
-                                        ? "Downgrade to Free"
-                                        : `Downgrade to ${plan.name}`
-                                    : isUpgrade
-                                        ? `Upgrade to ${plan.name}`
-                                        : isSwitch
-                                            ? `Switch to ${selectedInterval === "EVERY_30_DAYS"
-                                                ? "Monthly"
-                                                : "Yearly"
-                                            }`
-                                            : plan.id === "free"
-                                                ? "Get Started"
-                                                : `Upgrade to ${plan.name}`}
-                        </s-button>
+                            {plan.monthlyPrice === 0
+                                ? "$0"
+                                : formatPrice(displayPrice, currencyCode || "USD")}
+                        </span>
+                        {plan.monthlyPrice > 0 && (
+                            <span
+                                style={{
+                                    fontSize: "14px",
+                                    color: "#6b7280",
+                                    fontWeight: 400,
+                                }}
+                            >
+                                /{selectedInterval === "EVERY_30_DAYS" ? "mo" : "yr"}
+                            </span>
+                        )}
                     </div>
+                    {annualPriceText && (
+                        <div
+                            style={{
+                                fontSize: "12px",
+                                color: hasSavings ? "#16a34a" : "#6b7280",
+                                marginBottom: "20px",
+                                minHeight: "18px",
+                                fontWeight: hasSavings ? 500 : 400,
+                            }}
+                        >
+                            {annualPriceText}
+                        </div>
+                    )}
+                    {!annualPriceText && plan.monthlyPrice === 0 && (
+                        <div style={{ marginBottom: "20px", minHeight: "18px" }}>&nbsp;</div>
+                    )}
                 </div>
-            </s-box>
+
+                {/* Features */}
+                <ul
+                    style={{
+                        listStyle: "none",
+                        margin: 0,
+                        padding: 0,
+                        marginBottom: "20px",
+                        borderTop: "1px solid #f3f4f6",
+                        paddingTop: "16px",
+                        flex: 1,
+                    }}
+                >
+                    {plan.features.map((feature, index) => {
+                        const isHighlight = index === 0; // First feature is highlighted
+                        return (
+                            <li
+                                key={index}
+                                style={{
+                                    display: "flex",
+                                    alignItems: "flex-start",
+                                    gap: "8px",
+                                    fontSize: "13px",
+                                    color: isHighlight ? "#1a1a1a" : "#374151",
+                                    padding: "6px 0",
+                                    fontWeight: isHighlight ? 600 : 400,
+                                }}
+                            >
+                                <svg
+                                    className="check-icon"
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 20 20"
+                                    fill="#22c55e"
+                                    style={{
+                                        flexShrink: 0,
+                                        marginTop: "1px",
+                                    }}
+                                >
+                                    <path
+                                        fillRule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clipRule="evenodd"
+                                    />
+                                </svg>
+                                <span>{feature}</span>
+                            </li>
+                        );
+                    })}
+                </ul>
+
+                {/* Action Button */}
+                <button
+                    className={`plan-cta ${
+                        isCurrentPlan && !isSwitch
+                            ? "cta-current"
+                            : isDowngrade
+                            ? "cta-downgrade"
+                            : "cta-upgrade"
+                    }`}
+                    disabled={isCurrentPlan && !isSwitch}
+                    onClick={() => {
+                        if (
+                            isUpgrade ||
+                            isSwitch ||
+                            isDowngrade ||
+                            (!isCurrentPlan && plan.id !== "free")
+                        ) {
+                            handleUpgrade(plan);
+                        }
+                    }}
+                    style={{
+                        width: "100%",
+                        padding: "10px 16px",
+                        borderRadius: "8px",
+                        fontSize: "13px",
+                        fontWeight: 600,
+                        cursor: isCurrentPlan && !isSwitch ? "default" : "pointer",
+                        transition: "all 0.15s",
+                        border: "none",
+                        background: isCurrentPlan && !isSwitch
+                            ? "#f3f4f6"
+                            : isDowngrade
+                            ? "#fff"
+                            : "#1a1a1a",
+                        color: isCurrentPlan && !isSwitch
+                            ? "#9ca3af"
+                            : isDowngrade
+                            ? "#6b7280"
+                            : "#fff",
+                        borderWidth: isDowngrade ? "1px" : "0",
+                        borderStyle: isDowngrade ? "solid" : "none",
+                        borderColor: isDowngrade ? "#e5e7eb" : "transparent",
+                    }}
+                    onMouseEnter={(e) => {
+                        if (!(isCurrentPlan && !isSwitch)) {
+                            if (isDowngrade) {
+                                e.currentTarget.style.background = "#f9fafb";
+                            } else {
+                                e.currentTarget.style.background = "#333";
+                            }
+                        }
+                    }}
+                    onMouseLeave={(e) => {
+                        if (!(isCurrentPlan && !isSwitch)) {
+                            if (isDowngrade) {
+                                e.currentTarget.style.background = "#fff";
+                            } else {
+                                e.currentTarget.style.background = "#1a1a1a";
+                            }
+                        }
+                    }}
+                >
+                    {isCurrentPlan && !isSwitch
+                        ? "Current Plan"
+                        : isDowngrade
+                        ? plan.id === "free"
+                            ? "Downgrade to Free"
+                            : `Downgrade to ${plan.name}`
+                        : isUpgrade
+                        ? `Upgrade to ${plan.name}`
+                        : isSwitch
+                        ? `Switch to ${selectedInterval === "EVERY_30_DAYS" ? "Monthly" : "Yearly"}`
+                        : plan.id === "free"
+                        ? "Get Started"
+                        : `Upgrade to ${plan.name}`}
+                </button>
+            </div>
         </div>
     );
 };

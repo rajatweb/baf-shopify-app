@@ -17,6 +17,73 @@ type TProps = {
     details,
     disabled = false,
   }: TProps) => {
+    // If label is empty, render as billing toggle (matching HTML reference)
+    if (!label) {
+      return (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: "24px",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              background: "#e5e7eb",
+              borderRadius: "8px",
+              padding: "4px",
+            }}
+          >
+            {options.map((item, index) => {
+              const isSelected = item.value === value;
+              // Extract main label and save text from format like "Yearly (Save 17%)"
+              const match = item.label.match(/^(.+?)\s*\((.+?)\)$/);
+              const mainLabel = match ? match[1].trim() : item.label;
+              const saveText = match ? match[2].trim() : null;
+  
+              return (
+                <button
+                  key={index}
+                  type="button"
+                  disabled={disabled}
+                  onClick={() => !disabled && onValueChange(name, item.value)}
+                  style={{
+                    padding: "8px 20px",
+                    borderRadius: "6px",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    border: "none",
+                    cursor: disabled ? "not-allowed" : "pointer",
+                    background: isSelected ? "#fff" : "transparent",
+                    color: isSelected ? "#1a1a1a" : "#6b7280",
+                    transition: "all 0.15s",
+                    boxShadow: isSelected ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                    opacity: disabled ? 0.6 : 1,
+                  }}
+                >
+                  {mainLabel}
+                  {saveText && (
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        fontWeight: 600,
+                        color: "#16a34a",
+                        marginLeft: "6px",
+                      }}
+                    >
+                      {saveText}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    // Original implementation for labeled button groups
     return (
       <s-stack direction="block" gap="small-300">
         <s-stack

@@ -21,140 +21,235 @@ export const WidgetCard = ({
   isChangingCollection = false,
 }: WidgetCardProps) => {
   return (
-    <div style={{ position: "relative" }}>
-      <s-box
-        background="base"
-        border="base"
-        borderRadius="base"
-        padding="base"
+    <div
+      style={{
+        background: "#fff",
+        border: "1px solid #e3e3e3",
+        borderRadius: "12px",
+      }}
+    >
+      {/* Widget Header */}
+      <div
+        style={{
+          padding: "20px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+        }}
       >
-        {isLive && (
+        <div>
           <div
             style={{
-              position: "absolute",
-              top: "24px",
-              right: "24px",
+              fontSize: "11px",
+              fontWeight: 600,
+              color: "#616161",
+              textTransform: "uppercase",
+              letterSpacing: "0.3px",
+              marginBottom: "4px",
+            }}
+          >
+            Collection
+          </div>
+          <div
+            style={{
+              fontSize: "16px",
+              fontWeight: 600,
+              color: "#1a1a1a",
+              marginBottom: "2px",
+            }}
+          >
+            {widgetName || "Build A Fit"}
+          </div>
+          <div
+            style={{
+              fontSize: "13px",
+              color: "#616161",
+            }}
+          >
+            {widgetMeta}
+          </div>
+        </div>
+        {isLive && (
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
               background: "#dcfce7",
-              color: "#15803d",
+              color: "#16a34a",
               padding: "6px 12px",
               borderRadius: "20px",
               fontSize: "12px",
               fontWeight: 600,
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
             }}
           >
-            <div
+            <span
               style={{
-                width: "8px",
-                height: "8px",
+                width: "6px",
+                height: "6px",
                 background: "#22c55e",
                 borderRadius: "50%",
               }}
             />
             Live
-          </div>
+          </span>
         )}
-        <s-stack direction="block" gap="base">
-          <s-stack direction="block" gap="small-300">
-            <s-stack direction="block" gap="small-300">
-              <s-badge tone="info">
-                Collection
-              </s-badge>
-              <span style={{ fontSize: "20px", fontWeight: 600 }}>
-                {widgetName}
-              </span>
-            </s-stack>
-            <s-text color="subdued">
-              {widgetMeta}
-            </s-text>
-          </s-stack>
-          {(onEditSettings || onChangeCollection) && (
-            <s-stack direction="inline" gap="base">
-              {onEditSettings && (
-                <s-button variant="primary" onClick={onEditSettings}>
-                  Edit Settings
-                </s-button>
-              )}
-              {onChangeCollection && (
-                <s-button
-                  variant="secondary"
-                  onClick={onChangeCollection}
-                  loading={isChangingCollection}
-                  disabled={isChangingCollection}
-                >
-                  Change Collection
-                </s-button>
-              )}
-            </s-stack>
-          )}
-          <div
+      </div>
+
+      {/* Widget Actions */}
+      <div
+        style={{
+          padding: "0 20px 20px",
+          display: "flex",
+          gap: "8px",
+        }}
+      >
+        {onEditSettings && (
+          <button
+            onClick={onEditSettings}
             style={{
-              marginTop: "20px",
-              paddingTop: "20px",
-              borderTop: "1px solid #e1e3e5",
+              padding: "8px 14px",
+              borderRadius: "8px",
+              fontSize: "13px",
+              fontWeight: 600,
+              cursor: "pointer",
+              border: "none",
+              background: "#1a1a1a",
+              color: "#fff",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#333";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "#1a1a1a";
             }}
           >
-            <s-stack direction="block" gap="base">
-              <span style={{ fontSize: "13px", fontWeight: 600, color: "#6d7175" }}>
-                Top 3 Most Used in Fits
+            Edit Settings
+          </button>
+        )}
+        {onChangeCollection && (
+          <button
+            onClick={onChangeCollection}
+            disabled={isChangingCollection}
+            style={{
+              padding: "8px 14px",
+              borderRadius: "8px",
+              fontSize: "13px",
+              fontWeight: 600,
+              cursor: isChangingCollection ? "not-allowed" : "pointer",
+              border: "1px solid #d1d5db",
+              background: "#fff",
+              color: "#1a1a1a",
+              opacity: isChangingCollection ? 0.6 : 1,
+            }}
+            onMouseEnter={(e) => {
+              if (!isChangingCollection) {
+                e.currentTarget.style.background = "#f9fafb";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isChangingCollection) {
+                e.currentTarget.style.background = "#fff";
+              }
+            }}
+          >
+            {isChangingCollection ? "Changing..." : "Change Collection"}
+          </button>
+        )}
+      </div>
+
+      {/* Divider */}
+      <div
+        style={{
+          height: "1px",
+          background: "#e3e3e3",
+        }}
+      />
+
+      {/* Top Products */}
+      <div
+        style={{
+          padding: "20px",
+        }}
+      >
+        <div
+          style={{
+            fontSize: "13px",
+            fontWeight: 600,
+            color: "#616161",
+            marginBottom: "16px",
+          }}
+        >
+          Top 3 Most Used in Fits
+        </div>
+        {topProducts && topProducts.length > 0 ? (
+          topProducts.map((product, index) => (
+            <div
+              key={index}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                padding: "8px 0",
+                borderTop: index > 0 ? "1px solid #f3f4f6" : "none",
+              }}
+            >
+              <span
+                style={{
+                  width: "24px",
+                  height: "24px",
+                  background: "#f3f4f6",
+                  borderRadius: "6px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  color: "#6b7280",
+                }}
+              >
+                {index + 1}
               </span>
-              {topProducts && topProducts.length > 0 ? topProducts.map((product, index) => (
+              <div
+                style={{
+                  width: "40px",
+                  height: "40px",
+                  background: "#e5e7eb",
+                  borderRadius: "8px",
+                }}
+              />
+              <div style={{ flex: 1 }}>
                 <div
-                  key={index}
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
-                    padding: "10px 0",
-                    borderBottom: index < topProducts.length - 1 ? "1px solid #f1f2f3" : "none",
+                    fontSize: "13px",
+                    fontWeight: 500,
+                    color: "#1a1a1a",
                   }}
                 >
-                  <div
-                    style={{
-                      width: "22px",
-                      height: "22px",
-                      background: "#f6f6f7",
-                      borderRadius: "6px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "11px",
-                      fontWeight: 600,
-                      color: "#6d7175",
-                    }}
-                  >
-                    {index + 1}
-                  </div>
-                  <div
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      background: "#e1e3e5",
-                      borderRadius: "6px",
-                    }}
-                  />
-                  <div style={{ flex: 1 }}>
-                    <s-stack direction="block" gap="small-300">
-                      <span style={{ fontSize: "13px", fontWeight: 600 }}>
-                        {product.productTitle}
-                      </span>
-                      <span style={{ fontSize: "12px", color: "#6d7175" }}>
-                        {product.totalProductClicks} clicks • {product.shared} fits
-                      </span>
-                    </s-stack>
-                  </div>
+                  {product.productTitle}
                 </div>
-              )) : (
-                <s-text color="subdued">
-                  No products used in fits yet. Analytics will appear here once customers start creating fits.
-                </s-text>
-              )}
-            </s-stack>
+                <div
+                  style={{
+                    fontSize: "12px",
+                    color: "#6b7280",
+                  }}
+                >
+                  {product.shared || 0} fits • {product.totalProductClicks || 0} clicks
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div
+            style={{
+              fontSize: "13px",
+              color: "#6b7280",
+            }}
+          >
+            No products used in fits yet. Analytics will appear here once customers start creating fits.
           </div>
-        </s-stack>
-      </s-box>
+        )}
+      </div>
     </div>
   );
 };

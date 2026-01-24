@@ -1,89 +1,326 @@
 import { TStoreAnalytics } from "../../store/api/shop-analytics/types";
 
 export const StatsGrid = ({ analytics, currentCurrencySymbol }: { analytics: TStoreAnalytics, currentCurrencySymbol: string }) => {
-  const stats = [
-    {
-      label: "Revenue",
-      value: analytics.totalRevenue,
-      change: analytics.totalRevenueChange,
-      formatter: (val: number) => `${currentCurrencySymbol} ${val.toLocaleString()}`,
-    },
-    {
-      label: "Fit Shared",
-      value: analytics.totalFitShared,
-      change: analytics.totalFitSharedChange,
-      formatter: (val: number) => val.toLocaleString(),
-    },
-    {
-      label: "Product Clicks",
-      value: analytics.totalClicks,
-      change: analytics.totalClicksChange,
-      formatter: (val: number) => val.toLocaleString(),
-    },
-    {
-      label: "Add to Cart",
-      value: analytics.totalAddToCartCount,
-      change: analytics.totalAddToCartCountChange,
-      formatter: (val: number) => val.toLocaleString(),
-    },
-    {
-      label: "Purchases",
-      value: analytics.totalPurchaseCount,
-      change: analytics.totalPurchaseCountChange,
-      formatter: (val: number) => val.toLocaleString(),
-    },
-    {
-      label: "Conversion",
-      value: analytics.conversionRate,
-      change: analytics.conversionRateChange,
-      formatter: (val: number) => `${val.toFixed(1)}%`,
-    },
-    {
-      label: "Total Items Shared",
-      value: analytics.totalFitsShared,
-      change: analytics.totalFitsSharedChange,
-      formatter: (val: number) => val.toLocaleString(),
-    },
-  ];
+  const formatChange = (change: TPercentageChange | undefined) => {
+    if (!change) return { text: "—", class: "neutral" };
+    const isPositive = change.positive !== false;
+    const prefix = isPositive ? "↑" : "↓";
+    return {
+      text: `${prefix} ${change.value}`,
+      class: isPositive ? "positive" : change.value === "0" || change.value === "—" ? "neutral" : "negative",
+    };
+  };
 
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-        gap: "16px",
-        marginBottom: "24px",
-        marginTop: "24px"
-      }}
-    >
-      {stats.map((stat, index) => (
-        <s-box
-          key={index}
-          background="base"
-          border="base"
-          borderRadius="base"
-          padding="base"
+    <div style={{ marginBottom: "16px" }}>
+      {/* Analytics Header */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "12px",
+        }}
+      >
+        <span
+          style={{
+            fontSize: "14px",
+            fontWeight: 600,
+            color: "#1a1a1a",
+          }}
         >
-          <s-stack direction="block" gap="small-300">
-            <span style={{ fontSize: "13px", color: "#6d7175" }}>
-              {stat.label}
-            </span>
-            <span style={{ fontSize: "28px", fontWeight: 700 }}>
-              {stat.formatter(stat.value)}
-            </span>
-            {stat.change && (
-              <span
-                style={{
-                  fontSize: "12px",
-                  color: stat.change.positive !== false ? "#16a34a" : "#dc2626",
-                }}
-              >
-                {stat.change.positive !== false ? "↑" : "↓"} {stat.change.value}
-              </span>
-            )}
-          </s-stack>
-        </s-box>
-      ))}
+          Analytics
+        </span>
+        <span
+          style={{
+            fontSize: "13px",
+            color: "#6b7280",
+          }}
+        >
+          Last 7 days
+        </span>
+      </div>
+
+      {/* Hero Stats */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "12px",
+          marginBottom: "12px",
+        }}
+      >
+        {/* Revenue from Fits */}
+        <div
+          style={{
+            background: "#fff",
+            border: "1px solid #e3e3e3",
+            borderRadius: "12px",
+            padding: "20px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "13px",
+              color: "#616161",
+              marginBottom: "4px",
+            }}
+          >
+            Revenue from Fits
+          </div>
+          <div
+            style={{
+              fontSize: "28px",
+              fontWeight: 700,
+              color: "#1a1a1a",
+              letterSpacing: "-0.5px",
+            }}
+          >
+            {currentCurrencySymbol}{analytics.totalRevenue.toLocaleString()}
+          </div>
+          <span
+            className={`hero-change ${formatChange(analytics.totalRevenueChange).class}`}
+            style={{
+              display: "inline-block",
+              fontSize: "12px",
+              fontWeight: 500,
+              marginTop: "6px",
+              color:
+                formatChange(analytics.totalRevenueChange).class === "positive"
+                  ? "#16a34a"
+                  : formatChange(analytics.totalRevenueChange).class === "negative"
+                  ? "#dc2626"
+                  : "#9ca3af",
+            }}
+          >
+            {formatChange(analytics.totalRevenueChange).text}
+          </span>
+        </div>
+
+        {/* Fits Shared */}
+        <div
+          style={{
+            background: "#fff",
+            border: "1px solid #e3e3e3",
+            borderRadius: "12px",
+            padding: "20px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "13px",
+              color: "#616161",
+              marginBottom: "4px",
+            }}
+          >
+            Fits Shared
+          </div>
+          <div
+            style={{
+              fontSize: "28px",
+              fontWeight: 700,
+              color: "#1a1a1a",
+              letterSpacing: "-0.5px",
+            }}
+          >
+            {analytics.totalFitShared.toLocaleString()}
+          </div>
+          <span
+            className={`hero-change ${formatChange(analytics.totalFitSharedChange).class}`}
+            style={{
+              display: "inline-block",
+              fontSize: "12px",
+              fontWeight: 500,
+              marginTop: "6px",
+              color:
+                formatChange(analytics.totalFitSharedChange).class === "positive"
+                  ? "#16a34a"
+                  : formatChange(analytics.totalFitSharedChange).class === "negative"
+                  ? "#dc2626"
+                  : "#9ca3af",
+            }}
+          >
+            {formatChange(analytics.totalFitSharedChange).text}
+          </span>
+        </div>
+      </div>
+
+      {/* Secondary Stats */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gap: "12px",
+        }}
+      >
+        {/* Product Clicks */}
+        <div
+          style={{
+            background: "#fff",
+            border: "1px solid #e3e3e3",
+            borderRadius: "12px",
+            padding: "16px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "12px",
+              color: "#616161",
+              marginBottom: "4px",
+            }}
+          >
+            Product Clicks
+          </div>
+          <div
+            style={{
+              fontSize: "18px",
+              fontWeight: 700,
+              color: "#1a1a1a",
+            }}
+          >
+            {analytics.totalClicks.toLocaleString()}
+          </div>
+          <div
+            className={`stat-change ${formatChange(analytics.totalClicksChange).class}`}
+            style={{
+              fontSize: "11px",
+              color:
+                formatChange(analytics.totalClicksChange).class === "positive"
+                  ? "#16a34a"
+                  : "#9ca3af",
+              marginTop: "2px",
+            }}
+          >
+            {formatChange(analytics.totalClicksChange).text}
+          </div>
+        </div>
+
+        {/* Add to Cart */}
+        <div
+          style={{
+            background: "#fff",
+            border: "1px solid #e3e3e3",
+            borderRadius: "12px",
+            padding: "16px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "12px",
+              color: "#616161",
+              marginBottom: "4px",
+            }}
+          >
+            Add to Cart
+          </div>
+          <div
+            style={{
+              fontSize: "18px",
+              fontWeight: 700,
+              color: "#1a1a1a",
+            }}
+          >
+            {analytics.totalAddToCartCount.toLocaleString()}
+          </div>
+          <div
+            className={`stat-change ${formatChange(analytics.totalAddToCartCountChange).class}`}
+            style={{
+              fontSize: "11px",
+              color:
+                formatChange(analytics.totalAddToCartCountChange).class === "positive"
+                  ? "#16a34a"
+                  : "#9ca3af",
+              marginTop: "2px",
+            }}
+          >
+            {formatChange(analytics.totalAddToCartCountChange).text}
+          </div>
+        </div>
+
+        {/* Purchases */}
+        <div
+          style={{
+            background: "#fff",
+            border: "1px solid #e3e3e3",
+            borderRadius: "12px",
+            padding: "16px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "12px",
+              color: "#616161",
+              marginBottom: "4px",
+            }}
+          >
+            Purchases
+          </div>
+          <div
+            style={{
+              fontSize: "18px",
+              fontWeight: 700,
+              color: "#1a1a1a",
+            }}
+          >
+            {analytics.totalPurchaseCount.toLocaleString()}
+          </div>
+          <div
+            className={`stat-change ${formatChange(analytics.totalPurchaseCountChange).class}`}
+            style={{
+              fontSize: "11px",
+              color:
+                formatChange(analytics.totalPurchaseCountChange).class === "positive"
+                  ? "#16a34a"
+                  : "#9ca3af",
+              marginTop: "2px",
+            }}
+          >
+            {formatChange(analytics.totalPurchaseCountChange).text}
+          </div>
+        </div>
+
+        {/* Conversion */}
+        <div
+          style={{
+            background: "#fff",
+            border: "1px solid #e3e3e3",
+            borderRadius: "12px",
+            padding: "16px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "12px",
+              color: "#616161",
+              marginBottom: "4px",
+            }}
+          >
+            Conversion
+          </div>
+          <div
+            style={{
+              fontSize: "18px",
+              fontWeight: 700,
+              color: "#1a1a1a",
+            }}
+          >
+            {analytics.conversionRate.toFixed(1)}%
+          </div>
+          <div
+            className={`stat-change ${formatChange(analytics.conversionRateChange).class}`}
+            style={{
+              fontSize: "11px",
+              color:
+                formatChange(analytics.conversionRateChange).class === "positive"
+                  ? "#16a34a"
+                  : "#9ca3af",
+              marginTop: "2px",
+            }}
+          >
+            {formatChange(analytics.conversionRateChange).text}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
