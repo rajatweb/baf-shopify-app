@@ -36,10 +36,24 @@ const getTierStyles = (badge: string) => {
 
 export const PlanGridCard = ({ plan, currentPlan, selectedInterval, isSubscribed, currentBillingInterval, currencyCode }: TPlanCardProps) => {
     const isCurrentPlan = currentPlan?.id === plan.id;
-    const isUpgrade = currentPlan && plan.maxItems > currentPlan.maxItems;
-    const isDowngrade = currentPlan &&
-        plan.maxItems < currentPlan.maxItems &&
-        plan.maxItems !== -1;
+    
+    // Check if switching to yearly billing (monthly to yearly)
+    const isSwitchingToYearly = isSubscribed && 
+        currentBillingInterval === "EVERY_30_DAYS" && 
+        selectedInterval === "ANNUAL" &&
+        plan.id !== "free";
+    
+    // Handle unlimited (-1) case properly
+    // If switching to yearly, treat it as upgrade for all paid plans
+    const isUpgrade = currentPlan && 
+        (isSwitchingToYearly || // Switching to yearly is an upgrade
+         (plan.maxItems === -1 && currentPlan.maxItems !== -1) || // Target is unlimited, current is not
+         (currentPlan.maxItems !== -1 && plan.maxItems !== -1 && plan.maxItems > currentPlan.maxItems)); // Both limited, compare normally
+    
+    // Only show downgrade if not switching to yearly and it's actually a lower tier
+    const isDowngrade = currentPlan && !isCurrentPlan && !isSwitchingToYearly &&
+        ((currentPlan.maxItems === -1 && plan.maxItems !== -1) || // Current is unlimited, target is not
+         (currentPlan.maxItems !== -1 && plan.maxItems !== -1 && plan.maxItems < currentPlan.maxItems)); // Both limited, compare normally
 
     const isSwitch = isSubscribed && currentPlan?.id === plan.id && plan.id !== "free" && currentBillingInterval !== selectedInterval;
     // Find the next tier up from current plan
@@ -64,7 +78,10 @@ export const PlanGridCard = ({ plan, currentPlan, selectedInterval, isSubscribed
     const tierStyles = getTierStyles(plan.badge);
     const monthlyPrice = plan.monthlyPrice;
     const yearlyPrice = plan.yearlyPrice;
-    const displayPrice = selectedInterval === "EVERY_30_DAYS" ? monthlyPrice : yearlyPrice;
+    // When annual is selected, show monthly equivalent (yearlyPrice / 12)
+    const displayPrice = selectedInterval === "EVERY_30_DAYS" 
+        ? monthlyPrice 
+        : Math.round((yearlyPrice / 12) * 100) / 100; // Round to 2 decimal places
     const savings = monthlyPrice > 0 ? monthlyPrice * 12 - yearlyPrice : 0;
     const hasSavings = savings > 0 && selectedInterval === "ANNUAL";
 
@@ -73,14 +90,15 @@ export const PlanGridCard = ({ plan, currentPlan, selectedInterval, isSubscribed
         if (plan.monthlyPrice === 0) return null;
         const annualTotal = yearlyPrice;
         if (selectedInterval === "ANNUAL") {
-            // When annual is selected, show "billed annually" without savings
+            // When annual is selected, show "billed annually"
             return `$${annualTotal} billed annually`;
         } else {
-            // When monthly is selected, show savings if applicable
+            // When monthly is selected, show "or $X/year and save 17%"
             if (hasSavings) {
-                return `$${annualTotal}/yr — save ${formatPrice(savings, currencyCode || "USD")}`;
+                const savingsPercent = Math.round((savings / (monthlyPrice * 12)) * 100);
+                return `or $${annualTotal}/year and save ${savingsPercent}%`;
             }
-            return `$${annualTotal}/yr billed annually`;
+            return `or $${annualTotal}/year`;
         }
     };
 
@@ -201,7 +219,7 @@ export const PlanGridCard = ({ plan, currentPlan, selectedInterval, isSubscribed
                                     fontWeight: 400,
                                 }}
                             >
-                                /{selectedInterval === "EVERY_30_DAYS" ? "mo" : "yr"}
+                                / month
                             </span>
                         )}
                     </div>

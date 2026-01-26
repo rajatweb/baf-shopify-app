@@ -89,7 +89,7 @@ export default function Plans() {
             />
 
             {/* Trial Banner */}
-            {selectedInterval === "EVERY_30_DAYS" && (
+            {/* {selectedInterval === "EVERY_30_DAYS" && (
               <div
                 style={{
                   textAlign: "center",
@@ -114,20 +114,20 @@ export default function Plans() {
                 </svg>
                 7-day free trial on all paid plans • Cancel anytime
               </div>
-            )}
+            )} */}
 
-            {/* Plans Grid - Top Row: Free, Boutique, Flagship */}
+            {/* Plans Grid - All 4 plans in one row */}
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)",
+                gridTemplateColumns: "repeat(4, 1fr)",
                 gap: "12px",
                 width: "100%",
-                marginBottom: "12px",
+                marginBottom: "16px",
                 alignItems: "stretch",
               }}
             >
-              {PLANS.slice(0, 3).map((plan) => (
+              {PLANS.map((plan) => (
                 <div
                   key={plan.id}
                   style={{
@@ -147,36 +147,16 @@ export default function Plans() {
               ))}
             </div>
 
-            {/* Plans Grid - Bottom Row: Showroom, Runway (centered) */}
+            {/* Billing Note */}
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(2, 1fr)",
-                gap: "12px",
-                width: "100%",
-                maxWidth: "66.666%",
-                margin: "0 auto",
-                alignItems: "stretch",
+                textAlign: "center",
+                fontSize: "12px",
+                color: "#6b7280",
+                marginTop: "8px",
               }}
             >
-              {PLANS.slice(3).map((plan) => (
-                <div
-                  key={plan.id}
-                  style={{
-                    display: "flex",
-                    width: "100%",
-                    height: "100%",
-                  }}
-                >
-                  <PlanGridCard
-                    plan={plan}
-                    currentPlan={currentPlanConfig}
-                    selectedInterval={selectedInterval}
-                    isSubscribed={isSubscribed}
-                    currentBillingInterval={currentBillingInterval}
-                    currencyCode={shopData?.currencyCode || "USD"} />
-                </div>
-              ))}
+              All charges are billed in USD. Recurring and usage-based charges are billed every 30 days.
             </div>
           </s-stack>
 

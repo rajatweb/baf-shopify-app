@@ -70,7 +70,7 @@ export const PlanUpgradeModal = () => {
     };
 
     const title = useMemo(() => {
-        return isDowngrade ? "Downgrade to Free Plan"
+        return isDowngrade ? `Downgrade to ${selectedPlan?.name} Plan`
             : isSwitch
                 ? `Switch to ${selectedInterval === "EVERY_30_DAYS" ? "Monthly" : "Yearly"} Billing`
                 : `Upgrade to ${selectedPlan?.name} Plan`;
@@ -92,7 +92,7 @@ export const PlanUpgradeModal = () => {
             primaryAction={{
                 content: primaryActionContent,
                 onAction:
-                    isDowngrade ? handleCancel
+                    isDowngrade && selectedPlan?.id === "free" ? handleCancel
                         : handleUpgrade,
                 loading: isCreating || isCancelling,
                 disabled: isCreating || isCancelling,
@@ -109,20 +109,26 @@ export const PlanUpgradeModal = () => {
                     {isDowngrade ? (
                         <>
                             <s-text>
-                                You're about to downgrade to the Free Plan. This will:
+                                You're about to downgrade to the {selectedPlan?.name} Plan. This will:
                             </s-text>
                             <ul style={{ margin: "8px 0", paddingLeft: "20px" }}>
                                 <li style={{ marginBottom: "8px" }}>
-                                    <s-text>Cancel your current subscription</s-text>
-                                </li>
-                                <li style={{ marginBottom: "8px" }}>
-                                    <s-text>Limit you to 8 items max</s-text>
+                                    <s-text>Change your subscription to {selectedPlan?.name} Plan</s-text>
                                 </li>
                                 <li style={{ marginBottom: "8px" }}>
                                     <s-text>
-                                        Restrict to basic backgrounds and homepage only
+                                        {selectedPlan?.id === "free" 
+                                            ? "Limit you to 8 items max"
+                                            : `Limit you to ${selectedPlan?.maxItems === -1 ? "unlimited" : selectedPlan?.maxItems} items max`}
                                     </s-text>
                                 </li>
+                                {selectedPlan?.id === "free" && (
+                                    <li style={{ marginBottom: "8px" }}>
+                                        <s-text>
+                                            Restrict to basic backgrounds and homepage only
+                                        </s-text>
+                                    </li>
+                                )}
                             </ul>
                             <s-box
                                 background="subdued"
@@ -130,7 +136,9 @@ export const PlanUpgradeModal = () => {
                                 borderRadius="small-200"
                             >
                                 <s-text color="subdued">
-                                    You can upgrade back anytime to restore all features.
+                                    {selectedPlan?.id === "free" 
+                                        ? "You can upgrade back anytime to restore all features."
+                                        : "You can upgrade back anytime to restore higher tier features."}
                                 </s-text>
                             </s-box>
                         </>

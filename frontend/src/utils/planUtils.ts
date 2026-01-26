@@ -37,19 +37,15 @@ const PLAN_FEATURES: Record<string, string[]> = {
     "Home page only",
   ],
   starter: [
-    "25 items max",
+    "30 items max",
     "All backgrounds",
     "Site-wide",
     "Product filters",
   ],
   basic: [
-    "50 items max",
+    "60 items max",
     "Custom branding",
     "Hide Sold Out Products Toggle",
-  ],
-  pro: [
-    "150 items max",
-    "Product Filters",
   ],
   plus: [
     "Unlimited items",
@@ -66,15 +62,14 @@ const FEATURE_REPLACEMENTS: Record<string, string[]> = {
 // Item limit features (only show the highest one)
 const ITEM_LIMIT_FEATURES = [
   "8 items max",
-  "25 items max",
-  "50 items max",
-  "150 items max",
+  "30 items max",
+  "60 items max",
   "Unlimited items",
 ];
 
 // Build cumulative features for a plan
 const buildCumulativeFeatures = (planId: string): string[] => {
-  const planOrder = ["free", "starter", "basic", "pro", "plus"];
+  const planOrder = ["free", "starter", "basic", "plus"];
   const planIndex = planOrder.indexOf(planId);
   
   if (planIndex === -1) return BASE_FEATURES;
@@ -134,36 +129,27 @@ export const PLANS: TPlan[] = [
     id: "starter",
     name: "Boutique",
     badge: "Boutique",
-    monthlyPrice: 9,
-    yearlyPrice: 90,
+    monthlyPrice: 10,
+    yearlyPrice: 100,
     features: buildCumulativeFeatures("starter"),
-    maxItems: 25,
+    maxItems: 30,
   },
   {
     id: "basic",
     name: "Flagship",
     badge: "Flagship",
-    monthlyPrice: 15,
-    yearlyPrice: 150,
+    monthlyPrice: 25,
+    yearlyPrice: 249,
     features: buildCumulativeFeatures("basic"),
-    maxItems: 50,
+    maxItems: 60,
     popular: true,
-  },
-  {
-    id: "pro",
-    name: "Showroom",
-    badge: "Showroom",
-    monthlyPrice: 30,
-    yearlyPrice: 300,
-    features: buildCumulativeFeatures("pro"),
-    maxItems: 150,
   },
   {
     id: "plus",
     name: "Runway",
     badge: "Runway",
     monthlyPrice: 50,
-    yearlyPrice: 500,
+    yearlyPrice: 498,
     features: buildCumulativeFeatures("plus"),
     maxItems: -1, // -1 means unlimited
   },
