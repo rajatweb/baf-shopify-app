@@ -15,6 +15,7 @@ import {
   TAdditionalSettings,
   TBrandingSettings,
   TGeneralSettings,
+  TCanvasSettings,
   TStoreSettings,
   TUrlSettings,
 } from "../../store/api/settings/type";
@@ -22,6 +23,7 @@ import _ from "lodash";
 import {
   AdditionalSettings,
   BrandingSettings,
+  CanvasSettings,
   GeneralSettings,
 } from "../../components/settings";
 import RestrictedWrapper from "../../components/guard/RestrictedHandler";
@@ -114,6 +116,17 @@ function Settings() {
       }
     },
     [localSettings]
+  );
+
+  const handleCanvasSettings = useCallback(
+    (canvasSettings: TCanvasSettings) => {
+      if (localSettings) {
+        setLocalSettings({
+          ...localSettings,
+          canvasSettings: canvasSettings,
+        });
+      }
+    }, [localSettings]
   );
 
   const handleGeneralSettings = useCallback(
@@ -257,6 +270,11 @@ function Settings() {
           <GeneralSettings
             generalSettings={localSettings.generalSettings}
             updateSettings={(settings) => handleGeneralSettings(settings)}
+          />
+
+          <CanvasSettings
+            canvasSettings={localSettings.canvasSettings}
+            updateSettings={(settings) => handleCanvasSettings(settings)}
           />
 
           {/* Additional Section */}

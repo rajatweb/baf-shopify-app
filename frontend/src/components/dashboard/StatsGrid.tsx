@@ -1,7 +1,7 @@
 import { TStoreAnalytics } from "../../store/api/shop-analytics/types";
 
-export const StatsGrid = ({ analytics, currentCurrencySymbol }: { analytics: TStoreAnalytics, currentCurrencySymbol: string }) => {
-  const formatChange = (change: TPercentageChange | undefined) => {
+export const StatsGrid = ({ analytics, currentCurrencySymbol, timePeriod }: { analytics: TStoreAnalytics, currentCurrencySymbol: string, timePeriod: string }) => {
+  const formatChange = (change: { positive: boolean, value: string } | undefined) => {
     if (!change) return { text: "—", class: "neutral" };
     const isPositive = change.positive !== false;
     const prefix = isPositive ? "↑" : "↓";
@@ -37,7 +37,7 @@ export const StatsGrid = ({ analytics, currentCurrencySymbol }: { analytics: TSt
             color: "#6b7280",
           }}
         >
-          Last 7 days
+          Last {timePeriod} days
         </span>
       </div>
 
@@ -89,8 +89,8 @@ export const StatsGrid = ({ analytics, currentCurrencySymbol }: { analytics: TSt
                 formatChange(analytics.totalRevenueChange).class === "positive"
                   ? "#16a34a"
                   : formatChange(analytics.totalRevenueChange).class === "negative"
-                  ? "#dc2626"
-                  : "#9ca3af",
+                    ? "#dc2626"
+                    : "#9ca3af",
             }}
           >
             {formatChange(analytics.totalRevenueChange).text}
@@ -136,8 +136,8 @@ export const StatsGrid = ({ analytics, currentCurrencySymbol }: { analytics: TSt
                 formatChange(analytics.totalFitSharedChange).class === "positive"
                   ? "#16a34a"
                   : formatChange(analytics.totalFitSharedChange).class === "negative"
-                  ? "#dc2626"
-                  : "#9ca3af",
+                    ? "#dc2626"
+                    : "#9ca3af",
             }}
           >
             {formatChange(analytics.totalFitSharedChange).text}

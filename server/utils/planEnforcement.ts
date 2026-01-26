@@ -34,12 +34,12 @@ export const planEnforcement = async (
       },
     };
   }
-  if (plan === "starter") {
+  if (plan === "boutique") {
     updatedSettings = {
       ...updatedSettings,
       collectionSettings: {
         ...updatedSettings.collectionSettings,
-        productLimit: 25,
+        productLimit: 30,
       },
       brandingSettings: {
         showWatermark: true,
@@ -53,34 +53,16 @@ export const planEnforcement = async (
       },
     };
   }
-  if (plan === "basic") {
+  if (plan === "flagship") {
     updatedSettings = {
       ...updatedSettings,
       collectionSettings: {
         ...updatedSettings.collectionSettings,
-        productLimit: 50,
-      },
-      brandingSettings: {
-        showWatermark: true,
-        customLogo: "",
-        logoSize: 100,
-      },
-      generalSettings: {
-        ...updatedSettings.generalSettings,
-        // showFilters is allowed for paid plans - preserve existing value or allow user to enable
+        productLimit: 60,
       },
     };
   }
-  if (plan === "pro") {
-    updatedSettings = {
-      ...updatedSettings,
-      collectionSettings: {
-        ...updatedSettings.collectionSettings,
-        productLimit: 150,
-      },
-    };
-  }
-  if (plan === "plus") {
+  if (plan === "runway") {
     updatedSettings = {
       ...updatedSettings,
       collectionSettings: {

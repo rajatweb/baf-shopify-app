@@ -24,7 +24,7 @@ export default function Home() {
   const {
     data: { data: shopAnalytics } = {},
     isLoading: isShopAnalyticsLoading,
-  } = useGetShopAnalyticsQuery({ params: { days: "30", limit: 3 } });
+  } = useGetShopAnalyticsQuery({ params: { days: "7", limit: 3 } });
   const { data: { data: shopData } = {}, isLoading: isShopLoading } =
     useGetShopQuery();
 
@@ -41,6 +41,12 @@ export default function Home() {
   const { openResourcePicker } = useResourcePicker();
 
   const openResourcePickerHandler = useCallback(async () => {
+    if (!settings) {
+      shopify.toast.show("Settings are not set. Please set up your settings first.", {
+        isError: true,
+      });
+      return;
+    }
     try {
       const selected = await openResourcePicker({ type: "collection", action: "select" });
       if (selected?.selection && selected.selection.length > 0) {
@@ -61,55 +67,14 @@ export default function Home() {
         const strippedId = id.replace("gid://shopify/Collection/", "");
 
         // Ensure we have settings object, use existing or create new structure
-        const currentSettings = settings || {
-          collectionSettings: {
-            id: "",
-            title: "",
-            productCount: 0,
-            productLimit: 8,
-            collectionHandle: "",
-          },
-          appearanceSettings: {
-            position: "bottom-right" as const,
-            theme: "light" as const,
-            showButtonText: true,
-            buttonText: "Build A Fit",
-          },
-          generalSettings: {
-            showFilters: false,
-            hideSoldOut: false,
-          },
-          canvasSettings: {
-            showProductLabels: false,
-          },
-          brandingSettings: {
-            showWatermark: true,
-            customLogo: "",
-            logoSize: 100,
-          },
-          additionalSettings: {
-            enableAddToCart: true,
-          },
-          customCssSettings: {
-            customCss: "",
-          },
-          urlSettings: {
-            isHomePageOnly: true,
-            excludeUrls: [],
-          },
-        };
+        const currentSettings = settings
+
 
         await updateSettings({
           settings: {
             ...currentSettings,
             collectionSettings: {
-              ...(currentSettings.collectionSettings || {
-                id: "",
-                title: "",
-                productCount: 0,
-                productLimit: 8,
-                collectionHandle: "",
-              }),
+              ...currentSettings?.collectionSettings,
               id: strippedId,
               title,
               productCount: productsCount,
@@ -151,7 +116,7 @@ export default function Home() {
           type: "collection",
           action: "select",
         });
-        
+
         // Check if user made a selection (not cancelled)
         if (selected?.selection && Array.isArray(selected.selection) && selected.selection.length > 0) {
           const selectedCollection = selected.selection[0] as {
@@ -160,7 +125,7 @@ export default function Home() {
             productsCount: number;
             handle: string;
           };
-          
+
           if (!selectedCollection || !selectedCollection.id) {
             throw new Error("Invalid collection data received");
           }
@@ -171,17 +136,17 @@ export default function Home() {
             productsCount = 0,
             handle = "",
           } = selectedCollection;
-          
+
           // Strip the GID prefix before saving (to match backend format)
           const strippedId = id.replace("gid://shopify/Collection/", "");
-          
+
           // Check if collection actually changed
           const currentStrippedId = collectionId.replace("gid://shopify/Collection/", "");
           if (strippedId === currentStrippedId && title === settings.collectionSettings?.title) {
             shopify.toast.show("Same collection selected. No changes made.");
             return;
           }
-          
+
           await updateSettings({
             settings: {
               ...settings,
@@ -200,7 +165,6 @@ export default function Home() {
           return;
         }
       } catch (error) {
-        console.error("Error changing collection:", error);
         if (error instanceof Error) {
           shopify.toast.show(error.message, {
             isError: true,
@@ -222,18 +186,9 @@ export default function Home() {
     navigate("/settings");
   }, [navigate]);
 
-  // const handlePreview = useCallback(() => {
-  //   // TODO: Implement preview functionality
-  //   shopify.toast.show("Preview functionality coming soon");
-  // }, [shopify]);
-
   if (isLoading || isShopAnalyticsLoading || isShopLoading) {
     return <AppSkeleton />;
   }
-  // Show dashboard with collection configured
-  // const usagePercentage =
-  //   (dummyPlanData.itemsUsed / dummyPlanData.itemsLimit) * 100;
-  // const isNearLimit = usagePercentage >= 90;
 
   const widgetPositionOptions = [
     { label: "Bottom Right", value: "bottom-right" },
@@ -296,6 +251,7 @@ export default function Home() {
                 <StatsGrid
                   analytics={shopAnalytics.analytics}
                   currentCurrencySymbol={storeCurrencySymbol}
+                  timePeriod="7"
                 />
               )}
 

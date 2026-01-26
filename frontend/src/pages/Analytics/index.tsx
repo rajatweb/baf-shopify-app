@@ -105,7 +105,7 @@ function Analytics() {
           ) : analytics ? (
             <>
               {/* Stats Grid */}
-              <StatsGrid analytics={analytics} currentCurrencySymbol={storeCurrencySymbol} />
+              <StatsGrid analytics={analytics} currentCurrencySymbol={storeCurrencySymbol} timePeriod={timePeriod} />
 
               {/* Top Products Card */}
               <s-box

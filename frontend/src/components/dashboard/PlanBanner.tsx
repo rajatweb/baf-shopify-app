@@ -20,24 +20,17 @@ export const PlanBanner = () => {
     navigate("/plans");
   };
 
-  // Determine color and class based on usage
-  const getUsageBarClass = () => {
-    if (usagePercentage >= 100) return "critical";
-    if (usagePercentage >= 80) return "warning";
-    return "healthy";
-  };
-
-  const usageBarColor = usagePercentage >= 100 
-    ? "#ef4444" 
-    : usagePercentage >= 80 
-        ? "#f59e0b" 
-        : "#22c55e";
+  const usageBarColor = usagePercentage >= 100
+    ? "#ef4444"
+    : usagePercentage >= 80
+      ? "#f59e0b"
+      : "#22c55e";
 
   // Generate plan message
   const getPlanMessage = () => {
     const itemsRemaining = itemsLimit - itemsUsed;
     const nextPlan = PLANS.find(p => p.maxItems > currentPlan.maxItems);
-    
+
     if (currentPlan.maxItems === -1) {
       return `Unlimited items. <strong>${itemsUsed} products</strong> currently in your widget.`;
     } else if (usagePercentage >= 100) {
