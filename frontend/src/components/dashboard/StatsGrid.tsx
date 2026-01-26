@@ -1,6 +1,6 @@
 import { TStoreAnalytics } from "../../store/api/shop-analytics/types";
 
-export const StatsGrid = ({ analytics, currentCurrencySymbol, timePeriod }: { analytics: TStoreAnalytics, currentCurrencySymbol: string, timePeriod: string }) => {
+export const StatsGrid = ({ analytics, currentCurrencySymbol, }: { analytics: TStoreAnalytics, currentCurrencySymbol: string, timePeriod?: string }) => {
   const formatChange = (change: { positive: boolean, value: string } | undefined) => {
     if (!change) return { text: "—", class: "neutral" };
     const isPositive = change.positive !== false;
@@ -13,34 +13,6 @@ export const StatsGrid = ({ analytics, currentCurrencySymbol, timePeriod }: { an
 
   return (
     <div style={{ marginBottom: "16px" }}>
-      {/* Analytics Header */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "12px",
-        }}
-      >
-        <span
-          style={{
-            fontSize: "14px",
-            fontWeight: 600,
-            color: "#1a1a1a",
-          }}
-        >
-          Analytics
-        </span>
-        <span
-          style={{
-            fontSize: "13px",
-            color: "#6b7280",
-          }}
-        >
-          Last {timePeriod} days
-        </span>
-      </div>
-
       {/* Hero Stats */}
       <div
         style={{

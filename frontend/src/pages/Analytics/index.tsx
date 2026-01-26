@@ -7,14 +7,25 @@ import { TProductAnalytics } from "../../store/api/shop-analytics/types";
 import { useGetShopQuery } from "../../store/api/shop";
 
 const timePeriodOptions = [
-  { label: "Last 30 days", value: "30" },
   { label: "Last 7 days", value: "7" },
+  { label: "Last 30 days", value: "30" },
   { label: "Last 90 days", value: "90" },
+];
+
+type SortOption = "revenue" | "clicks" | "shares" | "atc" | "sold";
+
+const sortOptions: { label: string; value: SortOption }[] = [
+  { label: "Revenue", value: "revenue" },
+  { label: "Clicks", value: "clicks" },
+  { label: "Shares", value: "shares" },
+  { label: "ATC", value: "atc" },
+  { label: "Sold", value: "sold" },
 ];
 
 function Analytics() {
   const navigate = useNavigate();
   const [timePeriod, setTimePeriod] = useState("30");
+  const [sortBy, setSortBy] = useState<SortOption>("revenue");
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
@@ -27,17 +38,12 @@ function Analytics() {
   const { data: { data: shopData } = {}, isLoading: isShopLoading } = useGetShopQuery();
 
   const storeCurrencySymbol = useMemo(() => shopData?.currencyFormats?.currencySymbol || "$", [shopData]);
-  // Fetch analytics when timePeriod or pagination changes
+  // Fetch analytics when timePeriod changes (fetch all products for client-side sorting)
   useEffect(() => {
-    getShopAnalytics({ params: { days: timePeriod, page: pagination.page, limit: pagination.limit } });
-  }, [timePeriod, pagination.page, pagination.limit, getShopAnalytics]);
-
-  // Update pagination state when API response changes
-  useEffect(() => {
-    if (shopAnalytics?.data?.pagination) {
-      setPagination(shopAnalytics.data.pagination);
-    }
-  }, [shopAnalytics]);
+    getShopAnalytics({ params: { days: timePeriod, page: 1, limit: 1000 } });
+    // Reset to page 1 when time period changes
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  }, [timePeriod, getShopAnalytics]);
 
   const handlePageChange = (newPage: number) => {
     setPagination((prev) => ({ ...prev, page: newPage }));
@@ -49,8 +55,69 @@ function Analytics() {
     setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
+  const handleSortChange = (value: string) => {
+    setSortBy(value as SortOption);
+    // Reset to page 1 when sort changes
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  };
+
   const analytics = shopAnalytics?.data?.analytics;
-  const products = shopAnalytics?.data?.products || [];
+  const allProducts = shopAnalytics?.data?.products || [];
+
+  // Sort products client-side
+  const sortedProducts = useMemo(() => {
+    const sorted = [...allProducts];
+    sorted.sort((a, b) => {
+      let aValue: number;
+      let bValue: number;
+
+      switch (sortBy) {
+        case "revenue":
+          aValue = a.revenue;
+          bValue = b.revenue;
+          break;
+        case "clicks":
+          aValue = a.totalProductClicks;
+          bValue = b.totalProductClicks;
+          break;
+        case "shares":
+          aValue = a.shared;
+          bValue = b.shared;
+          break;
+        case "atc":
+          aValue = a.addToCartCount;
+          bValue = b.addToCartCount;
+          break;
+        case "sold":
+          aValue = a.purchaseCount;
+          bValue = b.purchaseCount;
+          break;
+        default:
+          return 0;
+      }
+
+      return bValue - aValue; // Descending order
+    });
+    return sorted;
+  }, [allProducts, sortBy]);
+
+  // Paginate sorted products
+  const products = useMemo(() => {
+    const start = (pagination.page - 1) * pagination.limit;
+    const end = start + pagination.limit;
+    return sortedProducts.slice(start, end);
+  }, [sortedProducts, pagination.page, pagination.limit]);
+
+  // Update pagination total based on sorted products
+  const paginationWithSortedTotal = useMemo(() => {
+    return {
+      ...pagination,
+      total: sortedProducts.length,
+      totalPages: Math.ceil(sortedProducts.length / pagination.limit),
+      hasNextPage: pagination.page < Math.ceil(sortedProducts.length / pagination.limit),
+      hasPreviousPage: pagination.page > 1,
+    };
+  }, [pagination, sortedProducts.length]);
 
   return (
     <div
@@ -59,7 +126,7 @@ function Analytics() {
         paddingBottom: "var(--p-space-1600)",
       }}
     >
-      <s-page heading="Analytics">
+      <s-page>
         <s-link slot="breadcrumb-actions" href="/">
           Home
         </s-link>
@@ -73,22 +140,40 @@ function Analytics() {
         </s-button>
 
         <s-stack direction="block" gap="base">
-          {/* Time Period Selector */}
-          <div style={{ width: "100%", maxWidth: "200px" }}>
-            <s-select
-              name="timePeriod"
-              value={timePeriod}
-              onChange={(event) => {
-                const { value } = event.target as HTMLSelectElement;
-                handleTimePeriodChange(value);
+          {/* Header with Title and Time Period Selector */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <h1
+              style={{
+                fontSize: "18px",
+                fontWeight: 600,
+                margin: 0,
+                color: "#1a1a1a",
               }}
             >
-              {timePeriodOptions.map((option) => (
-                <s-option key={option.value} value={option.value}>
-                  {option.label}
-                </s-option>
-              ))}
-            </s-select>
+              Analytics
+            </h1>
+            <div style={{ width: "200px" }}>
+              <s-select
+                name="timePeriod"
+                value={timePeriod}
+                onChange={(event) => {
+                  const { value } = event.target as HTMLSelectElement;
+                  handleTimePeriodChange(value);
+                }}
+              >
+                {timePeriodOptions.map((option) => (
+                  <s-option key={option.value} value={option.value}>
+                    {option.label}
+                  </s-option>
+                ))}
+              </s-select>
+            </div>
           </div>
 
           {!analytics && (isLoading || isShopLoading) ? (
@@ -115,7 +200,43 @@ function Analytics() {
                 padding="base"
               >
                 <s-stack direction="block" gap="base">
-                  <s-text type="strong">Top Products in Fits</s-text>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    <div>
+                      <s-text type="strong">Top Products in Fits</s-text>
+                      <div
+                        style={{
+                          fontSize: "12px",
+                          color: "#6d7175",
+                          marginTop: "4px",
+                        }}
+                      >
+                        Based on selected time period.
+                      </div>
+                    </div>
+                    <div style={{ width: "180px" }}>
+                      <s-select
+                        name="sortBy"
+                        value={sortBy}
+                        onChange={(event) => {
+                          const { value } = event.target as HTMLSelectElement;
+                          handleSortChange(value);
+                        }}
+                      >
+                        {sortOptions.map((option) => (
+                          <s-option key={option.value} value={option.value}>
+                            Sort by {option.label}
+                          </s-option>
+                        ))}
+                      </s-select>
+                    </div>
+                  </div>
                   {isLoading ? (
                     <div
                       style={{
@@ -126,7 +247,7 @@ function Analytics() {
                     >
                       <Spinner accessibilityLabel="Loading products" size="large" />
                     </div>
-                  ) : products.length === 0 ? (
+                  ) : sortedProducts.length === 0 ? (
                     <div
                       style={{
                         padding: "40px 20px",
@@ -139,98 +260,229 @@ function Analytics() {
                     </div>
                   ) : (
                     <>
-                      {products.map((product: TProductAnalytics, index: number) => {
-                        const rank = (pagination.page - 1) * pagination.limit + index + 1;
-                        return (
-                          <div
-                            key={product.productId}
-                            style={{
-                              display: "flex",
-                              alignItems: "flex-start",
-                              gap: "12px",
-                              padding: "10px 0",
-                              borderBottom:
-                                index < products.length - 1
-                                  ? "1px solid #f1f2f3"
-                                  : "none",
-                              flexWrap: "wrap",
-                            }}
-                          >
-                            <div
+                      {/* Table */}
+                      <div style={{ overflowX: "auto" }}>
+                        <table
+                          style={{
+                            width: "100%",
+                            borderCollapse: "collapse",
+                            fontSize: "13px",
+                          }}
+                        >
+                          <thead>
+                            <tr
                               style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "12px",
-                                flex: "1 1 auto",
-                                minWidth: "200px",
+                                borderBottom: "1px solid #e5e7eb",
+                                textAlign: "left",
                               }}
                             >
-                              <div
+                              <th
                                 style={{
-                                  width: "22px",
-                                  height: "22px",
-                                  background: "#f6f6f7",
-                                  borderRadius: "6px",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  fontSize: "11px",
+                                  padding: "12px 16px",
                                   fontWeight: 600,
                                   color: "#6d7175",
-                                  flexShrink: 0,
+                                  fontSize: "11px",
+                                  textTransform: "uppercase",
+                                  letterSpacing: "0.5px",
+                                  width: "40px",
                                 }}
                               >
-                                {rank}
-                              </div>
-                              <div
+                                #
+                              </th>
+                              <th
                                 style={{
-                                  width: "40px",
-                                  height: "40px",
-                                  background: "#e1e3e5",
-                                  borderRadius: "6px",
-                                  backgroundImage: product.productImageUrl
-                                    ? `url(${product.productImageUrl})`
-                                    : "none",
-                                  backgroundSize: "cover",
-                                  backgroundPosition: "center",
-                                  flexShrink: 0,
+                                  padding: "12px 16px",
+                                  fontWeight: 600,
+                                  color: "#6d7175",
+                                  fontSize: "11px",
+                                  textTransform: "uppercase",
+                                  letterSpacing: "0.5px",
                                 }}
-                              />
-                              <div style={{ flex: 1, minWidth: 0 }}>
-                                <s-stack direction="block" gap="small-300">
-                                  <span
+                              >
+                                PRODUCT
+                              </th>
+                              <th
+                                style={{
+                                  padding: "12px 16px",
+                                  fontWeight: 600,
+                                  color: "#6d7175",
+                                  fontSize: "11px",
+                                  textTransform: "uppercase",
+                                  letterSpacing: "0.5px",
+                                  textAlign: "right",
+                                }}
+                              >
+                                CLICKS
+                              </th>
+                              <th
+                                style={{
+                                  padding: "12px 16px",
+                                  fontWeight: 600,
+                                  color: "#6d7175",
+                                  fontSize: "11px",
+                                  textTransform: "uppercase",
+                                  letterSpacing: "0.5px",
+                                  textAlign: "right",
+                                }}
+                              >
+                                SHARES
+                              </th>
+                              <th
+                                style={{
+                                  padding: "12px 16px",
+                                  fontWeight: 600,
+                                  color: "#6d7175",
+                                  fontSize: "11px",
+                                  textTransform: "uppercase",
+                                  letterSpacing: "0.5px",
+                                  textAlign: "right",
+                                }}
+                              >
+                                ATC
+                              </th>
+                              <th
+                                style={{
+                                  padding: "12px 16px",
+                                  fontWeight: 600,
+                                  color: "#6d7175",
+                                  fontSize: "11px",
+                                  textTransform: "uppercase",
+                                  letterSpacing: "0.5px",
+                                  textAlign: "right",
+                                }}
+                              >
+                                SOLD
+                              </th>
+                              <th
+                                style={{
+                                  padding: "12px 16px",
+                                  fontWeight: 600,
+                                  color: "#6d7175",
+                                  fontSize: "11px",
+                                  textTransform: "uppercase",
+                                  letterSpacing: "0.5px",
+                                  textAlign: "right",
+                                }}
+                              >
+                                REVENUE
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {products.map((product: TProductAnalytics, index: number) => {
+                              const rank = (pagination.page - 1) * pagination.limit + index + 1;
+                              return (
+                                <tr
+                                  key={product.productId}
+                                  style={{
+                                    borderBottom:
+                                      index < products.length - 1
+                                        ? "1px solid #f3f4f6"
+                                        : "none",
+                                  }}
+                                >
+                                  <td
                                     style={{
-                                      fontSize: "13px",
-                                      fontWeight: 600,
-                                      wordBreak: "break-word",
-                                    }}
-                                  >
-                                    {product.productTitle}
-                                  </span>
-                                  <span
-                                    style={{
-                                      fontSize: "12px",
+                                      padding: "16px",
                                       color: "#6d7175",
-                                      wordBreak: "break-word",
+                                      fontWeight: 500,
                                     }}
                                   >
-                                    {product.totalProductClicks} clicks • {product.shared} shares • {storeCurrencySymbol}{product.revenue.toFixed(2)} revenue
-                                    {product.addToCartCount > 0 && (
-                                      <> • {product.addToCartCount} add to carts</>
-                                    )}
-                                    {product.purchaseCount > 0 && (
-                                      <> • {product.purchaseCount} purchases</>
-                                    )}
-                                  </span>
-                                </s-stack>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
+                                    {rank}
+                                  </td>
+                                  <td style={{ padding: "16px" }}>
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "12px",
+                                      }}
+                                    >
+                                      <div
+                                        style={{
+                                          width: "40px",
+                                          height: "40px",
+                                          background: "#e1e3e5",
+                                          borderRadius: "6px",
+                                          backgroundImage: product.productImageUrl
+                                            ? `url(${product.productImageUrl})`
+                                            : "none",
+                                          backgroundSize: "cover",
+                                          backgroundPosition: "center",
+                                          flexShrink: 0,
+                                        }}
+                                      />
+                                      <span
+                                        style={{
+                                          fontSize: "13px",
+                                          fontWeight: 600,
+                                          color: "#1a1a1a",
+                                        }}
+                                      >
+                                        {product.productTitle}
+                                      </span>
+                                    </div>
+                                  </td>
+                                  <td
+                                    style={{
+                                      padding: "16px",
+                                      textAlign: "right",
+                                      color: "#374151",
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    {product.totalProductClicks.toLocaleString()}
+                                  </td>
+                                  <td
+                                    style={{
+                                      padding: "16px",
+                                      textAlign: "right",
+                                      color: "#374151",
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    {product.shared.toLocaleString()}
+                                  </td>
+                                  <td
+                                    style={{
+                                      padding: "16px",
+                                      textAlign: "right",
+                                      color: "#374151",
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    {product.addToCartCount.toLocaleString()}
+                                  </td>
+                                  <td
+                                    style={{
+                                      padding: "16px",
+                                      textAlign: "right",
+                                      color: "#374151",
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    {product.purchaseCount.toLocaleString()}
+                                  </td>
+                                  <td
+                                    style={{
+                                      padding: "16px",
+                                      textAlign: "right",
+                                      color: "#1a1a1a",
+                                      fontWeight: 600,
+                                    }}
+                                  >
+                                    {storeCurrencySymbol}
+                                    {product.revenue.toFixed(2)}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
 
                       {/* Pagination Controls */}
-                      {pagination.totalPages > 1 && (
+                      {paginationWithSortedTotal.totalPages > 1 && (
                         <div
                           style={{
                             marginTop: "24px",
@@ -240,11 +492,11 @@ function Analytics() {
                           }}
                         >
                           <Pagination
-                            hasPrevious={pagination.hasPreviousPage}
+                            hasPrevious={paginationWithSortedTotal.hasPreviousPage}
                             onPrevious={() => handlePageChange(pagination.page - 1)}
-                            hasNext={pagination.hasNextPage}
+                            hasNext={paginationWithSortedTotal.hasNextPage}
                             onNext={() => handlePageChange(pagination.page + 1)}
-                            label={`Page ${pagination.page} of ${pagination.totalPages} (${pagination.total} total products)`}
+                            label={`Page ${pagination.page} of ${paginationWithSortedTotal.totalPages} (${paginationWithSortedTotal.total} total products)`}
                           />
                         </div>
                       )}

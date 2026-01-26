@@ -111,7 +111,7 @@ export default function Documentation() {
 
         <s-stack direction="block" gap="base">
           {/* Getting Started Video Card */}
-          <s-box
+          {/* <s-box
             background="base"
             border="base"
             borderRadius="base"
@@ -164,7 +164,7 @@ export default function Documentation() {
                 </s-stack>
               </div>
             </div>
-          </s-box>
+          </s-box> */}
 
           {/* FAQ Section */}
           <s-box
