@@ -1,6 +1,6 @@
 import { TStoreAnalytics } from "../../store/api/shop-analytics/types";
 
-export const StatsGrid = ({ analytics, currentCurrencySymbol, }: { analytics: TStoreAnalytics, currentCurrencySymbol: string, timePeriod?: string }) => {
+export const StatsGrid = ({ analytics, currentCurrencySymbol, timePeriod, showHeader }: { analytics: TStoreAnalytics, currentCurrencySymbol: string, timePeriod?: string, showHeader?: boolean }) => {
   const formatChange = (change: { positive: boolean, value: string } | undefined) => {
     if (!change) return { text: "—", class: "neutral" };
     const isPositive = change.positive !== false;
@@ -13,11 +13,40 @@ export const StatsGrid = ({ analytics, currentCurrencySymbol, }: { analytics: TS
 
   return (
     <div style={{ marginBottom: "16px" }}>
+      {/* Analytics Header */}
+      {showHeader && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "12px",
+          }}
+        >
+          <span
+            style={{
+              fontSize: "14px",
+              fontWeight: 600,
+              color: "#1a1a1a",
+            }}
+          >
+            Analytics
+          </span>
+          <span
+            style={{
+              fontSize: "13px",
+              color: "#6b7280",
+            }}
+          >
+            Last {timePeriod} days
+          </span>
+        </div>
+      )}
       {/* Hero Stats */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr",
+          gridTemplateColumns: "repeat(3, 1fr)",
           gap: "12px",
           marginBottom: "12px",
         }}
@@ -113,6 +142,53 @@ export const StatsGrid = ({ analytics, currentCurrencySymbol, }: { analytics: TS
             }}
           >
             {formatChange(analytics.totalFitSharedChange).text}
+          </span>
+        </div>
+
+        {/* Products Shared */}
+        <div
+          style={{
+            background: "#fff",
+            border: "1px solid #e3e3e3",
+            borderRadius: "12px",
+            padding: "20px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "13px",
+              color: "#616161",
+              marginBottom: "4px",
+            }}
+          >
+            Products Shared
+          </div>
+          <div
+            style={{
+              fontSize: "28px",
+              fontWeight: 700,
+              color: "#1a1a1a",
+              letterSpacing: "-0.5px",
+            }}
+          >
+            {analytics.totalFitsShared.toLocaleString()}
+          </div>
+          <span
+            className={`hero-change ${formatChange(analytics.totalFitsSharedChange).class}`}
+            style={{
+              display: "inline-block",
+              fontSize: "12px",
+              fontWeight: 500,
+              marginTop: "6px",
+              color:
+                formatChange(analytics.totalFitsSharedChange).class === "positive"
+                  ? "#16a34a"
+                  : formatChange(analytics.totalFitsSharedChange).class === "negative"
+                    ? "#dc2626"
+                    : "#9ca3af",
+            }}
+          >
+            {formatChange(analytics.totalFitsSharedChange).text}
           </span>
         </div>
       </div>

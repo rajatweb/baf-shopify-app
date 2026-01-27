@@ -252,6 +252,7 @@ export default function Home() {
                   analytics={shopAnalytics.analytics}
                   currentCurrencySymbol={storeCurrencySymbol}
                   timePeriod="7"
+                  showHeader
                 />
               )}
 
