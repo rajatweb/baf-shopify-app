@@ -216,6 +216,12 @@ export const WidgetCard = ({
                   height: "40px",
                   background: "#e5e7eb",
                   borderRadius: "8px",
+                  backgroundImage: product.productImageUrl
+                    ? `url(${product.productImageUrl})`
+                    : "none",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  flexShrink: 0,
                 }}
               />
               <div style={{ flex: 1 }}>
