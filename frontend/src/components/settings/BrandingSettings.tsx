@@ -43,6 +43,11 @@ export const BrandingSettings = ({ brandingSettings, updateSettings, disabled }:
         }
     }, [settings, propSnapshot]);
 
+    // Calculate logo image/SVG size based on logoSize percentage (50-100%)
+    // Container stays fixed at 32px, only the inner image/SVG scales
+    // Image/SVG: 14px at 50%, 20px at 100%
+    const logoImageSize = 14 + ((settings.logoSize - 50) / 50) * 6; // 14px to 20px
+
     return (
         <s-stack direction="block" gap="base">
             <s-box background={disabled ? "subdued" : "base"} border="base" borderRadius="base" padding="base">
@@ -170,12 +175,8 @@ export const BrandingSettings = ({ brandingSettings, updateSettings, disabled }:
                                                     top: "12px",
                                                     left: "50%",
                                                     transform: "translateX(-50%)",
-                                                    width: `${(settings.logoSize / 100) * 32}px`,
-                                                    height: `${(settings.logoSize / 100) * 32}px`,
-                                                    minWidth: "32px",
-                                                    minHeight: "32px",
-                                                    maxWidth: "48px",
-                                                    maxHeight: "48px",
+                                                    width: "32px",
+                                                    height: "32px",
                                                     background: "#fff",
                                                     borderRadius: "6px",
                                                     display: "flex",
@@ -190,8 +191,8 @@ export const BrandingSettings = ({ brandingSettings, updateSettings, disabled }:
                                                     src={settings.customLogo}
                                                     alt="Custom Logo"
                                                     style={{
-                                                        width: "100%",
-                                                        height: "100%",
+                                                        width: `${logoImageSize}px`,
+                                                        height: `${logoImageSize}px`,
                                                         objectFit: "contain",
                                                     }}
                                                     onError={(e) => {
@@ -207,12 +208,8 @@ export const BrandingSettings = ({ brandingSettings, updateSettings, disabled }:
                                                     top: "12px",
                                                     left: "50%",
                                                     transform: "translateX(-50%)",
-                                                    width: `${(settings.logoSize / 100) * 32}px`,
-                                                    height: `${(settings.logoSize / 100) * 32}px`,
-                                                    minWidth: "32px",
-                                                    minHeight: "32px",
-                                                    maxWidth: "48px",
-                                                    maxHeight: "48px",
+                                                    width: "32px",
+                                                    height: "32px",
                                                     background: "#fff",
                                                     borderRadius: "6px",
                                                     display: "flex",
@@ -223,8 +220,8 @@ export const BrandingSettings = ({ brandingSettings, updateSettings, disabled }:
                                                 }}
                                             >
                                                 <svg
-                                                    width={`${(settings.logoSize / 100) * 20}`}
-                                                    height={`${(settings.logoSize / 100) * 20}`}
+                                                    width={logoImageSize}
+                                                    height={logoImageSize}
                                                     viewBox="0 0 1178.04 1178.04"
                                                     fill="#202223"
                                                     style={{
