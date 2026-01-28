@@ -1,5 +1,5 @@
 import { TBrandingSettings } from "../../store/api/settings/type";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import _ from "lodash";
 // import { KnobComponent } from "../web-components";
 import { AlbumArtUploadComponent } from "../commons/AlbumArtUploadComponent";
@@ -47,6 +47,100 @@ export const BrandingSettings = ({ brandingSettings, updateSettings, disabled }:
     // Container stays fixed at 32px, only the inner image/SVG scales
     // Image/SVG: 14px at 50%, 20px at 100%
     const logoImageSize = 14 + ((settings.logoSize - 50) / 50) * 6; // 14px to 20px
+
+    // Only for customLogo: preserve the uploaded image's aspect ratio while still using `logoImageSize`
+    const [customLogoAspectRatio, setCustomLogoAspectRatio] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (!settings.customLogo) {
+            setCustomLogoAspectRatio(null);
+            return;
+        }
+
+        let cancelled = false;
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+            if (cancelled) return;
+            const w = img.naturalWidth || img.width;
+            const h = img.naturalHeight || img.height;
+            if (w && h) setCustomLogoAspectRatio(w / h);
+            else setCustomLogoAspectRatio(null);
+        };
+        img.onerror = () => {
+            if (cancelled) return;
+            setCustomLogoAspectRatio(null);
+        };
+        img.src = settings.customLogo;
+
+        return () => {
+            cancelled = true;
+        };
+    }, [settings.customLogo]);
+
+    // Calculate logo container dimensions matching useShare.js logic (lines 339-378)
+    // Export: 1080px wide, maxW=250*mult, maxH=100*mult, padding=16px fixed, maxRadius=20px fixed
+    // Preview: ~180px wide, scale factor ≈ 1/6
+    const logoContainerStyle = useMemo(() => {
+        if (!settings.customLogo || !customLogoAspectRatio) {
+            return null;
+        }
+
+        // Match useShare.js calculation exactly:
+        // 1. Calculate multiplier from logoSize (useShare.js line 339)
+        const mult = (settings.logoSize || 100) / 100;
+
+        // 2. Calculate max bounds (useShare.js lines 340-341)
+        // Export: maxW = 250 * mult, maxH = 100 * mult
+        // Preview scale: ~180/1080 ≈ 0.167
+        const PREVIEW_SCALE = 180 / 1080;
+        const maxW = 250 * mult * PREVIEW_SCALE;
+        const maxH = 100 * mult * PREVIEW_SCALE;
+
+        // 3. Calculate scale factor to fit logo within bounds (useShare.js line 342)
+        // Use normalized dimensions: if wide (AR >= 1), width=AR, height=1
+        //                      if tall (AR < 1), width=AR, height=1
+        // This preserves aspect ratio while allowing scale calculation
+        const logoNormalizedW = customLogoAspectRatio;
+        const logoNormalizedH = 1;
+        const sc = Math.min(maxW / logoNormalizedW, maxH / logoNormalizedH);
+
+        // 4. Calculate logo display dimensions (useShare.js lines 343-344)
+        const lw = logoNormalizedW * sc;
+        const lh = logoNormalizedH * sc;
+
+        // 5. Padding is FIXED in useShare.js (line 360: pp = 16), scaled for preview
+        const pp = 16 * PREVIEW_SCALE; // Fixed padding, scaled to preview size
+
+        // 6. Container dimensions (useShare.js lines 361-362)
+        const pw = lw + pp * 2;
+        const ph = lh + pp * 2;
+
+        // 7. Border radius calculation (useShare.js lines 363-377)
+        // Max radius is FIXED at 20px in export, scaled for preview
+        const maxRadius = 20 * PREVIEW_SCALE;
+        const aspectRatio = lw / lh;
+        let borderRadius: number;
+        if (aspectRatio > 1.8) {
+            // Very wide logos - use height-based radius
+            borderRadius = Math.min(ph / 3, maxRadius);
+        } else if (aspectRatio < 0.6) {
+            // Very tall logos - use width-based radius
+            borderRadius = Math.min(pw / 3, maxRadius);
+        } else {
+            // Square-ish logos - use smaller dimension
+            borderRadius = Math.min(Math.min(pw, ph) / 4, maxRadius);
+        }
+
+        return {
+            width: `${pw}px`,
+            height: `${ph}px`,
+            borderRadius: `${borderRadius}px`,
+            padding: `${pp}px`,
+            logoWidth: `${lw}px`,
+            logoHeight: `${lh}px`,
+        };
+    }, [settings.customLogo, settings.logoSize, customLogoAspectRatio]);
 
     return (
         <s-stack direction="block" gap="base">
@@ -175,24 +269,24 @@ export const BrandingSettings = ({ brandingSettings, updateSettings, disabled }:
                                                     top: "12px",
                                                     left: "50%",
                                                     transform: "translateX(-50%)",
-                                                    width: "32px",
-                                                    height: "32px",
+                                                    width: logoContainerStyle?.width || "32px",
+                                                    height: logoContainerStyle?.height || "32px",
                                                     background: "#fff",
-                                                    borderRadius: "6px",
+                                                    borderRadius: logoContainerStyle?.borderRadius || "6px",
                                                     display: "flex",
                                                     alignItems: "center",
                                                     justifyContent: "center",
                                                     boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
                                                     zIndex: 2,
-                                                    padding: "4px",
+                                                    padding: logoContainerStyle?.padding || "4px",
                                                 }}
                                             >
                                                 <img
                                                     src={settings.customLogo}
                                                     alt="Custom Logo"
                                                     style={{
-                                                        width: `${logoImageSize}px`,
-                                                        height: `${logoImageSize}px`,
+                                                        width: logoContainerStyle?.logoWidth,
+                                                        height: logoContainerStyle?.logoHeight,
                                                         objectFit: "contain",
                                                     }}
                                                     onError={(e) => {
@@ -254,7 +348,7 @@ export const BrandingSettings = ({ brandingSettings, updateSettings, disabled }:
                                                 alignItems: "center",
                                                 justifyContent: "center",
                                                 background: "#fff",
-                                                padding: "6px 12px",
+                                                padding: "3px 12px",
                                                 borderRadius: "20px",
                                                 boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
                                                 whiteSpace: "nowrap",
@@ -262,9 +356,11 @@ export const BrandingSettings = ({ brandingSettings, updateSettings, disabled }:
                                         >
                                             <span
                                                 style={{
-                                                    fontSize: "8px",
+                                                    fontSize: "9px",
                                                     fontWeight: 600,
                                                     color: "#202223",
+                                                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                                    textAlign: "center",
                                                 }}
                                             >
                                                 Build A Fit @ yourstore.com
