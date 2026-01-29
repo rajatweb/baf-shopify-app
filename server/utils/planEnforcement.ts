@@ -51,6 +51,10 @@ export const planEnforcement = async (
         // showFilters is allowed for paid plans - preserve existing value or allow user to enable
         hideSoldOut: false,
       },
+      urlSettings: {
+        ...updatedSettings.urlSettings,
+        isHomePageOnly: false,
+      },
     };
   }
   if (plan === "flagship") {
@@ -60,6 +64,10 @@ export const planEnforcement = async (
         ...updatedSettings.collectionSettings,
         productLimit: 60,
       },
+      urlSettings: {
+        ...updatedSettings.urlSettings,
+        isHomePageOnly: false,
+      },
     };
   }
   if (plan === "runway") {
@@ -68,6 +76,10 @@ export const planEnforcement = async (
       collectionSettings: {
         ...updatedSettings.collectionSettings,
         productLimit: 250,
+      },
+      urlSettings: {
+        ...updatedSettings.urlSettings,
+        isHomePageOnly: false,
       },
     };
   }
